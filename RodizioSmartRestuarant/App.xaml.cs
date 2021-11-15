@@ -13,5 +13,6 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class App : Application
     {
+
     }
 }
