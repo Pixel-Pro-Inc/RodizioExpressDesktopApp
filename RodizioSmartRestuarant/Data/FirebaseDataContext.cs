@@ -1,8 +1,9 @@
-﻿using FireSharp.Config;
+﻿using RodizioSmartRestuarant.Entities;
+using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,48 +22,168 @@ namespace RodizioSmartRestuarant.Data
 
         IFirebaseClient client;
 
-        public async void StoreData(string path, object data)
+        ConnectionChecker connectionChecker = new ConnectionChecker();
+
+        string branchId = "";
+
+        public FirebaseDataContext()
         {
             client = new FireSharp.FirebaseClient(config);
-
-            var response = await client.SetAsync(path, data);
+            branchId = "/" + BranchSettings.Instance.branchId;
         }
+
+        public async void StoreData(string path, object data, string id)
+        {
+            if (connectionChecker.CheckConnection())
+            {
+                SetLastActive();
+
+                await SyncData();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                var response = await client.SetAsync(path + branchId + id, data);//Add Id of data             
+
+                await UpdateOfflineData();
+
+                return;
+            }
+            
+            new OfflineDataContext().StoreData(path, data);
+        }
+
         public async Task<List<object>> GetData(string path)
         {
-            List<object> objects = new List<object>();
-
-            client = new FireSharp.FirebaseClient(config);
-
-            FirebaseResponse response = await client.GetAsync(path);
-
-            dynamic data = JsonConvert.DeserializeObject<dynamic>(response.Body);
-
-            if (data != null)
+            if (connectionChecker.CheckConnection())
             {
-                foreach (var item in data)
+                SetLastActive();
+
+                await SyncData();
+
+                List<object> objects = new List<object>();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                FirebaseResponse response = await client.GetAsync(path + branchId);
+
+                var result = response.ResultAs<Dictionary<string, object>>();
+                foreach (var item in result)
                 {
-                    object _object = new object();
+                    objects.Add(item.Value);
+                }
 
-                    if (item.GetType() == typeof(JProperty))
-                    {
-                        _object = JsonConvert.DeserializeObject<object>(((JProperty)item).Value.ToString());
-                    }
-                    else
-                    {
-                        _object = JsonConvert.DeserializeObject<object>(((JObject)item).ToString());
-                    }
+                await UpdateOfflineData();
 
-                    objects.Add(_object);
+                return objects;
+            }
+            
+            return new OfflineDataContext().GetData(path); ;
+        }
+
+        public async void EditData(string path, object data, string id)
+        {
+            if (connectionChecker.CheckConnection())
+            {
+                SetLastActive();
+
+                await SyncData();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                var response = await client.UpdateAsync(path + branchId + id, data);
+
+                await UpdateOfflineData();
+
+                return;
+            }
+
+            new OfflineDataContext().EditData(path, (OrderItem)data);
+        }
+
+        async Task UpdateOfflineData()
+        {
+            //Clear hdd data
+            new SerializedObjectManager().DeleteAllData();
+            //Store new data
+            #region Retrieve data
+            List<OrderItem> onlineOrders = new List<OrderItem>();
+
+            List<object> list = await GetData("Order" + branchId);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                onlineOrders.Add((OrderItem)list[i]);
+            }
+
+            List<MenuItem> onlineMenu = new List<MenuItem>();
+
+            list.Clear();
+            list = await GetData("Menu" + branchId);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                onlineMenu.Add((MenuItem)list[i]);
+            }
+
+            List<AppUser> onlineUsers = new List<AppUser>();
+
+            list.Clear();
+            list = await GetData("Account" + branchId);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                onlineUsers.Add((AppUser)list[i]);
+            }
+            #endregion
+
+            new SerializedObjectManager().SaveData(onlineOrders, "Order");
+            new SerializedObjectManager().SaveData(onlineMenu, "Menu");
+            new SerializedObjectManager().SaveData(onlineUsers, "Account");
+        }
+
+        async Task SyncData()
+        {
+            #region Retrieve data
+            List<OrderItem> offlineOrders = (List<OrderItem>)new SerializedObjectManager().RetrieveData("Order");
+
+            List<OrderItem> onlineOrders = new List<OrderItem>();
+
+            List<object> list = await GetData("Order" + branchId);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                onlineOrders.Add((OrderItem)list[i]);
+            }
+            #endregion
+
+            //Update Database of changes made while offline
+            #region Sync
+            foreach (var item in onlineOrders)
+            {
+                List<string> orderNums = new List<string>();
+                foreach (var num in offlineOrders)
+                {
+                    orderNums.Add(num.OrderNumber);
+                }
+
+                if (orderNums.Contains(item.OrderNumber))
+                {
+                    OrderItem orderItem = offlineOrders[orderNums.IndexOf(item.OrderNumber)];
+
+                    item.Fufilled = orderItem.Fufilled;
+                    item.Purchased = orderItem.Purchased; 
+                    item.Preparable = orderItem.Preparable;
+                    item.WaitingForPayment = orderItem.WaitingForPayment;
                 }
             }
 
-            return objects;
+            EditData("Order" + branchId, onlineOrders, "");
+            #endregion
         }
-        public async void EditData(string path, object data)
-        {
-            client = new FireSharp.FirebaseClient(config);
 
-            var response = await client.UpdateAsync(path, data);
+        void SetLastActive()
+        {
+            EditData("Branch/" + branchId + "/LastActive", DateTime.UtcNow, "");
         }
     }
 }
