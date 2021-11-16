@@ -20,6 +20,7 @@ namespace RodizioSmartRestuarant
             private int InitialHeight = 360;
             public PrintJob(Order order, Shop shop)
             {
+                SetShopandOrder(order, shop);
                 this.order = order;
                 this.shop = shop;
                 AdjustHeight();
@@ -41,7 +42,7 @@ namespace RodizioSmartRestuarant
 
                 PrintDocument.PrintPage += new PrintPageEventHandler(FormatPage);
                 PrintDocument.Print();
-            }
+            } //this is whats called when we print the receipt
             void DrawAtStart(string text, int Offset)
             {
                 int startX = 10;
@@ -206,6 +207,10 @@ namespace RodizioSmartRestuarant
                 Offset = Offset + largeinc;
                 string DrawnBy = "Powered by PixelPro";
                 DrawSimpleString(DrawnBy, minifont, Offset, 15);
+            }
+            private void SetShopandOrder(Order order, Shop shop)
+            {
+                //this is supposed to retrieve data from either local or firebase storage and then set order and shop to be the right values
             }
         }
     }
