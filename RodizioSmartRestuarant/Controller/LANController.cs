@@ -27,10 +27,10 @@ namespace RodizioSmartRestuarant.Helpers
         {
             // Get the IP. The information will then be stored locally
             string myIP = Dns.GetHostAddresses(Dns.GetHostName()).ToString();
-            store.SaveData(myIP);
+            store.SaveData(myIP, "localIP");
             return myIP;
         }
-        public void SendLocalIPAddress() => _firebaseDataContext.StoreData("tablet" + Tablet.GetTabletNumber().ToString() + "ip", GetLocalIPAddress());
+        public void SendLocalIPAddress() => _firebaseDataContext.StoreData("tablet" + Tablet.GetTabletNumber().ToString() + "ip", GetLocalIPAddress(), Tablet.GetTabletNumber().ToString());
         public async void GetBranchIPAddress()
         {
             object branchip= await _firebaseDataContext.GetData("BranchIdAddress");

@@ -15,10 +15,11 @@ namespace RodizioSmartRestuarant
         {
             private PrintDocument PrintDocument;
             private Graphics graphics;
-            private Order order { set; get; }
-            private Shop shop { set; get; }
+            private OrderItem order { set; get; }
+            private Branch shop { set; get; }
+
             private int InitialHeight = 360;
-            public PrintJob(Order order, Shop shop)
+            public PrintJob(OrderItem order, Branch shop)
             {
                 SetShopandOrder(order, shop);
                 this.order = order;
@@ -181,7 +182,7 @@ namespace RodizioSmartRestuarant
                 InsertHeaderStyleItem(" Amount Payable: ", order.GrossTotal.ToString(), Offset);
 
                 Offset = Offset + largeinc;
-                String address = shop.Address;
+                String address = shop.Location;
                 DrawSimpleString("Address: " + address, minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
@@ -208,7 +209,7 @@ namespace RodizioSmartRestuarant
                 string DrawnBy = "Powered by PixelPro";
                 DrawSimpleString(DrawnBy, minifont, Offset, 15);
             }
-            private void SetShopandOrder(Order order, Shop shop)
+            private void SetShopandOrder(OrderItem order, Branch shop)
             {
                 //this is supposed to retrieve data from either local or firebase storage and then set order and shop to be the right values
             }

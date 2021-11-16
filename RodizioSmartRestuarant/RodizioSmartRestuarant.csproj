@@ -163,6 +163,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=5.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.5.1.2\lib\net451\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>
@@ -200,10 +201,6 @@
     <Compile Include="Controller\ShopController.cs" />
     <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Data\Tablet.cs" />
-    <Compile Include="Entities\Customer.cs" />
-    <Compile Include="Entities\Item.cs" />
-    <Compile Include="Entities\Order.cs" />
-    <Compile Include="Entities\Shop.cs" />
     <Compile Include="Controller\LANController.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />
     <Compile Include="Receipt.cs">
@@ -222,7 +219,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Configuration\BranchSettings.cs" />
-    <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Data\OfflineDataContext.cs" />
     <Compile Include="Entities\AppUser.cs" />
     <Compile Include="Entities\Branch.cs" />
