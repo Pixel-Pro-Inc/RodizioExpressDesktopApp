@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +11,10 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class SerializedObjectManager
     {
-
+        string savePath(string dir)
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData/" + dir);
+        }
         public void DeleteAllData()
         {
             File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData"));

@@ -203,17 +203,7 @@
     <Compile Include="Data\Tablet.cs" />
     <Compile Include="Controller\LANController.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />
-    <Compile Include="Receipt.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Receipt.Designer.cs">
-      <DependentUpon>Receipt.cs</DependentUpon>
-    </Compile>
     <Compile Include="ReceiptSlip.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
