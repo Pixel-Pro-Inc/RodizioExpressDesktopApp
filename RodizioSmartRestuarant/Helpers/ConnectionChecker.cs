@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RodizioSmartRestuarant.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,10 +13,9 @@ namespace RodizioSmartRestuarant.Helpers
     {
         Ping ping = new Ping();
         PingReply result; //I already have code that uses something like this. Its in RodizioSmartRestuarant.Helpers.LANController, check through it to see
-        SerializedObjectManager store = new SerializedObjectManager(); // I want to consider making SerializedObjectManager static. Text me what you think
         public bool CheckConnection()
         {
-            result = ping.Send(IPAddress.Parse((string)store.RetrieveData("localIP")));
+            result = ping.Send(IPAddress.Parse((new OfflineDataContext().GetData("localIP")).ToString()));
 
             if (result.Status == IPStatus.Success)
             {
