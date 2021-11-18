@@ -3,17 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Helpers
 {
     public class SerializedObjectManager
     {
-        string savePath(string dir) 
-        { 
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData/" + dir); 
+        string savePath(string dir)
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData/" + dir);
         }
-
         public void DeleteAllData()
         {
             File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData"));
@@ -61,6 +62,8 @@ namespace RodizioSmartRestuarant.Helpers
                 using (var fileStream = File.Open(savePath(dir), FileMode.Open))
                 {
                     load = (object)binaryFormatter.Deserialize(fileStream);
+
+                    return load;
                 }
             }
 

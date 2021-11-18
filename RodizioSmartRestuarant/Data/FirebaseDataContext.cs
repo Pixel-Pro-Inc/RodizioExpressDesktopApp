@@ -77,7 +77,7 @@ namespace RodizioSmartRestuarant.Data
                 return objects;
             }
             
-            return new OfflineDataContext().GetData(path); ;
+            return new OfflineDataContext().GetData(path); 
         }
 
         public async void EditData(string path, object data, string id)

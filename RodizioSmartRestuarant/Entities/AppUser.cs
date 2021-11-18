@@ -10,6 +10,8 @@ namespace RodizioSmartRestuarant.Entities
         public int Id { get; set; }
         public string UserName { get; set; }
         public bool Developer { get; set; }
+        public int Phone { get; set; }
+        public string Address { get; set; }
         public bool Admin { get; set; }
         public string branchId { get; set; }
         public string Restuarant { get; set; }

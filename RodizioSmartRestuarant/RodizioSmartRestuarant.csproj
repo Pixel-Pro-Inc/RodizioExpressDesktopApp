@@ -163,6 +163,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=5.1.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.5.1.2\lib\net451\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>
@@ -195,12 +196,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controller\BaseController.cs" />
+    <Compile Include="Controller\OrderController.cs" />
+    <Compile Include="Controller\ShopController.cs" />
+    <Compile Include="Data\FirebaseDataContext.cs" />
+    <Compile Include="Data\Tablet.cs" />
+    <Compile Include="Controller\LANController.cs" />
+    <Compile Include="Helpers\SerializedObjectManager.cs" />
+    <Compile Include="ReceiptSlip.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Configuration\BranchSettings.cs" />
-    <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Data\OfflineDataContext.cs" />
     <Compile Include="Entities\AppUser.cs" />
     <Compile Include="Entities\Branch.cs" />

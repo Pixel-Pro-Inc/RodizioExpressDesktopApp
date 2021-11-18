@@ -21,5 +21,13 @@ namespace RodizioSmartRestuarant.Entities
         public int PhoneNumber { get; set; }
         public string OrderNumber { get; set; }
         public bool Collected { get;  set; }
+
+        public List<MenuItem> ItemTransactions { get; set; }
+        public DateTime Date { get; set; }
+        public AppUser Customer { get; set; }
+        public int Invoice { get; set; }
+
+        public double GrossTotal { get; set; }
+        public double Total { get; set; }
     }
 }

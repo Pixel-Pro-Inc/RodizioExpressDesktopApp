@@ -19,5 +19,9 @@ namespace RodizioSmartRestuarant.Entities
         public float MinimumPrice { get; set; }
         public float Rate { get; set; }
         public bool Availability { get; set; }
+
+        //these below are used by the receipt
+        public int Quantity { get; set; }
+        public int Total { get; set; }
     }
 }
