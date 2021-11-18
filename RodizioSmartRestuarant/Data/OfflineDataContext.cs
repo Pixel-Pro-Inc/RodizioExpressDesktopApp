@@ -19,7 +19,7 @@ namespace RodizioSmartRestuarant.Data
         {
             return (List<object>)new SerializedObjectManager().RetrieveData(path) != null? (List<object>)new SerializedObjectManager().RetrieveData(path): new List<object>();
         }
-        public void EditData(string path, OrderItem data)//Make this work
+        public void EditData(string path, OrderItem data)
         {
             new SerializedObjectManager().EditData(data, path);
         }

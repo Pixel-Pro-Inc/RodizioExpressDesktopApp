@@ -173,6 +173,7 @@ namespace RodizioSmartRestuarant.Data
                     item.Fufilled = orderItem.Fufilled;
                     item.Purchased = orderItem.Purchased; 
                     item.Preparable = orderItem.Preparable;
+                    item.Collected = orderItem.Collected;
                     item.WaitingForPayment = orderItem.WaitingForPayment;
                 }
             }

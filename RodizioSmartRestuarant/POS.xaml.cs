@@ -45,9 +45,12 @@ namespace RodizioSmartRestuarant
             {
                 if (!orders.Contains(item))
                 {
-                    orders.Add(item);
+                    if (!item[0].Collected)
+                    {
+                        orders.Add(item);
 
-                    orderViewer.Children.Add(GetPanel(item));
+                        orderViewer.Children.Add(GetPanel(item));
+                    }                    
                 }
             }
         }
@@ -213,7 +216,7 @@ namespace RodizioSmartRestuarant
                     Label label2 = new Label()
                     {
                         FontWeight = FontWeights.Bold,
-                        Content = total
+                        Content = total.ToString("f2")
                     };
 
                     stackPanel5.Children.Add(label2);
@@ -248,8 +251,25 @@ namespace RodizioSmartRestuarant
 
         private void Collection_Click(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
-            //Receipt Maybe
+            Button button = (Button)sender;
+
+            for (int i = 0; i < orders.Count; i++)
+            {
+                if (orders[i][0].OrderNumber == button.Name)
+                {
+                    foreach (var item in orders[i])
+                    {
+                        item.Collected = true;
+                    }
+
+                    firebaseDataContext.EditData("Order", orders[i], "/" + orders[i][0].OrderNumber);
+
+                    int index = orders.IndexOf(orders[i]);
+
+                    orders.RemoveAt(index);
+                    orderViewer.Children.RemoveAt(index);
+                }
+            }
         }
 
         private void Payment_Click(object sender, RoutedEventArgs e)
