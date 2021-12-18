@@ -11,13 +11,17 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class SerializedObjectManager
     {
+        string[] paths = { "Order", "Menu", "Account", "Branch"};
         string savePath(string dir)
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData/" + dir);
         }
         public void DeleteAllData()
         {
-            File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData"));
+            for (int i = 0; i < paths.Length; i++)
+            {
+                File.Delete(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RodizioData/" + paths[i]));
+            }           
         }
 
         public void SaveData(object serializedData, string dir)

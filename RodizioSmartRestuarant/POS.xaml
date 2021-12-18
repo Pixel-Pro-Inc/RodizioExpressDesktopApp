@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RodizioSmartRestuarant"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
         Icon="Images/rodizio_icon.ico"
         Title="POS" Height="450" Width="800">
@@ -58,6 +60,27 @@
                 Height="35"
                 ToolTip="Create a new order"
                 Width ="120"
+                Click="NewOrder_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Order Statuses"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Show order progress"
+                Width ="120"
+                Click="Statuses_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Menu"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Edit menu item availability"
+                Width ="120"
+                Click="Menu_Click"
                 />
             <Button
                 Style="{StaticResource ButtonStyleRound}"
@@ -76,6 +99,7 @@
                 Height="35"
                 ToolTip="Logout"
                 Width ="120"
+                Click="Logout_Click"
                 />            
         </StackPanel>
 
@@ -85,17 +109,109 @@
                Grid.Row="1"
                VerticalAlignment="Bottom">Version 1.0.0</Label>
 
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Height="65">
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Refresh searches."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,0"
+                    Click="Refresh_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Refresh"
+            Width="20"
+            Height="20"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+                <wpfTool:WatermarkTextBox
+            Watermark =" Search"
+                    Name="searchBox"
+            Height="40"
+            Width="275"
+            FontSize="20"
+            FontWeight="Normal"
+            Background="Transparent"
+            Foreground="#3a3a3a"
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"            
+            />
+                <Button                    
+            Height="40"
+                    ToolTip="Clear search bar."
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,12,0,13"
+                    Click="Clear_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+                			Kind="Close"
+                			Width="20"
+                			Height="20"
+                			VerticalAlignment="Center"
+                			HorizontalAlignment="Center"
+                			Foreground="#292929"
+                			IsEnabled="False"
+                    />
+                    </StackPanel>
+                </Button>
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Search."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="80"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="10,0,0,0"
+                    Click="Search_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Magnify"
+            Width="30"
+            Height="30"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+
         <Label Grid.Row="1"
+               Name ="activeOrdersCount"
                Grid.Column="1"
-               Margin="20,10,0,0"
-               FontWeight="Medium">749 - Active Orders</Label>
+               Margin="20,55,0,0"
+               FontWeight="Medium">Active Orders</Label>
 
         <Border 
             Grid.Row="1"
             Grid.Column="1"
             BorderBrush="Black"
             BorderThickness="1"
-            Margin="20,40,20,60">
+            Margin="20,80,20,60">
             <ScrollViewer>
                 <StackPanel Name="orderViewer">
                     

@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
@@ -29,11 +30,20 @@ namespace RodizioSmartRestuarant
 
             NextPage();
         }
+        public bool IsClosed { get; private set; }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            IsClosed = true;
+        }
 
         void AppInitialization()
         {
             BranchSettings.Instance = new BranchSettings();
             LocalStorage.Instance = new LocalStorage();
+            WindowManager.Instance = new WindowManager();
+            FirebaseDataContext.Instance = new FirebaseDataContext();
         }
 
         private void LoadingScreen_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -46,13 +56,7 @@ namespace RodizioSmartRestuarant
         {
             await Task.Delay(3000);
 
-            Window current = this;
-            Window next = new Login();
-
-            current.Hide();
-
-            next.Show();
-            current.Close();
+            WindowManager.Instance.CloseAndOpen(this, new Login());
         }
     }
 }

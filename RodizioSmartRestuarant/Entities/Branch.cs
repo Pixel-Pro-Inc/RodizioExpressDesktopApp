@@ -13,8 +13,6 @@ namespace RodizioSmartRestuarant.Entities
         public string ImgUrl { get; set; }
         public string PublicId { get; set; }
         public DateTime LastActive { get; set; }
-
-        public int Phone1 { get; set; }
-        public int Phone2 { get; set; }
+        public int PhoneNumber { get; set; }
     }
 }

@@ -10,6 +10,7 @@
         Background="Transparent"
         WindowStyle="None" 
         ResizeMode="NoResize"
+        Icon="Images/rodizio_icon.ico"
         MouseDown="LoadingScreen_OnMouseDown"
         WindowStartupLocation="CenterScreen"
         >

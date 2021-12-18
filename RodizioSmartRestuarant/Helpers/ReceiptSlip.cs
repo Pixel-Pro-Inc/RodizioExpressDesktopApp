@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RodizioSmartRestuarant
+namespace RodizioSmartRestuarant.Helpers
 {
     class ReceiptSlip
     {
@@ -15,20 +15,25 @@ namespace RodizioSmartRestuarant
         {
             private PrintDocument PrintDocument;
             private Graphics graphics;
-            private OrderItem order { set; get; }
+            private List<OrderItem> order { set; get; }
             private Branch shop { set; get; }
 
+            private float amtReceived { get; set; }
+            private float changeAmt { get; set; }
+
             private int InitialHeight = 360;
-            public PrintJob(OrderItem order, Branch shop)
+            public PrintJob(List<OrderItem> order, Branch shop, float amountReceived, float Change)
             {
-                SetShopandOrder(order, shop);
                 this.order = order;
                 this.shop = shop;
+                amtReceived = amountReceived;
+                changeAmt = Change;
+
                 AdjustHeight();
             }
             private void AdjustHeight()
             {
-                var capacity = 5 * order.ItemTransactions.Capacity;
+                var capacity = 5 * order.Count;
                 InitialHeight += capacity;
 
                 /*
@@ -108,41 +113,41 @@ namespace RodizioSmartRestuarant
                 //graphics.DrawString("Welcome to HOT AND CRISPY", smallfont,
                 //      new SolidBrush(Color.Black), startX + 22, startY + Offset);
 
+                Offset = Offset + mediuminc;
+                String Name = "Rodizio Express";
+                DrawSimpleString(Name, largefont, Offset, 28);
+
                 Offset = Offset + largeinc + 10;
 
                 String underLine = "-------------------------------------";
                 DrawLine(underLine, largefont, Offset, 0);
 
                 Offset = Offset + mediuminc;
-                DrawAtStart("Invoice Number: " + order.Invoice, Offset);
+                DrawAtStart("Invoice Number: " + order[0].OrderNumber, Offset);
 
-                if (!String.Equals(order.Customer.Address, "N/A"))
+                if (!String.Equals(order[0].PhoneNumber, "N/A"))
                 {
                     Offset = Offset + mediuminc;
-                    DrawAtStart("Address: " + order.Customer.Address, Offset);
+                    DrawAtStart("Phone # : " + order[0].PhoneNumber, Offset);
                 }
 
-                if (!String.Equals(order.Customer.Phone, "N/A"))
-                {
-                    Offset = Offset + mediuminc;
-                    DrawAtStart("Phone # : " + order.Customer.Phone, Offset);
-                }
+
 
                 Offset = Offset + mediuminc;
-                DrawAtStart("Date: " + order.Date, Offset);
+                DrawAtStart("Date: " + DateTime.Now, Offset);
 
                 Offset = Offset + smallinc;
-                underLine = "-------------------------";
-                DrawLine(underLine, largefont, Offset, 30);
+                underLine = "-------------------------------------";
+                DrawLine(underLine, largefont, Offset, 0);
 
                 Offset = Offset + largeinc;
 
                 InsertHeaderStyleItem("Name. ", "Price. ", Offset);
 
                 Offset = Offset + largeinc;
-                foreach (var itran in order.ItemTransactions)
+                foreach (var itran in order)
                 {
-                    InsertItem(itran.Name + " x " + itran.Quantity, itran.Total.ToString(), Offset);
+                    InsertItem(itran.Name, itran.Price, Offset);
                     Offset = Offset + smallinc;
                 }
 
@@ -162,31 +167,32 @@ namespace RodizioSmartRestuarant
                 }
                  */
 
-
-                underLine = "-------------------------";
-                DrawLine(underLine, largefont, Offset, 30);
+                float total = 0;
 
                 Offset = Offset + largeinc;
                 InsertItem(" Net. Total: ", Math.Round(order.Total, 2).ToString(), Offset);
                 /*
                  if (!order.Cash.Discount.IsZero())
+                foreach (var item in order)
                 {
-                    Offset = Offset + smallinc;
-                    InsertItem(" Discount: ", order.Cash.Discount.CValue, Offset);
+                    total += float.Parse(item.Price);
                 }
                 */
 
 
+                Offset = Offset + smallinc;
+                InsertHeaderStyleItem(" Amount Received: ", amtReceived.ToString("f2"), Offset);
 
                 Offset = Offset + smallinc;
                 InsertHeaderStyleItem(" Amount Payable: ", Math.Round(order.GrossTotal, 2).ToString(), Offset);
+                InsertHeaderStyleItem(" Change: ", changeAmt.ToString("f2"), Offset);
 
                 Offset = Offset + largeinc;
                 String address = shop.Location;
                 DrawSimpleString("Address: " + address, minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
-                String number = "Tel: " + shop.Phone1 + " - OR - " + shop.Phone2;
+                String number = "Tel: " + shop.PhoneNumber;
                 DrawSimpleString(number, minifont, Offset, 35);
 
                 Offset = Offset + smallinc;
@@ -210,13 +216,12 @@ namespace RodizioSmartRestuarant
                 InsertItem(tip, "", Offset);
 
                 Offset = Offset + largeinc;
-                string DrawnBy = "Powered by PixelPro";
+                string DrawnBy = "Powered by Pixel Pro";
                 DrawSimpleString(DrawnBy, minifont, Offset, 15);
             }
             private void SetShopandOrder(OrderItem order, Branch shop)
             {
                 //this is supposed to retrieve data from either local or firebase storage and then set order and shop to be the right values
-                //okay now even I am not sure why this is necessary
             }
         }
     }
