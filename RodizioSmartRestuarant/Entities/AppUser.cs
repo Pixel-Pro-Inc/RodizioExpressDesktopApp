@@ -13,7 +13,7 @@ namespace RodizioSmartRestuarant.Entities
         public int Phone { get; set; }
         public string Address { get; set; }
         public bool Admin { get; set; }
-        public string branchId { get; set; }
+        public List<string> branchId { get; set; }
         public string Restuarant { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }

@@ -1,0 +1,157 @@
+﻿<Window x:Class="RodizioSmartRestuarant.NewOrder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RodizioSmartRestuarant"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        mc:Ignorable="d"
+        Icon="Images/rodizio_icon.ico"
+        Title="NewOrder" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        
+        <Border Grid.Row="1" Grid.ColumnSpan="2">
+            <Border.Background>
+                <LinearGradientBrush>
+                    <GradientStop Color="#292929"></GradientStop>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <Border Grid.Row="0" Grid.Column="1">
+            <Border.Background>
+                <LinearGradientBrush>
+                    <GradientStop Color="#292929"></GradientStop>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+
+        <StackPanel>
+            <Label Margin="10,0,0,0" FontWeight="DemiBold" FontSize="20">Create Order</Label>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Refresh searches."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,0"
+                    Click="Refresh_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Refresh"
+            Width="20"
+            Height="20"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+                <wpfTool:WatermarkTextBox
+            Watermark =" Search"
+                    Name="searchBox"
+            Height="40"
+            Width="275"
+            FontSize="20"
+            FontWeight="Normal"
+            Background="Transparent"
+            Foreground="#3a3a3a"
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"            
+            />
+                <Button                    
+            Height="40"
+                    ToolTip="Clear search bar."
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,12,0,13"
+                    Click="Clear_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+                			Kind="Close"
+                			Width="20"
+                			Height="20"
+                			VerticalAlignment="Center"
+                			HorizontalAlignment="Center"
+                			Foreground="#292929"
+                			IsEnabled="False"
+                    />
+                    </StackPanel>
+                </Button>
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Search."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,0"
+                    Click="Search_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Magnify"
+            Width="30"
+            Height="30"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+
+        <WrapPanel Grid.Row="1" Name="menuView" HorizontalAlignment="Center">
+
+        </WrapPanel>
+
+        <StackPanel Background="White" Grid.RowSpan="2" Grid.Column="1">
+            <StackPanel Orientation="Horizontal">
+                <Label FontWeight="DemiBold" FontSize="25">Order</Label>
+                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Label>Enter the customer's phone number</Label>
+                    <TextBox TextChanged="phoneNumber_TextChanged" Name="phoneNumber" Width="200"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5,0,0,0" VerticalAlignment="Center">
+                    <Label FontWeight="DemiBold">Total</Label>
+                    <Label Name="total" FontWeight="DemiBold">0.00</Label>
+                </StackPanel>                
+            </StackPanel>            
+            <ScrollViewer Height="334">
+                <StackPanel Name="orderView">
+                    
+                </StackPanel>
+            </ScrollViewer>            
+        </StackPanel>
+
+        <Button Name="confirmButton" Visibility="Collapsed" Click="Confirm_Click" Background="DeepSkyBlue" Foreground="White" Grid.Row="1" Grid.Column="1" Margin="100,0,100,0" VerticalAlignment="Bottom">Confirm</Button>
+    </Grid>
+</Window>

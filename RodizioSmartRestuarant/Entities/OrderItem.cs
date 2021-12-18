@@ -15,19 +15,13 @@ namespace RodizioSmartRestuarant.Entities
         public string Weight { get; set; }
         public bool Fufilled { get; set; }
         public bool Purchased { get; set; }
+        public string PaymentMethod { get; set; }
         public bool Preparable { get; set; }
         public bool WaitingForPayment { get; set; }
         public int Quantity { get; set; }
-        public int PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
+        //A string in the form of Date_4 digit number e.g 08-11-2021_4927
         public string OrderNumber { get; set; }
         public bool Collected { get;  set; }
-
-        public List<MenuItem> ItemTransactions { get; set; }
-        public DateTime Date { get; set; }
-        public AppUser Customer { get; set; }
-        public int Invoice { get; set; }
-
-        public double GrossTotal { get; set; }
-        public double Total { get; set; }
     }
 }

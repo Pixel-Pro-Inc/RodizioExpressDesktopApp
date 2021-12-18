@@ -17,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace RodizioSmartRestuarant
 {
@@ -25,7 +27,7 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class Login : Window
     {
-        private FirebaseDataContext fireBaseDataContext = new FirebaseDataContext();
+        private FirebaseDataContext fireBaseDataContext = FirebaseDataContext.Instance;
         public Login()
         {
             InitializeComponent();
@@ -35,10 +37,22 @@ namespace RodizioSmartRestuarant
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
             dispatcherTimer.Start();
         }
+        int numOfSpins = 1;
+        public bool IsClosed { get; private set; }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            IsClosed = true;
+        }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            int spinAngle = 5;
+            int spinAngle = numOfSpins * 5;
+
+            numOfSpins++;
+
+            if (numOfSpins == 72)
+                numOfSpins = 1;
 
             RotateTransform rotateTransform = new RotateTransform(spinAngle);
             loadingCircle.RenderTransform = rotateTransform;
@@ -62,14 +76,16 @@ namespace RodizioSmartRestuarant
             if(username != null && password != null)
                 if(username != "" && password != "")
                 {
-                    List<AppUser> users = await GetUsers();
+                    var u = await GetUsers();
+
+                    List<AppUser> users = u;
                     for (int i = 0; i < users.Count; i++)
                     {
                         if(users[i].UserName == username)
                         {
                             if(PasswordCheck(users[i], password))
                             {
-                                if(users[i].branchId == BranchSettings.Instance.branchId)
+                                if(users[i].branchId[0] == BranchSettings.Instance.branchId)
                                 {
                                     SignedIn(users[i]);
                                     return;
@@ -133,14 +149,7 @@ namespace RodizioSmartRestuarant
         {
             LocalStorage.Instance.user = user;
 
-            Window current = this;
-            Window next = new POS();
-
-            current.Hide();
-
-            next.Show();
-
-            current.Close();
+            WindowManager.Instance.CloseAndOpen(this, new POS());
         }
 
         bool PasswordCheck(AppUser user, string password)
@@ -166,7 +175,9 @@ namespace RodizioSmartRestuarant
 
             foreach (var item in result)
             {
-                users.Add((AppUser)item);
+                var u = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
+
+                users.Add(u);
             }
 
             return users;
