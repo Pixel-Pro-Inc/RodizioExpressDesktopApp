@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System;
@@ -154,6 +155,13 @@ namespace RodizioSmartRestuarant
 
                 new ReceiptSlip.PrintJob(orderItem, branch, amount, change).Print(BranchSettings.Instance.printerName);
             }            
-        }        
+        }
+
+        //OverLoads for promotion desired. Update the xaml if we are including it and use these 
+        public void ApplyDiscount(string promoCode) => total *= 1 + Waiver.GetpromoPercent(promoCode);
+        public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user == _order[0].employee ? (float)amount : 0; //the zero needs to be replaced with error message
+        public void RemoveDiscount(string promoCode) => total /= 1 + Waiver.GetpromoPercent(promoCode);
+        public void RemoveDiscount(double amount, OrderItem order) => total += Int32.Parse(order.Price) * order.Quantity >= total + amount ? (float)amount : 0;
+
     }
 }

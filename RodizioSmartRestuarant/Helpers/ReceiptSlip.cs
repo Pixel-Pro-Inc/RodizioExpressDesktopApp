@@ -151,26 +151,7 @@ namespace RodizioSmartRestuarant.Helpers
                     Offset = Offset + smallinc;
                 }
 
-                /*
-                 * Doesn't seem necessary
-                 * 
-                 foreach (var dtran in order.DealTransactions)
-                {
-                    InsertItem(dtran.Deal.Name, dtran.Total.CValue, Offset);
-                    Offset = Offset + smallinc;
-
-                    foreach (var di in dtran.Deal.DealItems)
-                    {
-                        InsertItem(di.Item.Name + " x " + (dtran.Quantity * di.Quantity), "", Offset);
-                        Offset = Offset + smallinc;
-                    }
-                }
-                 */
-
                 float total = 0;
-
-                Offset = Offset + largeinc;
-                InsertItem(" Net. Total: ", Math.Round(order.Total, 2).ToString(), Offset);
                 /*
                  if (!order.Cash.Discount.IsZero())
                 foreach (var item in order)
@@ -181,11 +162,10 @@ namespace RodizioSmartRestuarant.Helpers
 
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem(" Amount Received: ", amtReceived.ToString("f2"), Offset);
+                InsertHeaderStyleItem(" Amount Received: ", Math.Round(amtReceived, 2).ToString("f2"), Offset);
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem(" Amount Payable: ", Math.Round(order.GrossTotal, 2).ToString(), Offset);
-                InsertHeaderStyleItem(" Change: ", changeAmt.ToString("f2"), Offset);
+                InsertHeaderStyleItem(" Change: ", Math.Round(changeAmt,2).ToString("f2"), Offset);
 
                 Offset = Offset + largeinc;
                 String address = shop.Location;
@@ -196,7 +176,7 @@ namespace RodizioSmartRestuarant.Helpers
                 DrawSimpleString(number, minifont, Offset, 35);
 
                 Offset = Offset + smallinc;
-                String served = "Served by: " + order.employee.UserName;
+                String served = "Served by: " + order[0].employee.UserName;
                 DrawSimpleString(served, minifont, Offset, 35);
 
                 Offset = Offset + 7;

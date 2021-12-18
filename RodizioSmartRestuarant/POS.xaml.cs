@@ -477,7 +477,7 @@ namespace RodizioSmartRestuarant
         private void NewOrderButton_Clicked(object sender, RoutedEventArgs e)
         {
             Window current = this;
-            Window next = new NewOrderPO();
+            Window next = new NewOrder();
 
             current.Hide();
 

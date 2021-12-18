@@ -29,5 +29,9 @@ namespace RodizioSmartRestuarant.Entities
         //A string in the form of Date_4 digit number e.g 08-11-2021_4927
         public string OrderNumber { get; set; }
         public bool Collected { get;  set; }
+
+        public AppUser employee { get; set; }
+       
+
     }
 }
