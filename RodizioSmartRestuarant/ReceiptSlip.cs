@@ -167,7 +167,7 @@ namespace RodizioSmartRestuarant
                 DrawLine(underLine, largefont, Offset, 30);
 
                 Offset = Offset + largeinc;
-                InsertItem(" Net. Total: ", order.Total.ToString(), Offset);
+                InsertItem(" Net. Total: ", Math.Round(order.Total, 2).ToString(), Offset);
                 /*
                  if (!order.Cash.Discount.IsZero())
                 {
@@ -179,7 +179,7 @@ namespace RodizioSmartRestuarant
 
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem(" Amount Payable: ", order.GrossTotal.ToString(), Offset);
+                InsertHeaderStyleItem(" Amount Payable: ", Math.Round(order.GrossTotal, 2).ToString(), Offset);
 
                 Offset = Offset + largeinc;
                 String address = shop.Location;
@@ -188,6 +188,10 @@ namespace RodizioSmartRestuarant
                 Offset = Offset + smallinc;
                 String number = "Tel: " + shop.Phone1 + " - OR - " + shop.Phone2;
                 DrawSimpleString(number, minifont, Offset, 35);
+
+                Offset = Offset + smallinc;
+                String served = "Served by: " + order.employee.UserName;
+                DrawSimpleString(served, minifont, Offset, 35);
 
                 Offset = Offset + 7;
                 underLine = "-------------------------------------";
@@ -212,6 +216,7 @@ namespace RodizioSmartRestuarant
             private void SetShopandOrder(OrderItem order, Branch shop)
             {
                 //this is supposed to retrieve data from either local or firebase storage and then set order and shop to be the right values
+                //okay now even I am not sure why this is necessary
             }
         }
     }

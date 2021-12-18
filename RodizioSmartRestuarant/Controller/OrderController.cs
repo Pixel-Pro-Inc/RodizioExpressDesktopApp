@@ -9,11 +9,6 @@ namespace RodizioSmartRestuarant.Controller
 {
     public class OrderController:BaseController
     {
-        public OrderController()
-        {
-            _firebaseDataContext = new FirebaseDataContext();
-        }
-
-        private readonly FirebaseDataContext _firebaseDataContext;
+        public OrderController() : base() { }
     }
 }

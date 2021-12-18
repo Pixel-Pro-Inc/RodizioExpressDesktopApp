@@ -15,7 +15,8 @@ namespace RodizioSmartRestuarant.Helpers
         PingReply result; //I already have code that uses something like this. Its in RodizioSmartRestuarant.Helpers.LANController, check through it to see
         public bool CheckConnection()
         {
-            result = ping.Send(IPAddress.Parse((new OfflineDataContext().GetData("localIP")).ToString()));
+
+            result = ping.Send(IPAddress.Parse((new OfflineDataContext().GetData("localIP")).ToString())); //it is saying it doesnt exist
 
             if (result.Status == IPStatus.Success)
             {

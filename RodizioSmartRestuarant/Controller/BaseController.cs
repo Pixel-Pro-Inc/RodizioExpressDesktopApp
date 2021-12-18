@@ -14,6 +14,6 @@ namespace RodizioSmartRestuarant.Controller
             _firebaseDataContext = new FirebaseDataContext();
         }
 
-        private readonly FirebaseDataContext _firebaseDataContext;
+        protected internal readonly FirebaseDataContext _firebaseDataContext;
     }
 }

@@ -9,12 +9,7 @@ namespace RodizioSmartRestuarant.Controller
 {
     public class ShopController:BaseController
     {
-        public ShopController()
-        {
-            _firebaseDataContext = new FirebaseDataContext();
-        }
-
-        private readonly FirebaseDataContext _firebaseDataContext;
+        public ShopController() : base() { }
 
     }
 }

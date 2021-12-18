@@ -1,11 +1,14 @@
 ﻿using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,16 +25,33 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class POS : Window
     {
-        List<List<OrderItem>> orders = new List<List<OrderItem>>();
+        static List<List<OrderItem>> orders = new List<List<OrderItem>>();
         private FirebaseDataContext firebaseDataContext;
+        string activeOrders = $"{orders.Count} Active orders";
+      
         public POS()
         {
             InitializeComponent();
-            UpdateOrderView();            
+            void objective()
+            {
+                //Im thinking that there may need to be a while block here
+                time.Elapsed += new ElapsedEventHandler(action); time.Interval = 3000; time.Enabled = true;
+            }
+            ThreadStart begining = new ThreadStart(objective); //this is a declaration of what happens at commencement
+            Thread Thread1 = new Thread(begining);//this is the actual thread
+            Thread1.Start();
+            Thread1.Abort(); 
         }
 
+        System.Timers.Timer time = new System.Timers.Timer();
+        void action(object source2, ElapsedEventArgs e) //This is made so that it continuously tries to update the order list
+        {
+            if (this.IsActive) { UpdateOrderView(); }
+            else { time.Close();  }
+        }
         async void UpdateOrderView()
         {
+            
             var result = await firebaseDataContext.GetData("Order/" + BranchSettings.Instance.branchId);
 
             List<List<OrderItem>> temp = new List<List<OrderItem>>();
@@ -257,5 +277,34 @@ namespace RodizioSmartRestuarant
             throw new NotImplementedException();
             //Receipt Maybe
         }
+        private void CancelButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+            //Receipt Maybe
+        }
+        private void NewOrderButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            Window current = this;
+            Window next = new NewOrderPO();
+
+            current.Hide();
+
+            next.Show();
+            //I dont want to close it but its not for any real reason
+        }
+        private void LogoutButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            LocalStorage.Instance.user = null;
+
+            Window current = this;
+            Window next = new Login();
+
+            current.Hide();
+
+            next.Show();
+
+            current.Close();
+        }
+
     }
 }

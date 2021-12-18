@@ -15,13 +15,12 @@ namespace RodizioSmartRestuarant.Helpers
          Here the method to get data from the LAN will be called.
         
          */
-        public LANController()
+        public LANController():base()
         {
-            _firebaseDataContext = new FirebaseDataContext();
+            SendLocalIPAddress();
         }
 
-        private readonly FirebaseDataContext _firebaseDataContext;
-        SerializedObjectManager store = new SerializedObjectManager();
+        public SerializedObjectManager store = new SerializedObjectManager();
 
         private string GetLocalIPAddress()
         {

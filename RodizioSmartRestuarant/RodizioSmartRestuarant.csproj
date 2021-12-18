@@ -202,7 +202,11 @@
     <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Data\Tablet.cs" />
     <Compile Include="Controller\LANController.cs" />
+    <Compile Include="Data\Waiver.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />
+    <Compile Include="NewOrderPO.xaml.cs">
+      <DependentUpon>NewOrderPO.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ReceiptSlip.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -260,6 +264,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Login.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NewOrderPO.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
