@@ -215,6 +215,8 @@
     <Compile Include="Data\Tablet.cs" />
     <Compile Include="Data\Waiver.cs" />
     <Compile Include="Entities\Enums.cs" />
+    <Compile Include="Entities\restaurantEntity.cs" />
+    <Compile Include="Entities\Stock.cs" />
     <Compile Include="Helpers\SearchMenu.cs" />
     <Compile Include="Helpers\SearchOrders.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />

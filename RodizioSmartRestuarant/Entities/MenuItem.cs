@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Entities
 {
-    public class MenuItem
+    public class MenuItem:restaurantEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Restuarant { get; set; }
         public string Price { get; set; }
         public string ImgUrl { get; set; }
         public string PublicId { get; set; }

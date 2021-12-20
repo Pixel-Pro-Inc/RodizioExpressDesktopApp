@@ -168,11 +168,11 @@ namespace RodizioSmartRestuarant.Helpers
                 InsertHeaderStyleItem(" Change: ", Math.Round(changeAmt,2).ToString("f2"), Offset);
 
                 Offset = Offset + largeinc;
-                String address = shop.Location;
+                String address = shop.Address;
                 DrawSimpleString("Address: " + address, minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
-                String number = "Tel: " + shop.PhoneNumber;
+                String number = "Tel: " + shop.RestaurantPhoneNumber;
                 DrawSimpleString(number, minifont, Offset, 35);
 
                 Offset = Offset + smallinc;
