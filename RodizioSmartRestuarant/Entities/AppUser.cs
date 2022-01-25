@@ -14,13 +14,12 @@ namespace RodizioSmartRestuarant.Entities
         public string PhoneNumber { get; set; }
         public string UserName { get; set; }
         public bool Developer { get; set; }
+        public int Phone { get; set; }
         public bool Admin { get; set; }
         public bool SuperUser { get; set; }
         public List<string> branchId { get; set; }
-        public string Restuarant { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-
         public string FullName()
         {
             return FirstName + " " + LastName;

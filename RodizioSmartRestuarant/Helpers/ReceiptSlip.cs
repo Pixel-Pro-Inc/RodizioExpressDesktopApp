@@ -1,4 +1,4 @@
-﻿using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
