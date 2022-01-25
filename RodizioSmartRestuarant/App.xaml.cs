@@ -1,7 +1,9 @@
-﻿using System;
+﻿using RodizioSmartRestuarant.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +15,22 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class App : Application
     {
+        public static App Instance { get; set; }
+        public App()
+        {
+            Instance = this;
+            StartUp.Initialize();
+        }
 
+        public void ShowKeyboard()
+        {
+            Dispatcher.BeginInvoke(new Action(() => Logic()));
+        }
+
+        void Logic()
+        {
+            Process process = Process.Start(new ProcessStartInfo(
+            ((Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\osk.exe"))));
+        }
     }
 }

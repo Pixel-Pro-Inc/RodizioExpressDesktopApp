@@ -1,32 +1,40 @@
-﻿using RodizioSmartRestuarant.Data;
+﻿using FireSharp.Config;
+using FireSharp.Interfaces;
+using FireSharp.Response;
+using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Helpers
 {
     public class ConnectionChecker
     {
-        Ping ping = new Ping();
-        PingReply result; //I already have code that uses something like this. Its in RodizioSmartRestuarant.Helpers.LANController, check through it to see
-        public bool CheckConnection()
+        IFirebaseConfig config = new FirebaseConfig
         {
-            /*result = ping.Send(IPAddress.Parse("8.8.8.8"));
+            AuthSecret = "KIxlMLOIsiqVrQmM0V7pppI1Ao67UPZv5jOdU0QJ",
+            BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
+        };
 
-            if (result.Status == IPStatus.Success)
+        IFirebaseClient client;
+        public async Task<bool> CheckConnection()
+        {
+            bool result = true;
+
+            /*try
             {
-                return true;
+                client = new FireSharp.FirebaseClient(config);
+
+                FirebaseResponse response = await client.GetAsync("Branch/" + BranchSettings.Instance.branchId);
             }
-            else
+            catch(Exception ex)
             {
-                return false;
+                result = false;
             }*/
 
-            return true;
+            FirebaseDataContext.Instance.ToggleConnectionStatus(result);
+            
+            return result;
         }
     }
 }

@@ -200,6 +200,28 @@ namespace RodizioSmartRestuarant.Helpers
                         }
                     }
 
+                    if (i < openWindows.Count)
+                        if (openWindows[i].GetType() == typeof(RodizioSmartRestuarant.Settings))
+                        {
+                            if (((RodizioSmartRestuarant.Settings)openWindows[i]).IsClosed)
+                            {
+                                openWindows.RemoveAt(i);
+
+                                i = 100000;
+                            }
+                        }
+
+                    if (i < openWindows.Count)
+                        if (openWindows[i].GetType() == typeof(ResetPasswordScreen))
+                        {
+                            if (((ResetPasswordScreen)openWindows[i]).IsClosed)
+                            {
+                                openWindows.RemoveAt(i);
+
+                                i = 100000;
+                            }
+                        }
+
                 }
 
                 for (int i = 0; i < openWindows.Count; i++)
@@ -261,36 +283,60 @@ namespace RodizioSmartRestuarant.Helpers
                             k = 0;
                         }
                     }
+
+                    if (openWindows[i].GetType() == typeof(RodizioSmartRestuarant.Settings))
+                    {
+                        if (((RodizioSmartRestuarant.Settings)openWindows[i]).IsClosed)
+                        {
+                            k = 0;
+                        }
+                    }
+
+                    if (openWindows[i].GetType() == typeof(ResetPasswordScreen))
+                    {
+                        if (((ResetPasswordScreen)openWindows[i]).IsClosed)
+                        {
+                            k = 0;
+                        }
+                    }
                 }
                 if (openWindows.Count == 0)
                     k = 1;
-            }            
+            }
+
+            Settings.Instance.OnWindowCountChange();
+            OnScreenKeyboard.AttachEventHandler();
         }
-        public async void UpdateAllOrderViews(UIChangeSource source)
+        int changeCount = 0;
+        public async void UpdateAllOrderViews()
         {
-            var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
-
-            List<List<OrderItem>> temp = new List<List<OrderItem>>();
-
-            foreach (var item in result)
+            if(BranchSettings.Instance.branchId != null && changeCount > 0)
             {
-                List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
 
-                temp.Add(data);
-            }
+                List<List<OrderItem>> temp = new List<List<OrderItem>>();
 
-            for (int i = 0; i < openWindows.Count; i++)
-            {
-                if (openWindows[i].GetType() == typeof(POS))
+                foreach (var item in result)
                 {
-                    ((POS)openWindows[i]).UpdateOrderView(temp, source);
+                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    temp.Add(data);
                 }
 
-                if (openWindows[i].GetType() == typeof(OrderStatus))
+                for (int i = 0; i < openWindows.Count; i++)
                 {
-                    ((OrderStatus)openWindows[i]).UpdateScreen(temp);
+                    if (openWindows[i].GetType() == typeof(POS))
+                    {
+                        ((POS)openWindows[i]).UpdateOrderView(temp);
+                    }
+
+                    if (openWindows[i].GetType() == typeof(OrderStatus))
+                    {
+                        ((OrderStatus)openWindows[i]).UpdateScreen(temp);
+                    }
                 }
             }
+            changeCount++;
         }
 
         void AddToOpenWindows(Window target)
@@ -298,6 +344,11 @@ namespace RodizioSmartRestuarant.Helpers
             openWindows.Add(target);
 
             UpdateList();
+        }
+
+        public List<Window> GetAllOpenWindows()
+        {
+            return openWindows;
         }
     }
 }

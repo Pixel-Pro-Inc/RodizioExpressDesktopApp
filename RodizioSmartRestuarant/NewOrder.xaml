@@ -7,6 +7,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
+        WindowState="Maximized"
         Icon="Images/rodizio_icon.ico"
         Title="NewOrder" Height="450" Width="800">
     <Grid>
@@ -19,7 +20,7 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        
+
         <Border Grid.Row="1" Grid.ColumnSpan="2">
             <Border.Background>
                 <LinearGradientBrush>
@@ -36,9 +37,8 @@
             </Border.Background>
         </Border>
 
-
         <StackPanel>
-            <Label Margin="10,0,0,0" FontWeight="DemiBold" FontSize="20">Create Order</Label>
+            <TextBlock Margin="10,0,0,0" FontWeight="DemiBold" FontSize="20">Create Order</TextBlock>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button                    
             Height="40"
@@ -129,29 +129,56 @@
             </StackPanel>
         </StackPanel>
 
-        <WrapPanel Grid.Row="1" Name="menuView" HorizontalAlignment="Center">
+        <ScrollViewer Grid.Row="1">
+            <WrapPanel Name="menuView" HorizontalAlignment="Center">
 
-        </WrapPanel>
+            </WrapPanel>
+        </ScrollViewer>
 
         <StackPanel Background="White" Grid.RowSpan="2" Grid.Column="1">
             <StackPanel Orientation="Horizontal">
-                <Label FontWeight="DemiBold" FontSize="25">Order</Label>
+                <TextBlock FontWeight="DemiBold" FontSize="25">Order</TextBlock>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                    <Label>Enter the customer's phone number</Label>
+                    <TextBlock>Enter the customer's phone number</TextBlock>
                     <TextBox TextChanged="phoneNumber_TextChanged" Name="phoneNumber" Width="200"></TextBox>
                 </StackPanel>
                 <StackPanel Margin="5,0,0,0" VerticalAlignment="Center">
                     <Label FontWeight="DemiBold">Total</Label>
                     <Label Name="total" FontWeight="DemiBold">0.00</Label>
-                </StackPanel>                
-            </StackPanel>            
-            <ScrollViewer Height="334">
-                <StackPanel Name="orderView">
-                    
                 </StackPanel>
-            </ScrollViewer>            
+            </StackPanel>
+            <ScrollViewer Height="279" Margin="0,50,-0.2,0">
+                <StackPanel Name="orderView">
+
+                </StackPanel>
+            </ScrollViewer>
         </StackPanel>
 
         <Button Name="confirmButton" Visibility="Collapsed" Click="Confirm_Click" Background="DeepSkyBlue" Foreground="White" Grid.Row="1" Grid.Column="1" Margin="100,0,100,0" VerticalAlignment="Bottom">Confirm</Button>
+
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
     </Grid>
 </Window>

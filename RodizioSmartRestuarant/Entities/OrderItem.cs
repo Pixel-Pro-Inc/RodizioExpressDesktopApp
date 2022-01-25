@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Entities
 {
+    [Serializable]
     public class OrderItem
     {
-        public OrderItem()
-        {
-            this.employee = LocalStorage.Instance.user; //so that who ever is logged in is instantly set to be the one serving the customer
-        }
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Category { get; set; }
         public string Description { get; set; }
         public string Reference { get; set; }
         public string Price { get; set; }
@@ -29,9 +27,8 @@ namespace RodizioSmartRestuarant.Entities
         //A string in the form of Date_4 digit number e.g 08-11-2021_4927
         public string OrderNumber { get; set; }
         public bool Collected { get;  set; }
-
-        public AppUser employee { get; set; }
-       
-
+        public DateTime OrderDateTime { get; set; }
+        public string User { get; set; }
+        public int PrepTime { get; set; }
     }
 }

@@ -18,9 +18,9 @@
         </Border>
         
         <StackPanel>
-            <Label HorizontalAlignment="Center"
+            <TextBlock HorizontalAlignment="Center"
                FontSize="30"
-               FontWeight="DemiBold">Receive Payment</Label>
+               FontWeight="DemiBold">Receive Payment</TextBlock>
 
             <Label FontSize="15"
                    Name="title"
@@ -67,12 +67,13 @@
                         Enter Amount
                     </Label>
                     <TextBox Name="amountBox"
+                             IsEnabled="False"
                              TextChanged="amountBox_TextChanged"></TextBox>
 
-                    <Label FontSize="30"
+                    <TextBlock FontSize="30"
                            FontWeight="DemiBold">
                         Change
-                    </Label>
+                    </TextBlock>
                     <Label FontSize="15"
                            Name="changeAmt"
                            FontWeight="SemiBold"></Label>

@@ -182,5 +182,37 @@ namespace RodizioSmartRestuarant
 
             return users;
         }
+
+        int block = 0;
+        private async void ResetPassword_Click(object sender, RoutedEventArgs e)
+        {
+            if(block == 0)
+            {
+                block = 1;
+
+                if (!(await new ConnectionChecker().CheckConnection()))
+                {
+                    //Message Box
+                    ShowWarning();
+                    block = 0;
+                    return;
+                }
+
+                WindowManager.Instance.CloseAndOpen(this, new ResetPasswordScreen());
+
+                block = 0;
+            }
+            
+        }
+
+        void ShowWarning()
+        {
+            string messageBoxText = "You cannot reset your password without an internet connection.";
+            string caption = "Warning";
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Warning;
+
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
     }
 }
