@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Windows.Threading;
 using static RodizioSmartRestuarant.Entities.Enums;
+using RodizioSmartRestuarant.Extensions;
 
 namespace RodizioSmartRestuarant.Data
 {
@@ -36,6 +37,11 @@ namespace RodizioSmartRestuarant.Data
         {
             Instance = this;
 
+            StartFunction();
+        }
+
+        async void StartFunction()
+        {
             client = new FireSharp.FirebaseClient(config);
             branchId = "/" + BranchSettings.Instance.branchId;
 
@@ -44,13 +50,37 @@ namespace RodizioSmartRestuarant.Data
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
             dispatcherTimer.Start();
 
-            GetDataChanging("Order/" + BranchSettings.Instance.branchId);
+            var response = await GetData("Branch");
+
+            for (int i = 0; i < response.Count; i++)
+            {
+                var item = response[i];
+                if (item.GetType() == typeof(JObject))
+                {
+                    Branch branch = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
+                    if(branch.Id == BranchSettings.Instance.branchId)
+                        BranchSettings.Instance.branch = branch;
+                }
+                if (item.GetType() == typeof(Branch))//Local Storage
+                {
+                    if(((Branch)item).Id == BranchSettings.Instance.branchId)
+                        BranchSettings.Instance.branch = (Branch)item;
+                }
+            }
+
+            await SetLastActive();
+        }
+
+        public void SetBranchId()
+        {
+            branchId = "/" + BranchSettings.Instance.branchId;
         }
 
         float elapsedTime = 0;
         bool startCounting = false;
-        UIChangeSource source;
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+
+        float elapsedTimeLastActive = 0;
+        private async void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             if (startCounting)
                 elapsedTime++;
@@ -59,38 +89,129 @@ namespace RodizioSmartRestuarant.Data
             {
                 startCounting = false;
                 elapsedTime = 0;
-                WindowManager.Instance.UpdateAllOrderViews(source);
+                WindowManager.Instance.UpdateAllOrderViews();
             }
             //
+
+            elapsedTimeLastActive++;
+
+            if(elapsedTimeLastActive >= 1800)
+            {
+                await SetLastActive();
+            }
         }
 
         public async Task StoreData(string fullPath, object data)
         {
-            if (connectionChecker.CheckConnection())
+            if (await connectionChecker.CheckConnection())
             {
                 await SetLastActive();
 
-                //await SyncData();
-
                 client = new FireSharp.FirebaseClient(config);
 
-                var response = await client.SetAsync(fullPath, data);//Add Id of data             
+                var response = await client.SetAsync(fullPath, data);//Add Id of data  
 
-                //await UpdateOfflineData();
+                //await //UpdateOfflineData();
 
                 return;
             }
-            
-            new OfflineDataContext().StoreData(fullPath, data);
+
+            Directories currentDirectory = GetDirectory(fullPath);
+
+            switch (currentDirectory)
+            {
+                case Directories.Order:
+                    var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
+
+                    if(orderresult.Count == 0)
+                    {
+                        List<IDictionary<string, object>> vals = new List<IDictionary<string, object>>();
+
+                        IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
+
+                        vals.Add(itm);
+
+                        orderresult.Add(vals);
+
+                        OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+                        LocalDataChange();
+
+                        return;
+                    }
+
+                    if(data is List<List<IDictionary<string, object>>>)
+                    {
+                        if(((List<List<IDictionary<string, object>>>)data).Count != 0)
+                        {
+                            OfflineDataContext.StoreDataOverwrite(Directories.Order, data);
+
+                            LocalDataChange();
+
+                            return;
+                        }                        
+                    }
+
+                    List<string> orderNumbers = GetCurrentOrderNumbers(orderresult);
+
+                    if (orderNumbers.Contains(((OrderItem)data).OrderNumber))
+                    {
+                        OrderItem oldOrderItem = new OrderItem();
+                        for (int i = 0; i < orderresult.Count; i++)
+                        {
+                            var list = orderresult[i];
+
+                            foreach (var itm in list)
+                            {
+                                if((itm.ToObject<OrderItem>()).OrderNumber == ((OrderItem)data).OrderNumber)
+                                {
+                                    oldOrderItem = itm.ToObject<OrderItem>();
+                                }
+                            }
+                        }
+
+                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled || ((OrderItem)data).Purchased != oldOrderItem.Purchased))
+                        {
+                            int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
+
+                            IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
+
+                            orderresult[index].Add(itm);
+
+                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+                            LocalDataChange();
+
+                            return;
+                        }
+
+                        OfflineDataContext.EditOrderData(Directories.Order, (OrderItem)data);
+
+                        LocalDataChange();
+
+                        return;
+                    }
+
+                    List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+                    IDictionary<string, object> item = ((OrderItem)data).AsDictionary();
+
+                    values.Add(item);
+
+                    orderresult.Add(values);
+
+                    OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+                    LocalDataChange();
+                    break;
+            }
         }
 
         public async Task<List<object>> GetData(string fullPath)
         {
-            if (connectionChecker.CheckConnection())
+            if (await connectionChecker.CheckConnection())
             {
                 await SetLastActive();
-
-                //await SyncData();
 
                 List<object> objects = new List<object>();
 
@@ -115,31 +236,166 @@ namespace RodizioSmartRestuarant.Data
                         List<object> output = JsonConvert.DeserializeObject<List<object>>(((JArray)data).ToString());
                         return output;
                     }
-                }                
-
-                //await UpdateOfflineData();
+                }
 
                 return objects;
             }
-            
-            return new OfflineDataContext().GetData(fullPath); 
+
+            Directories currentDirectory = GetDirectory(fullPath);            
+
+            switch (currentDirectory)
+            {
+                case Directories.Order:
+                    var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
+
+                    List<object> orders = new List<object>();
+
+                    foreach (var item in orderresult)
+                    {
+                        orders.Add(new List<object>());
+
+                        foreach (var obj in item)
+                        {
+                            JObject valuePairs = (JObject)JToken.FromObject(obj.ToObject<OrderItem>());
+
+                            ((List<object>)orders[orders.Count - 1]).Add(valuePairs);
+                        }
+
+                        orders[orders.Count - 1] = (JArray)JToken.FromObject(orders[orders.Count - 1]);
+                    }
+
+                    return orders;
+
+                case Directories.Menu:
+
+                    var menuresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
+
+                    List<object> menu = new List<object>();
+
+                    foreach (var item in menuresult)
+                    {
+                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<MenuItem>());
+                        menu.Add(keyValuePairs);
+                    }
+
+                    return menu;
+
+                case Directories.Account:
+                    var accountresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
+
+                    List<object> accounts = new List<object>();
+
+                    foreach (var item in accountresult)
+                    {
+                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<AppUser>());
+                        accounts.Add(keyValuePairs);
+                    }
+
+                    return accounts;
+
+                case Directories.Branch:
+                    var branchresult = await OfflineDataContext.GetData(Directories.Branch);
+
+                    List<object> result = new List<object>();
+
+                    if (branchresult is IDictionary<string, object>)
+                    {
+                        result.Add(((IDictionary<string, object>)branchresult).ToObject<Branch>());
+                        return result;
+                    }
+
+                    var branch= (Branch)(((List<object>)branchresult)[0]);                    
+
+                    result.Add(branch);
+
+                    return result;
+            }            
+
+            return null;
+        }        
+
+        public async Task EditData(string fullPath, object data)
+        {
+            if (await connectionChecker.CheckConnection())
+            {
+                await SetLastActive();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                var response = await client.UpdateAsync(fullPath, data);
+
+                //await //UpdateOfflineData();
+
+                return;
+            }
+        }
+
+        public async Task DeleteData(string fullPath)
+        {
+            if (await connectionChecker.CheckConnection())
+            {
+                await SetLastActive();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                var response = await client.DeleteAsync(fullPath);
+
+                //await //UpdateOfflineData();
+
+                return;
+            }
+
+            //new OfflineDataContext().EditData(fullPath, (OrderItem)data);
+        }
+
+        public async Task CompleteOrder(string fullPath)
+        {
+            //Moves order to completed directory
+            if (branchId != "/")
+            {
+                string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
+                await StoreData(destination, await GetData(fullPath));
+
+                await DeleteData(fullPath);
+            }
+        }
+
+        public async Task CancelOrder(string fullPath)
+        {
+            //Moves order to completed directory
+            if (branchId != "/")
+            {
+                string destination = "CancelledOrders" + branchId + "/" + fullPath.Substring(14, 15);
+                var data = await GetData(fullPath);
+
+                List<object> result = new List<object>();
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    OrderItem item = JsonConvert.DeserializeObject<OrderItem>(((JObject)data[i]).ToString());
+                    item.User = LocalStorage.Instance.user.FullName();
+
+                    result.Add(JToken.FromObject(item));
+                }                
+
+                await StoreData(destination, result);
+
+                await DeleteData(fullPath);
+            }
         }
 
         public async void GetDataChanging(string fullPath)
         {
             EventStreamResponse response = await client.OnAsync(fullPath,
-                (sender, args, context) => {
-                    source = UIChangeSource.Addition;
-                    DataReceived();
-                },
-                (sender, args, context) => {
-                    source = UIChangeSource.Edit;
-                    DataReceived();
-                },
-                (sender, args, context) => {
-                    source = UIChangeSource.Deletion;
-                    DataReceived();
-                });
+                    (sender, args, context) => {
+                        DataReceived();
+                    },
+                    (sender, args, context) => {
+                        DataReceived();
+                    },
+                    (sender, args, context) => {
+                        DataReceived();
+                    });
         }
 
         void DataReceived()
@@ -148,236 +404,380 @@ namespace RodizioSmartRestuarant.Data
             elapsedTime = 0;
         }
 
-        int count = 0;
-        public int count1 = 0;
-        void StopListening()
-        {
-            if(count1 == 1)
-            {
-                if(elapsedTime >= 20)
-                {
-                    if (count == 0)
-                    {
-                        count = 1;
-                        WindowManager.Instance.UpdateAllOrderViews(source);
-                        Instance = new FirebaseDataContext();
-                    }
-                }                
-            }
-
-            elapsedTime = 0;
-        }
-        public async Task EditData(string fullPath, object data)
-        {
-            if (connectionChecker.CheckConnection())
-            {
-                await SetLastActive();
-
-                //await SyncData();
-
-                client = new FireSharp.FirebaseClient(config);
-
-                var response = await client.UpdateAsync(fullPath, data);
-
-                //await UpdateOfflineData();
-
-                return;
-            }
-
-            new OfflineDataContext().EditData(fullPath, (OrderItem)data);
-        }
-
         #region Secondary Methods
-        public async void StoreData1(string fullPath, object data)
-        {
-            if (connectionChecker.CheckConnection())
-            {
-
-                client = new FireSharp.FirebaseClient(config);
-
-                var response = await client.SetAsync(fullPath, data);
-
-                return;
-            }
-
-            new OfflineDataContext().StoreData(fullPath, data);
-        }
-
         public async Task<List<object>> GetData1(string fullPath)
         {
-            if (connectionChecker.CheckConnection())
+            List<object> objects = new List<object>();
+
+            client = new FireSharp.FirebaseClient(config);
+
+            FirebaseResponse response = await client.GetAsync(fullPath);
+
+            dynamic data = JsonConvert.DeserializeObject<dynamic>(response.Body);
+
+            if (data != null)
             {
-                List<object> objects = new List<object>();
-
-                client = new FireSharp.FirebaseClient(config);
-
-                FirebaseResponse response = await client.GetAsync(fullPath);
-
-                var result = response.ResultAs<Dictionary<string, object>>();
-                foreach (var item in result)
+                if (data.GetType() != typeof(JArray))
                 {
-                    objects.Add(item.Value);
+                    var result = response.ResultAs<Dictionary<string, object>>();
+
+                    foreach (var item in result)
+                    {
+                        objects.Add(item.Value);
+                    }
                 }
-
-                return objects;
+                else
+                {
+                    List<object> output = JsonConvert.DeserializeObject<List<object>>(((JArray)data).ToString());
+                    return output;
+                }
             }
 
-            return new OfflineDataContext().GetData(fullPath);
-        }
-
-        public async void EditData1(string fullPath, object data)
-        {
-            if (connectionChecker.CheckConnection())
-            {
-
-                client = new FireSharp.FirebaseClient(config);
-
-                var response = await client.UpdateAsync(fullPath, data);
-
-                return;
-            }
-
-            new OfflineDataContext().EditData(fullPath, (OrderItem)data);
+            return objects;
         }
         #endregion
 
         async Task UpdateOfflineData()
         {
-            //Clear hdd data
-            new SerializedObjectManager().DeleteAllData();
-            //Store new data
-            #region Retrieve data
-            List<OrderItem> onlineOrders = new List<OrderItem>();
-
-            List<object> list = await GetData1("Order" + branchId);
-
-            for (int i = 0; i < list.Count; i++)
+            if(branchId != "/" && !syncing)
             {
-                onlineOrders.Add((OrderItem)list[i]);
-            }
+                //Clear hdd data
+                new SerializedObjectManager().DeleteAllData();
+                //Store new data
+                #region Retrieve data
+                List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
 
-            List<MenuItem> onlineMenu = new List<MenuItem>();
+                List<object> list = await GetData1("Order" + branchId);
 
-            list.Clear();
-            list = await GetData1("Menu" + branchId);
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                onlineMenu.Add((MenuItem)list[i]);
-            }
-
-            List<AppUser> onlineUsers = new List<AppUser>();
-
-            list.Clear();
-            list = await GetData1("Account" + branchId);
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                onlineUsers.Add((AppUser)list[i]);
-            }
-
-            Branch onlineBranch = new Branch();
-
-            list.Clear();
-            list = await GetData1("Branch" + branchId);
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (((Branch)list[i]).Id == BranchSettings.Instance.branchId)
-                    onlineBranch = ((Branch)list[i]);
-            }
-            #endregion
-
-            new SerializedObjectManager().SaveData(onlineOrders, "Order");
-            new SerializedObjectManager().SaveData(onlineMenu, "Menu");
-            new SerializedObjectManager().SaveData(onlineUsers, "Account");
-            new SerializedObjectManager().SaveData(onlineBranch, "Branch");
-        }
-
-        async Task SyncData()
-        {
-            #region Retrieve data
-            List<List<OrderItem>> offlineOrders = new SerializedObjectManager().RetrieveData("Order") == null? new List<List<OrderItem>>() : (List<List<OrderItem>>)new SerializedObjectManager().RetrieveData("Order");
-
-            List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
-
-            List<object> list = await GetData1("Order" + branchId);
-
-            foreach (var item in list)
-            {
-                List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
-
-                onlineOrders.Add(data);
-            }
-            #endregion
-
-            //Update Database of changes made while offline
-            #region Sync
-            foreach (var item in onlineOrders)//List<List<OrderItem>>
-            {
-                List<string> orderNums = new List<string>();
-                foreach (var num in offlineOrders)
+                foreach (var item in list)
                 {
-                    foreach (var i in num)
-                    {
-                        orderNums.Add(i.OrderNumber);
-                    }                    
+                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    if (!data[0].Collected)
+                        onlineOrders.Add(data);
                 }
 
-                foreach (var order in item)//List<OrderItem>
-                {
-                    if (orderNums.Contains(order.OrderNumber))
-                    {
-                        foreach (var x in offlineOrders)
-                        {
-                            foreach (var x2 in x)
-                            {
-                                if(x2.OrderNumber == order.OrderNumber)
-                                {
-                                    OrderItem orderItem = x2;
+                List<MenuItem> onlineMenu = new List<MenuItem>();
 
-                                    //OrderItem
-                                    order.Fufilled = orderItem.Fufilled;
-                                    order.Purchased = orderItem.Purchased;
-                                    order.Preparable = orderItem.Preparable;
-                                    order.Collected = orderItem.Collected;
-                                    order.WaitingForPayment = orderItem.WaitingForPayment;
-                                }
-                            }
-                        }
-                    }
-                    else
+                list.Clear();
+                list = await GetData1("Menu" + branchId);
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var item = list[i];
+
+                    if (item != null)
                     {
-                        onlineOrders.Add(item);
+                        MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
+
+                        onlineMenu.Add(menuItem);
                     }
-                }               
+                }
+
+                List<AppUser> onlineUsers = new List<AppUser>();
+
+                list.Clear();
+                list = await GetData1("Account");
+
+                foreach (var item in list)
+                {
+                    var u = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
+
+                    onlineUsers.Add(u);
+                }
+
+                Branch onlineBranch = new Branch();
+
+                list.Clear();
+                list = await GetData1("Branch");
+
+                foreach (var item in list)
+                {
+                    var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
+
+                    if (b.Id == BranchSettings.Instance.branchId)
+                        onlineBranch = b;
+                }
+                #endregion
+
+                List<List<IDictionary<string, object>>> holder = new List<List<IDictionary<string, object>>>();
+
+                List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+                foreach (var item in onlineOrders)
+                {
+                    holder.Add(new List<IDictionary<string, object>>());
+
+                    foreach (var keyValuePair in item)
+                    {
+                        holder[holder.Count - 1].Add(keyValuePair.AsDictionary());
+                    }
+                }
+
+                new SerializedObjectManager().SaveData(holder, Directories.Order);
+
+                values.Clear();
+
+                foreach (var item in onlineMenu)
+                {
+                    values.Add(item.AsDictionary());
+                }
+
+                new SerializedObjectManager().SaveData(values, Directories.Menu);
+
+                values.Clear();
+
+                foreach (var item in onlineUsers)
+                {
+                    values.Add(item.AsDictionary());
+                }
+
+                new SerializedObjectManager().SaveData(values, Directories.Account);
+
+                new SerializedObjectManager().SaveData(onlineBranch.AsDictionary(), Directories.Branch);
+            }
+        }
+
+        public bool connected = false;
+        bool lastStatus = false;
+
+        public void ToggleConnectionStatus(bool status)
+        {
+            connected = status;
+
+            //if current is online and last was offline => BackOnline
+
+            if (connected && !lastStatus)
+            {
+                lastStatus = status;
+                BackOnline();
             }
 
-            EditData1("Order" + branchId + "/" + onlineOrders[0][0].OrderNumber, onlineOrders);
-            #endregion
+            lastStatus = status;
+        }
+
+        void BackOnline()
+        {
+            //Display syncing
+            //SyncData();
+            //Hide syncing
+            GetDataChanging("Order/" + BranchSettings.Instance.branchId);
+            ////UpdateOfflineData();
+        }
+        bool syncing = false;
+        async void SyncData() //Apply offline changes to db
+        {
+            if(branchId != "/" && LocalStorage.Instance.networkIdentity.isServer)
+            {
+                syncing = true;
+                #region Retrieve data
+                object offlineData = null;
+
+                if (await OfflineDataContext.GetData(Directories.Order) is List<List<IDictionary<string, object>>>)
+                    offlineData = (List<List<IDictionary<string, object>>>) await OfflineDataContext.GetData(Directories.Order);
+
+
+                offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
+
+                List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+
+                foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
+                {
+                    offlineOrders.Add(new List<OrderItem>());
+
+                    foreach (var itm in item)
+                    {
+                        offlineOrders[offlineOrders.Count - 1].Add(itm.ToObject<OrderItem>());
+                    }
+                }
+
+                List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
+
+                List<object> list = await GetData1("Order" + branchId);
+
+                foreach (var item in list)
+                {
+                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    onlineOrders.Add(data);
+                }
+                #endregion
+
+                //Add new offline orders to database
+                foreach (var order in offlineOrders)
+                {
+                    if (GetCurrentOrderNumbersModel(onlineOrders).Contains(order[0].OrderNumber))
+                        continue;
+
+                    for (int i = 0; i < order.Count; i++)
+                    {
+                        order[i].Id = i;
+
+                        await StoreData("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
+                    }
+                }
+
+                //Update with offline changes
+                foreach (var order in offlineOrders)
+                {
+                    var ord = onlineOrders.Where(o => o[0].OrderNumber == order[0].OrderNumber).ToList();
+
+                    if(ord.Count != 0)
+                        if (OrderItemChanged(order, ord[0]))
+                        {
+                            for (int i = 0; i < order.Count; i++)
+                            {
+                                await EditData("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
+                            }
+                        }
+                }
+
+                //Update with online changes
+                if (WindowManager.Instance != null)
+                    WindowManager.Instance.UpdateAllOrderViews();
+
+                syncing = false;
+            }
         }
 
         async Task SetLastActive()
         {
-            var list = await GetData1("Branch");
-
-            Branch branch = null;
-
-            foreach (var item in list)
+            if (await connectionChecker.CheckConnection())
             {
-                var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
+                var list = await GetData1("Branch");
 
-                if(b.Id == BranchSettings.Instance.branchId)
+                Branch branch = null;
+
+                foreach (var item in list)
                 {
-                    branch = b;
+                    var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
+
+                    if (b.Id == BranchSettings.Instance.branchId)
+                    {
+                        branch = b;
+                    }
                 }
+
+                if (branchId != "/")
+                {
+                    branch.LastActive = DateTime.UtcNow;
+
+                    BranchSettings.Instance.branch = branch;
+
+                    await client.UpdateAsync("Branch" + branchId, branch);
+
+                    elapsedTimeLastActive = 0;
+                }
+            }                        
+        }
+
+        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld)
+        {
+            string newItem = itemsNew[0].OrderNumber;
+            string oldItem = itemsOld[0].OrderNumber;
+
+            if (itemsNew.Count == itemsOld.Count)
+                for (int i = 0; i < itemsNew.Count; i++)
+                {
+                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled || itemsNew[i].Purchased != itemsOld[i].Purchased)
+                        return true;
+                }
+
+            return false;
+        }
+
+        Directories GetDirectory(string path)
+        {
+            string query = "";
+            foreach (char c in path)
+            {
+                if (c != '/')
+                    query += c;
+
+                if (c == '/')
+                    break;
             }
 
-            branch.LastActive = DateTime.UtcNow;
+            var array = (Directories[])Directories.GetValues(typeof(Directories));
 
-            BranchSettings.Instance.branch = branch;
+            var result = array.Where(d => d.ToString().ToLower() == query.ToLower());
+            
+            return result.ToList()[0];
+        }
 
-            await client.UpdateAsync("Branch" + branchId, branch);
+        List<List<IDictionary<string, object>>> CovertListDictionaryOrders(object input)
+        {
+            Type type = input.GetType();
+
+             if (input is List<List<IDictionary<string, object>>>)
+                return (List<List<IDictionary<string, object>>>)input;
+
+            if(input is List<object>)
+            {
+                List<List<IDictionary<string, object>>> keyValuePairs = new List<List<IDictionary<string, object>>>();
+
+                foreach (var item in (List<object>)input)
+                {
+                    keyValuePairs.Add(new List<IDictionary<string, object>>());
+
+                    foreach (var itm in (List<object>)item)
+                    {
+                        keyValuePairs[keyValuePairs.Count - 1].Add((IDictionary<string, object>)itm);
+                    }
+                }
+
+                return keyValuePairs;
+            }
+
+            return new List<List<IDictionary<string, object>>>();
+        }
+        List<IDictionary<string, object>> CovertListDictionary(object input)
+        {
+            if (input is List<IDictionary<string, object>>)
+                return (List<IDictionary<string, object>>)input;
+
+            List<IDictionary<string, object>> keyValuePairs = new List<IDictionary<string, object>>();
+
+            foreach (var item in (List<object>)input)
+            {
+                keyValuePairs.Add((IDictionary<string, object>)item);
+            }
+
+            return keyValuePairs;
+        }
+
+        void LocalDataChange()
+        {
+            WindowManager.Instance.UpdateAllOrderViews();
+        }
+
+        List<string> GetCurrentOrderNumbers(List<List<IDictionary<string, object>>> orders)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            object value = new object();
+
+            foreach (var item in orders)
+            {
+                item[0].TryGetValue("OrderNumber", out value);
+
+                if (!orderNumbers.Contains(value.ToString()))
+                    orderNumbers.Add(value.ToString());
+            }
+
+            return orderNumbers;
+        }
+        List<string> GetCurrentOrderNumbersModel(List<List<OrderItem>> orders)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orders)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber);
+            }
+
+            return orderNumbers;
         }
     }
 }

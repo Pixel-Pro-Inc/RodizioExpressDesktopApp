@@ -47,6 +47,8 @@ namespace RodizioSmartRestuarant
 
         async void UpdateMenuView()
         {
+            ActivityIndicator.AddSpinner(spinner);
+
             menuView.Children.Clear();
 
             var result = await firebaseDataContext.GetData("Menu/" + BranchSettings.Instance.branchId);
@@ -55,9 +57,12 @@ namespace RodizioSmartRestuarant
 
             foreach (var item in result)
             {
-                MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
+                if(item != null)
+                {
+                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
 
-                items.Add(menuItem);
+                    items.Add(menuItem);
+                }                
             }
 
             menuItems = items;
@@ -66,6 +71,11 @@ namespace RodizioSmartRestuarant
             {
                 menuView.Children.Add(GetPanel(items[i]));
             }
+
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+
+            ActivityIndicator.RemoveSpinner(spinner);
         }
 
         void UpdateMenuViewSearch(List<MenuItem> items)
@@ -107,6 +117,8 @@ namespace RodizioSmartRestuarant
 
         private async void AvailablityToggle_Click(object sender, RoutedEventArgs e)
         {
+            ActivityIndicator.AddSpinner(spinner);
+
             Button button = (Button)sender;
 
             string id = button.Name.Remove(0, 1);

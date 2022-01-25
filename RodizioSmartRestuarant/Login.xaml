@@ -114,6 +114,12 @@
                 Width ="120"
                 Click="Button_Click"
                 />
+
+            <Button Foreground="Red"
+                    Margin="0,20,0,0"
+                    Background="Transparent"
+                    Click="ResetPassword_Click"
+                    BorderThickness="0">Forgot Your Password?</Button>
         </StackPanel>
     </Grid>
 </Window>

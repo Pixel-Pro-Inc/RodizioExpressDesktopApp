@@ -43,24 +43,27 @@ namespace RodizioSmartRestuarant
 
             for (int i = 0; i < orders.Count; i++)
             {
-                bool skip = false;
-                foreach (var item in orders[i])
+                if (!orders[i][0].Collected)
                 {
-                    if(!item.Fufilled)
+                    bool skip = false;
+                    foreach (var item in orders[i])
                     {
-                        skip = true;
+                        if (!item.Fufilled)
+                        {
+                            skip = true;
+                        }
                     }
-                }
 
-                if (!skip)
-                {
-                    ready.Children.Add(GetLabel(orders[i]));
-                }
+                    if (!skip)
+                    {
+                        ready.Children.Add(GetLabel(orders[i]));
+                    }
 
-                if (skip)
-                {
-                    inProgress.Children.Add(GetLabel(orders[i]));
-                }
+                    if (skip)
+                    {
+                        inProgress.Children.Add(GetLabel(orders[i]));
+                    }
+                }                
             }
         }
 

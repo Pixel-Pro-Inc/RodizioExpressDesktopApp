@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Entities
 {
+    [Serializable]
     public class Branch
     {
         public string Id { get; set; }
@@ -14,5 +15,7 @@ namespace RodizioSmartRestuarant.Entities
         public string PublicId { get; set; }
         public DateTime LastActive { get; set; }
         public int PhoneNumber { get; set; }
+        public DateTime OpeningTime { get; set; }
+        public DateTime ClosingTime { get; set; }
     }
 }
