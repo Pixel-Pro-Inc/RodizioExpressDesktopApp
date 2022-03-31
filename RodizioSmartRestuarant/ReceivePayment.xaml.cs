@@ -34,6 +34,20 @@ namespace RodizioSmartRestuarant
                 itemsPanel.Children.Add(labels[i]);
             }
 
+            labels = GetLabels(order, "units");
+
+            for (int i = 0; i < labels.Count; i++)
+            {
+                unitsPanel.Children.Add(labels[i]);
+            }
+
+            labels = GetLabels(order, "unitPrice");
+
+            for (int i = 0; i < labels.Count; i++)
+            {
+                unitPricePanel.Children.Add(labels[i]);
+            }
+
             labels = GetLabels(order, "price");
 
             for (int i = 0; i < labels.Count; i++)
@@ -64,12 +78,33 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Items", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = item.Name });
+                    labels.Add(new Label() { Content = item.Name });//.Substring(0, item.Name.IndexOf(" x") + 1) });
                 }
                 labels.Add(new Label() { Content = "Total", FontWeight = FontWeights.Bold });
 
                 return labels;
             }
+            if (_type.Equals("units"))
+            {
+                labels.Add(new Label() { Content = "Units", FontWeight = FontWeights.Bold });
+                foreach (var item in order)
+                {
+                    labels.Add(new Label() { Content = item.Quantity});
+                }
+
+                return labels;
+            }
+            if (_type.Equals("unitPrice"))
+            {
+                labels.Add(new Label() { Content = "Unit Price", FontWeight = FontWeights.Bold });
+                foreach (var item in order)
+                {
+                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price)/(float)item.Quantity) });
+                }
+
+                return labels;
+            }
+
 
             float temp = 0;
 
@@ -185,7 +220,7 @@ namespace RodizioSmartRestuarant
 
         //OverLoads for promotion desired. Update the xaml if we are including it and use these 
         public void ApplyDiscount(string promoCode) => total *= 1 + Waiver.GetpromoPercent(promoCode);
-        public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user == _order[0].employee ? (float)amount : 0; //the zero needs to be replaced with error message
+        public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user.FullName() == _order[0].User ? (float)amount : 0; //the zero needs to be replaced with error message
         public void RemoveDiscount(string promoCode) => total /= 1 + Waiver.GetpromoPercent(promoCode);
         public void RemoveDiscount(double amount, OrderItem order) => total += Int32.Parse(order.Price) * order.Quantity >= total + amount ? (float)amount : 0;
 

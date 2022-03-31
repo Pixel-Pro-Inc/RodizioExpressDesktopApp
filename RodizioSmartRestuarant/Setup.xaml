@@ -43,6 +43,10 @@
                 <TextBox Name="Receipt" Height="25"></TextBox>
             </StackPanel>
 
+            <CheckBox Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked" Width="200" Margin="0,10,0,0">
+                Prefer Ethernet
+            </CheckBox>
+
             <Button Margin="0,10,0,0"
                     Width="100"
                     Background="LawnGreen"

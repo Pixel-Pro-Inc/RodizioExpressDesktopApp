@@ -24,7 +24,8 @@ namespace RodizioSmartRestuarant.Entities
             Branch,
             BranchId,
             PrinterName,
-            Settings
+            Settings,
+            NetworkInterface
         }
     }
 }

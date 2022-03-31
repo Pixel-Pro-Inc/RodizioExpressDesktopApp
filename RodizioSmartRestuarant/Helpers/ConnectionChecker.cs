@@ -17,24 +17,46 @@ namespace RodizioSmartRestuarant.Helpers
         };
 
         IFirebaseClient client;
+        public int notifCount = 0;
         public async Task<bool> CheckConnection()
         {
             bool result = true;
 
-            /*try
+            try
             {
                 client = new FireSharp.FirebaseClient(config);
 
                 FirebaseResponse response = await client.GetAsync("Branch/" + BranchSettings.Instance.branchId);
+
+                result = false;//Testing offline stuff
             }
             catch(Exception ex)
             {
                 result = false;
-            }*/
+
+                if (notifCount != 0)
+                {
+                    FirebaseDataContext.Instance.ToggleConnectionStatus(result);
+
+                    return result;
+                }                    
+
+                notifCount++;
+                new Notification("Connectivity", "You're offline. you can continue working offline but you'll miss out on new orders made by customers. Get back online as soon as possible.");
+            }
 
             FirebaseDataContext.Instance.ToggleConnectionStatus(result);
             
             return result;
+        }
+
+        [System.Runtime.InteropServices.DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
+
+        public bool CheckLAN()
+        {
+            int desc;
+            return InternetGetConnectedState(out desc, 0);
         }
     }
 }

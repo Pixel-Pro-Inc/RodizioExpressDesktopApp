@@ -6,6 +6,7 @@ using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using static RodizioSmartRestuarant.Entities.Enums;
@@ -29,8 +30,8 @@ namespace RodizioSmartRestuarant.Configuration
             //Retrieve Data
             List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.BranchId));
             List<object> data1 = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.PrinterName));
-
-            if(data != null)
+            
+            if (data != null)
             {
                 string bId = (string)data[0];
                 string pName = (string)data1[0];
@@ -44,7 +45,7 @@ namespace RodizioSmartRestuarant.Configuration
                     FirebaseDataContext.Instance = new FirebaseDataContext();
                     FirebaseDataContext.Instance.SetBranchId();
                 }
-            }            
+            }
         }
     }
 }

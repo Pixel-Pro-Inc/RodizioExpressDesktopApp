@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace RodizioSmartRestuarant.Helpers
 {
@@ -107,15 +109,18 @@ namespace RodizioSmartRestuarant.Helpers
                 int Offset = 10;
                 int smallinc = 10, mediuminc = 12, largeinc = 15;
 
-                //Image image = Resources.logo;
-                //e.Graphics.DrawImage(image, startX + 50, startY + Offset, 100, 30);
+                var bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/Images/rodizio_express_logo.png", UriKind.Absolute));
 
-                //graphics.DrawString("Welcome to HOT AND CRISPY", smallfont,
-                //      new SolidBrush(Color.Black), startX + 22, startY + Offset);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create((BitmapImage)bitmapImage));
+                var stream = new MemoryStream();
+                encoder.Save(stream);
+                stream.Flush();
+                var image = new System.Drawing.Bitmap(stream);
 
-                Offset = Offset + mediuminc;
-                String Name = "Rodizio Express";
-                DrawSimpleString(Name, largefont, Offset, 28);
+                //Image image = new Bitmap("pack://application:,,,/Images/rodizio_express_logo.png");
+
+                e.Graphics.DrawImage(image, 50, Offset, 100, 30);
 
                 Offset = Offset + largeinc + 10;
 
@@ -156,25 +161,10 @@ namespace RodizioSmartRestuarant.Helpers
                 Offset = Offset + largeinc;
                 foreach (var itran in order)
                 {
-                    InsertItem(itran.Name, Formatting.FormatAmountString(float.Parse(itran.Price)), Offset);
+                    InsertItem(itran.Name + " x " + itran.Quantity, Formatting.FormatAmountString(float.Parse(itran.Price)), Offset);
                     Offset = Offset + smallinc;
                 }
 
-                /*
-                 * Doesn't seem necessary
-                 * 
-                 foreach (var dtran in order.DealTransactions)
-                {
-                    InsertItem(dtran.Deal.Name, dtran.Total.CValue, Offset);
-                    Offset = Offset + smallinc;
-
-                    foreach (var di in dtran.Deal.DealItems)
-                    {
-                        InsertItem(di.Item.Name + " x " + (dtran.Quantity * di.Quantity), "", Offset);
-                        Offset = Offset + smallinc;
-                    }
-                }
-                 */
 
                 float total = 0;
 

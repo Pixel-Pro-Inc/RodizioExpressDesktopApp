@@ -18,6 +18,7 @@ namespace RodizioSmartRestuarant.Data
                 new SerializedObjectManager().SaveData(data, path);
                 return;
             }
+
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
         }
         public async static void StoreDataOverwrite(Directories path, object data)

@@ -54,7 +54,7 @@ namespace RodizioSmartRestuarant
             {
                 block = 1;
 
-                var responseMessage = await client.PostAsync("https://rodizioexpress.azurewebsites.net/api/account/forgotpassword/desktop/" + accountInfo.Text, null);
+                var responseMessage = await client.PostAsync("https://rodizioexpress.com/api/account/forgotpassword/desktop/" + accountInfo.Text, null);
                 token = await responseMessage.Content.ReadAsStringAsync();
 
                 if (token.Length == 7)
@@ -67,7 +67,7 @@ namespace RodizioSmartRestuarant
                     return;
                 }
 
-                ShowWarning("The username or password you entered was incorrect. try again");
+                ShowWarning("The username or phonenumber you entered was incorrect. try again");
                 block = 0;
             }
 
@@ -103,7 +103,7 @@ namespace RodizioSmartRestuarant
             {
                 block1 = 1;
 
-                await client.PostAsync("https://rodizioexpress.azurewebsites.net/api/account/forgotpassword/successful/" + accountInfo.Text + "/" + newPassword.Text, null);
+                await client.PostAsync("https://rodizioexpress.com/api/account/forgotpassword/successful/" + accountInfo.Text + "/" + newPassword.Text, null);
 
                 block1 = 0;
 

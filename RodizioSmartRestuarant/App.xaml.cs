@@ -27,10 +27,20 @@ namespace RodizioSmartRestuarant
             Dispatcher.BeginInvoke(new Action(() => Logic()));
         }
 
+        public void ShutdownApp()
+        {
+            Dispatcher.BeginInvoke(new Action(() => CloseApp()));
+        }
+
         void Logic()
         {
             Process process = Process.Start(new ProcessStartInfo(
             ((Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\osk.exe"))));
+        }
+
+        void CloseApp()
+        {
+            Application.Current.Shutdown();
         }
     }
 }

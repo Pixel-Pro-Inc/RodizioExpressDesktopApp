@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using System.Xml.Serialization;
 using static RodizioSmartRestuarant.Entities.Enums;
 
@@ -12,6 +13,9 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class SerializedObjectManager
     {
+        private const int NumberOfRetries = 6;
+        private const int DelayOnRetry = 1000;
+
         Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };
         string savePath(Directories dir) { return Path.Combine(dir.ToString()); }
         public void DeleteAllData()
@@ -30,15 +34,28 @@ namespace RodizioSmartRestuarant.Helpers
 
             var data = objects;
 
-            Directory.CreateDirectory(savePath(dir));            
-
-            var binaryFormatter = new BinaryFormatter();
-            using (var fileStream = File.Create(savePath(dir) + "/data.txt"))
+            for (int i = 1; i <= NumberOfRetries; ++i)
             {
-                binaryFormatter.Serialize(fileStream, data);
-            }
+                try
+                {
+                    // Do stuff with file
+                    Directory.CreateDirectory(savePath(dir));
 
-            File.SetAttributes(savePath(dir) + "/data.txt", FileAttributes.Normal);
+                    var binaryFormatter = new BinaryFormatter();
+                    using (var fileStream = File.Create(savePath(dir) + "/data.txt"))
+                    {
+                        binaryFormatter.Serialize(fileStream, data);
+                    }
+
+                    File.SetAttributes(savePath(dir) + "/data.txt", FileAttributes.Normal);
+
+                    break; // When done we can break loop
+                }
+                catch (IOException e) when (i <= NumberOfRetries)
+                {
+                    Thread.Sleep(DelayOnRetry);
+                }
+            }
         }
         public void SaveOverwriteData(object serializedData, Directories dir)
         {
@@ -48,19 +65,33 @@ namespace RodizioSmartRestuarant.Helpers
 
             var data = objects;
 
-            if (!File.Exists(savePath(dir)))
-                Directory.CreateDirectory(savePath(dir));
-
-            var binaryFormatter = new BinaryFormatter();
-            using (var fileStream = File.Create(savePath(dir) + "/data.txt"))
+            for (int i = 1; i <= NumberOfRetries; ++i)
             {
-                binaryFormatter.Serialize(fileStream, data);
-            }
+                try
+                {
+                    // Do stuff with file
+                    if (!File.Exists(savePath(dir)))
+                        Directory.CreateDirectory(savePath(dir));
 
-            File.SetAttributes(savePath(dir) + "/data.txt", FileAttributes.Normal);
+                    var binaryFormatter = new BinaryFormatter();
+                    using (var fileStream = File.Create(savePath(dir) + "/data.txt"))
+                    {
+                        binaryFormatter.Serialize(fileStream, data);
+                    }
+
+                    File.SetAttributes(savePath(dir) + "/data.txt", FileAttributes.Normal);
+
+                    break; // When done we can break loop
+                }
+                catch (IOException e) when (i <= NumberOfRetries)
+                {
+                    Thread.Sleep(DelayOnRetry);
+                }
+            }
         }
         public async void EditOrderData(OrderItem serializedData, Directories dir)
         {
+            //Retrieve locally stored data
             object offlineData = null;
 
             var input = await OfflineDataContext.GetData(Directories.Order);
@@ -70,6 +101,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
 
+            //Covert IDictionary to OrderItem
             List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
 
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
@@ -82,6 +114,7 @@ namespace RodizioSmartRestuarant.Helpers
                 }
             }
 
+            //Replace old data with new data
             foreach (var order in offlineOrders)
             {
                 if(order[0].OrderNumber == serializedData.OrderNumber)
@@ -91,6 +124,7 @@ namespace RodizioSmartRestuarant.Helpers
                 }
             }
 
+            //Convert OrderItem to IDictionary for storage
             List<List<IDictionary<string, object>>> data = new List<List<IDictionary<string, object>>>();
 
             foreach (var item in offlineOrders)
@@ -103,20 +137,33 @@ namespace RodizioSmartRestuarant.Helpers
                 }
             }
 
+            //Save with data overwrite
             SaveOverwriteData(data, Directories.Order);
         }
         public object RetrieveData(Directories dir)
         {
             object load = null;
 
-            if (File.Exists(savePath(dir) + "/data.txt"))
+            for (int i = 1; i <= NumberOfRetries; ++i)
             {
-                var binaryFormatter = new BinaryFormatter();
-                using (var fileStream = File.Open(savePath(dir) + "/data.txt", FileMode.Open))
+                try
                 {
-                    load = (object)binaryFormatter.Deserialize(fileStream);
+                    // Do stuff with file
+                    if (File.Exists(savePath(dir) + "/data.txt"))
+                    {
+                        var binaryFormatter = new BinaryFormatter();
+                        using (var fileStream = File.Open(savePath(dir) + "/data.txt", FileMode.Open))
+                        {
+                            load = (object)binaryFormatter.Deserialize(fileStream);
 
-                    return load;
+                            return load;
+                        }
+                    }
+                    break; // When done we can break loop
+                }
+                catch (IOException e) when (i <= NumberOfRetries)
+                {
+                    Thread.Sleep(DelayOnRetry);
                 }
             }
 

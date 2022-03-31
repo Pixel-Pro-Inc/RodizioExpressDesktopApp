@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using RodizioSmartRestuarant.Helpers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace RodizioSmartRestuarant.Extensions
 {
@@ -19,6 +19,9 @@ namespace RodizioSmartRestuarant.Extensions
 
             foreach (var item in source)
             {
+                if (item.Value == null)
+                    continue;
+
                 someObjectType
                          .GetProperty(item.Key)
                          .SetValue(someObject, item.Value, null);
@@ -37,8 +40,20 @@ namespace RodizioSmartRestuarant.Extensions
 
         }
 
-        public static byte[] ToByteArray<T>(this T obj)
+        public static byte[] ToByteArray<T>(this T obj, string destination)
         {
+            //We only use JSON objects if the data is going to an android so that we dont run into issues with namespaces
+
+            if(destination.ToUpper() == "MOBILE")
+            {
+                if (obj == null)
+                    return null;
+
+                var data = JsonConvert.SerializeObject(obj);//JsonSerializer.SerializeToUtf8Bytes(obj);
+                
+                return System.Text.Encoding.UTF8.GetBytes(data);
+            }
+
             if (obj == null)
                 return null;
             BinaryFormatter bf = new BinaryFormatter();
@@ -53,10 +68,19 @@ namespace RodizioSmartRestuarant.Extensions
         {
             if (data == null)
                 return default(T);
+
             BinaryFormatter bf = new BinaryFormatter();
             using (MemoryStream ms = new MemoryStream(data))
             {
-                object obj = bf.Deserialize(ms);
+                var obj = bf.Deserialize(ms);
+
+                if (obj is string)
+                {
+                    TCPServer.Instance.lastRequestSource = "MOBILE";
+                    return JsonConvert.DeserializeObject<T>(obj.ToString());                    
+                }
+
+                TCPServer.Instance.lastRequestSource = "!MOBILE";
                 return (T)obj;
             }
         }

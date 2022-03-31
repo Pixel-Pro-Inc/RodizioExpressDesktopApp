@@ -17,7 +17,7 @@ using RodizioSmartRestuarant.Extensions;
 
 namespace RodizioSmartRestuarant.Data
 {
-    public class FirebaseDataContext //Detect Changes In Local Storage Needs to call Updates As Well
+    public class FirebaseDataContext:OfflineDataHelpers //Detect Changes In Local Storage Needs to call Updates As Well
     {
         public static FirebaseDataContext Instance { get; set; }
 
@@ -29,7 +29,7 @@ namespace RodizioSmartRestuarant.Data
 
         IFirebaseClient client;
 
-        ConnectionChecker connectionChecker = new ConnectionChecker();
+        public ConnectionChecker connectionChecker = new ConnectionChecker();
 
         string branchId = "";
 
@@ -116,95 +116,7 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
-            Directories currentDirectory = GetDirectory(fullPath);
-
-            switch (currentDirectory)
-            {
-                case Directories.Order:
-                    var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
-
-                    if(orderresult.Count == 0)
-                    {
-                        List<IDictionary<string, object>> vals = new List<IDictionary<string, object>>();
-
-                        IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
-
-                        vals.Add(itm);
-
-                        orderresult.Add(vals);
-
-                        OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
-
-                        LocalDataChange();
-
-                        return;
-                    }
-
-                    if(data is List<List<IDictionary<string, object>>>)
-                    {
-                        if(((List<List<IDictionary<string, object>>>)data).Count != 0)
-                        {
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, data);
-
-                            LocalDataChange();
-
-                            return;
-                        }                        
-                    }
-
-                    List<string> orderNumbers = GetCurrentOrderNumbers(orderresult);
-
-                    if (orderNumbers.Contains(((OrderItem)data).OrderNumber))
-                    {
-                        OrderItem oldOrderItem = new OrderItem();
-                        for (int i = 0; i < orderresult.Count; i++)
-                        {
-                            var list = orderresult[i];
-
-                            foreach (var itm in list)
-                            {
-                                if((itm.ToObject<OrderItem>()).OrderNumber == ((OrderItem)data).OrderNumber)
-                                {
-                                    oldOrderItem = itm.ToObject<OrderItem>();
-                                }
-                            }
-                        }
-
-                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled || ((OrderItem)data).Purchased != oldOrderItem.Purchased))
-                        {
-                            int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
-
-                            IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
-
-                            orderresult[index].Add(itm);
-
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
-
-                            LocalDataChange();
-
-                            return;
-                        }
-
-                        OfflineDataContext.EditOrderData(Directories.Order, (OrderItem)data);
-
-                        LocalDataChange();
-
-                        return;
-                    }
-
-                    List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
-
-                    IDictionary<string, object> item = ((OrderItem)data).AsDictionary();
-
-                    values.Add(item);
-
-                    orderresult.Add(values);
-
-                    OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
-
-                    LocalDataChange();
-                    break;
-            }
+            await OfflineStoreData(fullPath, data);
         }
 
         public async Task<List<object>> GetData(string fullPath)
@@ -241,77 +153,7 @@ namespace RodizioSmartRestuarant.Data
                 return objects;
             }
 
-            Directories currentDirectory = GetDirectory(fullPath);            
-
-            switch (currentDirectory)
-            {
-                case Directories.Order:
-                    var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> orders = new List<object>();
-
-                    foreach (var item in orderresult)
-                    {
-                        orders.Add(new List<object>());
-
-                        foreach (var obj in item)
-                        {
-                            JObject valuePairs = (JObject)JToken.FromObject(obj.ToObject<OrderItem>());
-
-                            ((List<object>)orders[orders.Count - 1]).Add(valuePairs);
-                        }
-
-                        orders[orders.Count - 1] = (JArray)JToken.FromObject(orders[orders.Count - 1]);
-                    }
-
-                    return orders;
-
-                case Directories.Menu:
-
-                    var menuresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> menu = new List<object>();
-
-                    foreach (var item in menuresult)
-                    {
-                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<MenuItem>());
-                        menu.Add(keyValuePairs);
-                    }
-
-                    return menu;
-
-                case Directories.Account:
-                    var accountresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> accounts = new List<object>();
-
-                    foreach (var item in accountresult)
-                    {
-                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<AppUser>());
-                        accounts.Add(keyValuePairs);
-                    }
-
-                    return accounts;
-
-                case Directories.Branch:
-                    var branchresult = await OfflineDataContext.GetData(Directories.Branch);
-
-                    List<object> result = new List<object>();
-
-                    if (branchresult is IDictionary<string, object>)
-                    {
-                        result.Add(((IDictionary<string, object>)branchresult).ToObject<Branch>());
-                        return result;
-                    }
-
-                    var branch= (Branch)(((List<object>)branchresult)[0]);                    
-
-                    result.Add(branch);
-
-                    return result;
-            }            
-
-            return null;
+            return await OfflineGetData(fullPath);
         }        
 
         public async Task EditData(string fullPath, object data)
@@ -556,20 +398,27 @@ namespace RodizioSmartRestuarant.Data
             lastStatus = status;
         }
 
-        void BackOnline()
+        async void BackOnline()
         {
+            if(connectionChecker.notifCount != 0)
+            {
+                new Notification("Connectivity", "You're back online. We're syncing the changes you made while you were offline.");
+                connectionChecker.notifCount = 0;
+            }
+            
             //Display syncing
-            //SyncData();
+            await SyncData();
             //Hide syncing
             GetDataChanging("Order/" + BranchSettings.Instance.branchId);
-            ////UpdateOfflineData();
+            await UpdateOfflineData();
         }
         bool syncing = false;
-        async void SyncData() //Apply offline changes to db
+        async Task SyncData() //Apply offline changes to db
         {
             if(branchId != "/" && LocalStorage.Instance.networkIdentity.isServer)
             {
                 syncing = true;
+                //Include Completed Orders
                 #region Retrieve data
                 object offlineData = null;
 
@@ -632,6 +481,28 @@ namespace RodizioSmartRestuarant.Data
                         }
                 }
 
+                //Transfer completed orders to completed order node
+                onlineOrders = new List<List<OrderItem>>();
+
+                list = await GetData1("Order" + branchId);
+
+                foreach (var item in list)
+                {
+                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    onlineOrders.Add(data);
+                }
+
+                foreach (var item in onlineOrders)
+                {
+                    if (item[0].Collected)
+                    {
+                        string fullPath = "Order" + branchId + "/" + item[0].OrderNumber;
+
+                        await CompleteOrder(fullPath);
+                    }
+                }
+
                 //Update with online changes
                 if (WindowManager.Instance != null)
                     WindowManager.Instance.UpdateAllOrderViews();
@@ -679,105 +550,13 @@ namespace RodizioSmartRestuarant.Data
             if (itemsNew.Count == itemsOld.Count)
                 for (int i = 0; i < itemsNew.Count; i++)
                 {
-                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled || itemsNew[i].Purchased != itemsOld[i].Purchased)
+                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled 
+                        || itemsNew[i].Purchased != itemsOld[i].Purchased
+                        || itemsNew[i].Collected != itemsOld[i].Collected)
                         return true;
                 }
 
             return false;
-        }
-
-        Directories GetDirectory(string path)
-        {
-            string query = "";
-            foreach (char c in path)
-            {
-                if (c != '/')
-                    query += c;
-
-                if (c == '/')
-                    break;
-            }
-
-            var array = (Directories[])Directories.GetValues(typeof(Directories));
-
-            var result = array.Where(d => d.ToString().ToLower() == query.ToLower());
-            
-            return result.ToList()[0];
-        }
-
-        List<List<IDictionary<string, object>>> CovertListDictionaryOrders(object input)
-        {
-            Type type = input.GetType();
-
-             if (input is List<List<IDictionary<string, object>>>)
-                return (List<List<IDictionary<string, object>>>)input;
-
-            if(input is List<object>)
-            {
-                List<List<IDictionary<string, object>>> keyValuePairs = new List<List<IDictionary<string, object>>>();
-
-                foreach (var item in (List<object>)input)
-                {
-                    keyValuePairs.Add(new List<IDictionary<string, object>>());
-
-                    foreach (var itm in (List<object>)item)
-                    {
-                        keyValuePairs[keyValuePairs.Count - 1].Add((IDictionary<string, object>)itm);
-                    }
-                }
-
-                return keyValuePairs;
-            }
-
-            return new List<List<IDictionary<string, object>>>();
-        }
-        List<IDictionary<string, object>> CovertListDictionary(object input)
-        {
-            if (input is List<IDictionary<string, object>>)
-                return (List<IDictionary<string, object>>)input;
-
-            List<IDictionary<string, object>> keyValuePairs = new List<IDictionary<string, object>>();
-
-            foreach (var item in (List<object>)input)
-            {
-                keyValuePairs.Add((IDictionary<string, object>)item);
-            }
-
-            return keyValuePairs;
-        }
-
-        void LocalDataChange()
-        {
-            WindowManager.Instance.UpdateAllOrderViews();
-        }
-
-        List<string> GetCurrentOrderNumbers(List<List<IDictionary<string, object>>> orders)
-        {
-            List<string> orderNumbers = new List<string>();
-
-            object value = new object();
-
-            foreach (var item in orders)
-            {
-                item[0].TryGetValue("OrderNumber", out value);
-
-                if (!orderNumbers.Contains(value.ToString()))
-                    orderNumbers.Add(value.ToString());
-            }
-
-            return orderNumbers;
-        }
-        List<string> GetCurrentOrderNumbersModel(List<List<OrderItem>> orders)
-        {
-            List<string> orderNumbers = new List<string>();
-
-            foreach (var item in orders)
-            {
-                if (!orderNumbers.Contains(item[0].OrderNumber))
-                    orderNumbers.Add(item[0].OrderNumber);
-            }
-
-            return orderNumbers;
         }
     }
 }

@@ -9,50 +9,72 @@ using RodizioSmartRestuarant.Data;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using RodizioSmartRestuarant.Entities;
+using System.Net.NetworkInformation;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public static class TCPServer
+    public class TCPServer : OfflineDataHelpers        
     {
-        public static SimpleTcpServer server = null;
-
-        public static void CreateServer(string ip)
+        public static TCPServer Instance { get; set; }
+        public SimpleTcpServer server = null;
+        public List<string> networkIps = new List<string>();
+        public string lastRequestSource;
+        public string CreateServer()
         {
+            Instance = this;
+
+            string ip = LocalIP.GetLocalIPv4();
             server = new SimpleTcpServer(ip + ":2000");
 
             server.Events.DataReceived += Events_DataReceived;
+            server.Events.ClientConnected += Events_ClientConnected;
 
             StartServer();
+
+            return ip;
         }
 
-        private static void Events_DataReceived(object sender, DataReceivedEventArgs e)
+        private void Events_ClientConnected(object sender, ConnectionEventArgs e)
+        {
+            if (!networkIps.Contains(e.IpPort))
+                networkIps.Add(e.IpPort);
+        }
+
+        private void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
             ProcessResponse(e.Data.FromByteArray<RequestObject>(), e.IpPort);
         }
 
-        public static void StartServer()
+        public void StartServer()
         {
             server.Start();
         }
 
-        public async static void ProcessResponse(RequestObject request, string ipPort)
+        public async void ProcessResponse(RequestObject request, string ipPort)
         {
             switch (request.requestType)
             {
                 case RequestObject.requestMethod.Get:
-                    var result = await FirebaseDataContext.Instance.GetData(request.fullPath);
+                    var result = await OfflineGetData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
-                    await FirebaseDataContext.Instance.StoreData(request.fullPath, request.data);
+                    if(lastRequestSource == "MOBILE")
+                    {
+                        //Handles data from mobile
+                        var obj = request.data;
+
+                        request.data = JsonConvert.DeserializeObject<OrderItem>(obj.ToString());
+                    }
+                    await OfflineStoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Update:
-                    await FirebaseDataContext.Instance.StoreData(request.fullPath, request.data);
+                    await OfflineStoreData(request.fullPath, request.data);
                     break;
             }
         }
 
-        public static void SendData(string ipPort, List<object> data, string fullPath)
+        public void SendData(string ipPort, List<object> data, string fullPath)
         {
             //Convert JObject and JArray to serializable types
             int count = 0;
@@ -96,12 +118,24 @@ namespace RodizioSmartRestuarant.Helpers
             if(server.IsListening)
                 if(data != null)
                 {
-                    Byte[] response = data.ToByteArray<List<object>>();
+                    Byte[] response = data.ToByteArray<List<object>>(lastRequestSource);
 
                     string data_Base64 = Convert.ToBase64String(response);
 
                     server.Send(ipPort, data_Base64);
                 }
+        }
+
+        public void UpdateAllNetworkDevicesUI()
+        {
+            //Sends a specific byte array to trigger a UI refresh
+            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            byte[] data = enc.GetBytes("REFRESH");
+
+            foreach (var ipPort in networkIps)
+            {
+                server.Send(ipPort, data);
+            }            
         }
     }
 }

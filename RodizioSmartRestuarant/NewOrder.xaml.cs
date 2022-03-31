@@ -109,7 +109,7 @@ namespace RodizioSmartRestuarant
 
             stackPanel.Children.Add(label);
 
-            if (menuItem.Category != "Meat")
+            if (menuItem.Category != "Meat" || menuItem.Price != "0.00")
             {
                 Label label1 = new Label()
                 {
@@ -119,7 +119,7 @@ namespace RodizioSmartRestuarant
                 stackPanel.Children.Add(label1);
             }
 
-            if (menuItem.Category == "Meat")
+            if (menuItem.Category == "Meat" && menuItem.Price == "0.00")
             {
                 Label label1 = new Label()
                 {
@@ -143,6 +143,22 @@ namespace RodizioSmartRestuarant
                 stackPanel.Children.Add(label2);
             }
 
+            //Quantity Counter
+            Label label3 = new Label()
+            {
+                Content = "Quantity"
+            };
+
+            TextBox textBox1 = new TextBox()
+            {
+                Name = "q" + menuItem.Id,
+                Text = "1"
+            };
+
+            textBox1.TextChanged += Quantity_TextChanged;
+            stackPanel.Children.Add(label3);
+            stackPanel.Children.Add(textBox1);
+
             Button button = new Button()
             {
                 Content = "Add",
@@ -153,7 +169,14 @@ namespace RodizioSmartRestuarant
 
             if (menuItem.Category == "Meat")
             {
-                button.Visibility = Visibility.Collapsed;
+                if(menuItem.Price != "0.00")
+                {
+                    button.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    button.Visibility = Visibility.Collapsed;
+                }
             }
             
             stackPanel.Children.Add(button);
@@ -162,6 +185,38 @@ namespace RodizioSmartRestuarant
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             return stackPanel;
+        }
+
+        int lastQuantity = 1;
+
+        private void Quantity_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+
+            float inputNum = 0;
+
+            if (textBox.Text != "" && textBox.Text != null)
+                if (float.TryParse(textBox.Text, out inputNum))
+                {
+                    string id = textBox.Name.Remove(0, 1);
+
+                    int numId = Int32.Parse(id);
+
+                    for (int i = 0; i < menuItems.Count; i++)
+                    {
+                        if (menuItems[i].Id == numId)
+                        {
+                            if (inputNum >= 1)
+                            {
+                                lastQuantity = (int)inputNum;
+                                return;
+                            }
+
+                            StackPanel stack1 = (StackPanel)textBox.Parent;
+                            ((Button)stack1.Children[stack1.Children.Count - 1]).Visibility = Visibility.Collapsed;
+                        }
+                    }
+                }
         }
 
         void UpdateOrderView()
@@ -194,8 +249,8 @@ namespace RodizioSmartRestuarant
                 Foreground = new SolidColorBrush(Colors.White),
                 Margin = new Thickness(5,0,10,0),
                 VerticalAlignment = VerticalAlignment.Center,
-                Width = 150,
-                Content = orderItem.Name
+                MinWidth= 200,
+                Content = orderItem.Name + " x " + orderItem.Quantity
             };
 
             Label label1 = new Label()
@@ -203,7 +258,7 @@ namespace RodizioSmartRestuarant
                 Foreground = new SolidColorBrush(Colors.White),
                 Margin = new Thickness(0, 0, 10, 0),
                 Width = 80,
-                Content = orderItem.Weight != null? orderItem.Weight : "- grams"
+                Content = orderItem.Weight != null? orderItem.Weight + " grams" : "- grams"
             };
 
             float x = float.Parse(orderItem.Price);
@@ -289,13 +344,13 @@ namespace RodizioSmartRestuarant
                                 StackPanel stack = (StackPanel)textBox.Parent;
                                 ((Label)stack.Children[3]).Content = "Weight = " + menuItems[i].Rate * inputNum + " grams";
 
-                                ((Button)stack.Children[4]).Visibility = Visibility.Visible;
+                                ((Button)stack.Children[stack.Children.Count - 1]).Visibility = Visibility.Visible;
 
                                 return;
                             }
 
                             StackPanel stack1 = (StackPanel)textBox.Parent;
-                            ((Button)stack1.Children[4]).Visibility = Visibility.Collapsed;
+                            ((Button)stack1.Children[stack1.Children.Count - 1]).Visibility = Visibility.Collapsed;
                         }
                     }
                 }
@@ -313,7 +368,7 @@ namespace RodizioSmartRestuarant
             {
                 if (menuItems[i].Id == numId)
                 {
-                    if(menuItems[i].Category == "Meat")
+                    if(menuItems[i].Category == "Meat" && menuItems[i].Price == "0.00")
                     {
                         string price = ((TextBox)((StackPanel)button.Parent).Children[2]).Text;
                         string weight = (float.Parse(price) * menuItems[i].Rate).ToString("f2") + " grams";
@@ -325,14 +380,34 @@ namespace RodizioSmartRestuarant
                             Fufilled = false,
                             Name = menuItems[i].Name,
                             Preparable = false,
-                            Price = price,
+                            Price = Formatting.FormatAmountString((float.Parse(price) * (float)lastQuantity)),
                             Purchased = false,
                             WaitingForPayment = true,
                             PaymentMethod = "",
-                            Quantity = 1,
+                            Quantity = lastQuantity,
                             Reference = "till",
                             Category = menuItems[i].Category,
                             Weight = weight,
+                            PrepTime = Int32.Parse(menuItems[i].prepTime)
+                        });
+                    }
+                    else if (menuItems[i].Category == "Meat" && menuItems[i].Price != "0.00")
+                    {
+                        orders.Add(new OrderItem()
+                        {
+                            Collected = false,
+                            Description = menuItems[i].Description,
+                            Fufilled = false,
+                            Name = menuItems[i].Name,
+                            Preparable = false,
+                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
+                            Purchased = false,
+                            WaitingForPayment = true,
+                            PaymentMethod = "",
+                            Quantity = lastQuantity,
+                            Reference = "till",
+                            Category = menuItems[i].Category,
+                            Weight = menuItems[i].Weight,
                             PrepTime = Int32.Parse(menuItems[i].prepTime)
                         });
                     }
@@ -345,16 +420,18 @@ namespace RodizioSmartRestuarant
                             Fufilled = false,
                             Name = menuItems[i].Name,
                             Preparable = false,
-                            Price = menuItems[i].Price,
+                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
                             PaymentMethod = "",
                             Purchased = false,
                             Category = menuItems[i].Category,
                             WaitingForPayment = true,
-                            Quantity = 1,
+                            Quantity = lastQuantity,
                             Reference = "till",
                             PrepTime = Int32.Parse(menuItems[i].prepTime)
                         });
-                    }                    
+                    }
+
+                    lastQuantity = 1;
 
                     UpdateOrderView();
                 }

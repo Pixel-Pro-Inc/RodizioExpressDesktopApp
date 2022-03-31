@@ -74,6 +74,7 @@
                 Click="Statuses_Click"
                 />
             <Button
+                Name="menuButton"
                 Style="{StaticResource ButtonStyleRound}"
                 Content="Menu"
                 VerticalAlignment="Bottom"

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Icon="Images/rodizio_icon.ico"
         ResizeMode="NoResize"
-        Title="Receive Payment" Height="400" Width="600">
+        Title="Receive Payment" Height="400" Width="650">
     <Grid>
         <Border>
             <Border.Background>
@@ -30,6 +30,10 @@
                 <ScrollViewer Margin="0,0,60,0">
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Name="itemsPanel">
+                        </StackPanel>
+                        <StackPanel Name="unitsPanel">
+                        </StackPanel>
+                        <StackPanel Name="unitPricePanel">
                         </StackPanel>
                         <StackPanel Name="pricePanel">
                         </StackPanel>

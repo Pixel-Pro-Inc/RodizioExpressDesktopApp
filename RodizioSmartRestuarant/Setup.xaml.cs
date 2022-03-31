@@ -3,6 +3,7 @@ using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +23,7 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class Setup : Window
     {
+        public NetworkInterfaceType networkInterfaceType = NetworkInterfaceType.Wireless80211;
         public Setup()
         {
             InitializeComponent();
@@ -70,6 +72,7 @@ namespace RodizioSmartRestuarant
         {            
             new SerializedObjectManager().SaveData(id, Directories.BranchId);
             new SerializedObjectManager().SaveData(name, Directories.PrinterName);
+            new SerializedObjectManager().SaveData(networkInterfaceType, Directories.NetworkInterface);
 
             BranchSettings.Instance.Init();
             WindowManager.Instance.CloseAndOpen(this, new Login());
@@ -78,6 +81,16 @@ namespace RodizioSmartRestuarant
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Validate(ID.Text, Receipt.Text);
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            networkInterfaceType = NetworkInterfaceType.Ethernet;
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            networkInterfaceType = NetworkInterfaceType.Wireless80211;
         }
     }
 }

@@ -85,25 +85,89 @@ namespace RodizioSmartRestuarant
 
         public void UpdateOrderView(List<List<OrderItem>> data, UIChangeSource? source = null)
         {
-            List<List<OrderItem>> temp = data.Where(o => !o[0].Collected).ToList();
-
-            if (source == null)
-                source = GetUIChangeSource(temp);
-
-            temp = Formatting.ChronologicalOrderList(temp);
-
-            List<string> orderNumbers = GetCurrentOrderNumbers();
-
-            switch (source)
+            this.Dispatcher.Invoke(() =>
             {
-                case UIChangeSource.Addition:
-                    for (int i = 0; i < temp.Count; i++)
-                    {
-                        var item = temp[i];
+                List<List<OrderItem>> temp = data.Where(o => !o[0].Collected).ToList();
 
-                        if (!orderNumbers.Contains(temp[i][0].OrderNumber))
+                if (source == null)
+                    source = GetUIChangeSource(temp);
+
+                temp = Formatting.ChronologicalOrderList(temp);
+
+                List<string> orderNumbers = GetCurrentOrderNumbers();
+
+                switch (source)
+                {
+                    case UIChangeSource.Addition:
+                        for (int i = 0; i < temp.Count; i++)
                         {
-                            orderNumbers.Add(temp[i][0].OrderNumber);
+                            var item = temp[i];
+
+                            if (!orderNumbers.Contains(temp[i][0].OrderNumber))
+                            {
+                                orderNumbers.Add(temp[i][0].OrderNumber);
+
+                                if (!item[0].Collected)
+                                {
+                                    orders.Add(item);
+
+                                    orderViewer.Children.Add(GetPanel(item));
+                                }
+                            }
+                        }
+                        ActivityIndicator.RemoveSpinner(spinner);
+                        break;
+                    case UIChangeSource.Edit:
+                        //Hide Collected Items
+                        for (int i = 0; i < orders.Count; i++)
+                        {
+                            var item = orders[i];
+
+                            if (item[0].Collected)
+                            {
+                                orders.RemoveAt(i);
+
+                                orderViewer.Children.RemoveAt(i);
+                            }
+                        }
+
+                        //Replace Edited Items
+                        for (int i = 0; i < temp.Count; i++)
+                        {
+                            var item = temp[i];
+
+                            List<List<OrderItem>> ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
+
+                            if (OrderItemChanged(item, ord[0], i))
+                            {
+                                orders[i] = item;
+
+                                orderViewer.Children.Insert(i, GetPanel(item));
+                                orderViewer.Children.RemoveAt(i + 1);
+
+                                continue;
+                            }
+
+                            ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
+
+                            if (item.Count != ord[0].Count)
+                            {
+                                orders[i] = item;
+
+                                orderViewer.Children.Insert(i, GetPanel(item));
+                                orderViewer.Children.RemoveAt(i + 1);
+                            }
+                        }
+
+                        ActivityIndicator.RemoveSpinner(spinner);
+                        break;
+                    case UIChangeSource.StartUp:
+                        orderViewer.Children.Clear();
+                        orders.Clear();
+
+                        for (int i = 0; i < temp.Count; i++)
+                        {
+                            var item = temp[i];
 
                             if (!item[0].Collected)
                             {
@@ -111,111 +175,53 @@ namespace RodizioSmartRestuarant
 
                                 orderViewer.Children.Add(GetPanel(item));
                             }
-                        }                        
-                    }
-                    ActivityIndicator.RemoveSpinner(spinner);
-                    break;
-                case UIChangeSource.Edit:
-                    //Hide Collected Items
-                    for (int i = 0; i < orders.Count; i++)
-                    {
-                        var item = orders[i];
-
-                        if (item[0].Collected)
-                        {
-                            orders.RemoveAt(i);
-
-                            orderViewer.Children.RemoveAt(i);
-                        }
-                    }
-
-                    //Replace Edited Items
-                    for (int i = 0; i < temp.Count; i++)
-                    {
-                        var item = temp[i];
-
-                        List<List<OrderItem>> ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
-
-                        if (OrderItemChanged(item, ord[0], i))
-                        {
-                            orders[i] = item;
-
-                            orderViewer.Children.Insert(i, GetPanel(item));
-                            orderViewer.Children.RemoveAt(i + 1);
-
-                            continue;
                         }
 
-                        ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
+                        ActivityIndicator.RemoveSpinner(spinner);
+                        break;
+                    case UIChangeSource.Deletion:
+                        List<string> orderNumbersNew = new List<string>();
 
-                        if (item.Count != ord[0].Count)
+                        foreach (var item in temp)
                         {
-                            orders[i] = item;
-
-                            orderViewer.Children.Insert(i, GetPanel(item));
-                            orderViewer.Children.RemoveAt(i + 1);
+                            if (!orderNumbersNew.Contains(item[0].OrderNumber))
+                                orderNumbersNew.Add(item[0].OrderNumber);
                         }
-                    }
 
-                    ActivityIndicator.RemoveSpinner(spinner);
-                    break;
-                case UIChangeSource.StartUp:
-                    for (int i = 0; i < temp.Count; i++)
-                    {
-                        var item = temp[i];
-
-                        if (!item[0].Collected)
+                        foreach (var item in orderNumbers)
                         {
-                            orders.Add(item);
+                            if (!orderNumbersNew.Contains(item))
+                            {
+                                int i = orderNumbers.IndexOf(item);
 
-                            orderViewer.Children.Add(GetPanel(item));
+                                orders.RemoveAt(i);
+
+                                orderViewer.Children.RemoveAt(i);
+                            }
                         }
-                    }
-
-                    ActivityIndicator.RemoveSpinner(spinner);
-                    break;
-                case UIChangeSource.Deletion:
-                    List<string> orderNumbersNew = new List<string>();
-
-                    foreach (var item in temp)
-                    {
-                        if (!orderNumbersNew.Contains(item[0].OrderNumber))
-                            orderNumbersNew.Add(item[0].OrderNumber);
-                    }
-
-                    foreach (var item in orderNumbers)
-                    {
-                        if (!orderNumbersNew.Contains(item))
+                        ActivityIndicator.RemoveSpinner(spinner);
+                        break;
+                    case UIChangeSource.Search:
+                        for (int i = 0; i < temp.Count; i++)
                         {
-                            int i = orderNumbers.IndexOf(item);
+                            var item = temp[i];
 
-                            orders.RemoveAt(i);
+                            if (!item[0].Collected)
+                            {
+                                orders.Add(item);
 
-                            orderViewer.Children.RemoveAt(i);
+                                orderViewer.Children.Add(GetPanel(item));
+                            }
                         }
-                    }
-                    ActivityIndicator.RemoveSpinner(spinner);
-                    break;
-                case UIChangeSource.Search:
-                    for (int i = 0; i < temp.Count; i++)
-                    {
-                        var item = temp[i];
+                        ActivityIndicator.RemoveSpinner(spinner);
+                        break;
+                }
 
-                        if (!item[0].Collected)
-                        {
-                            orders.Add(item);
+                //Update with size settings
+                RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
-                            orderViewer.Children.Add(GetPanel(item));
-                        }
-                    }
-                    ActivityIndicator.RemoveSpinner(spinner);
-                    break;
-            }
-
-            //Update with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
-
-            UpdateOrderCount();
+                UpdateOrderCount();
+            });            
         }
 
         bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld, int index)
@@ -250,7 +256,7 @@ namespace RodizioSmartRestuarant
         {
             List<string> orderNumbers = GetCurrentOrderNumbers();
 
-            if (orderNumbers.Count == 0) return UIChangeSource.StartUp; //Started POS Up
+            if (orderNumbers.Count == 0 || ContainsCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
 
             List<List<OrderItem>> order = Orders;//Updated Order List
 
@@ -263,6 +269,18 @@ namespace RodizioSmartRestuarant
             if (count > 0) return UIChangeSource.Addition;
 
             return UIChangeSource.Edit;
+        }
+
+        bool ContainsCollectedOrder(List<List<OrderItem>> orderItems)
+        {
+            int count = 0;
+
+            foreach (var orderItem in orderItems)
+            {
+                 count += orderItem.Where(o => o.Collected).ToList().Count();
+            }
+
+            return count > 0? true: false;
         }
 
         StackPanel GetPanel(List<OrderItem> items)
@@ -398,7 +416,7 @@ namespace RodizioSmartRestuarant
 
                 Label label3 = new Label()
                 {
-                    Content = items[i].Name,
+                    Content = items[i].Name//.Substring(0, items[i].Name.IndexOf(" x") + 1),
                 };
 
                 stackPanel4.Children.Add(label3);
@@ -413,6 +431,52 @@ namespace RodizioSmartRestuarant
 
                     stackPanel4.Children.Add(label2);
                 }
+            }
+
+            StackPanel stackPanel4_1 = new StackPanel();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Label label2 = new Label()
+                    {
+                        FontWeight = FontWeights.Bold,
+                        Content = "Units"
+                    };
+
+                    stackPanel4_1.Children.Add(label2);
+                }
+
+                Label label3 = new Label()
+                {
+                    Content = items[i].Quantity
+                };
+
+                stackPanel4_1.Children.Add(label3);
+            }
+
+            StackPanel stackPanel4_2 = new StackPanel();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Label label2 = new Label()
+                    {
+                        FontWeight = FontWeights.Bold,
+                        Content = "Unit Price"
+                    };
+
+                    stackPanel4_2.Children.Add(label2);
+                }
+
+                Label label3 = new Label()
+                {
+                    Content = Formatting.FormatAmountString(float.Parse(items[i].Price) / (float)items[i].Quantity)                    
+                };
+
+                stackPanel4_2.Children.Add(label3);
             }
 
             StackPanel stackPanel5 = new StackPanel();
@@ -457,6 +521,8 @@ namespace RodizioSmartRestuarant
             }
 
             stackPanel3.Children.Add(stackPanel4);
+            stackPanel3.Children.Add(stackPanel4_1);
+            stackPanel3.Children.Add(stackPanel4_2);
             stackPanel3.Children.Add(stackPanel5);           
 
             return stackPanel;
@@ -533,6 +599,19 @@ namespace RodizioSmartRestuarant
 
                     string branchId = "";
                     string fullPath = "";
+
+                    if (!await new ConnectionChecker().CheckConnection())
+                    {
+                        branchId = BranchSettings.Instance.branchId;
+                        fullPath = "Order/" + branchId;
+
+                        foreach (var item in orders[i])
+                        {
+                            await firebaseDataContext.StoreData(fullPath, item);
+                        }
+
+                        return;
+                    }                    
 
                     foreach (var item in orders[i])
                     {
@@ -649,8 +728,14 @@ namespace RodizioSmartRestuarant
             WindowManager.Instance.Open(new OrderStatus(orders));
         }
 
-        private void Menu_Click(object sender, RoutedEventArgs e)
+        private async void Menu_Click(object sender, RoutedEventArgs e)
         {
+            if(!await FirebaseDataContext.Instance.connectionChecker.CheckConnection())
+            {
+                ShowWarning("You need to be online to access the menu page.");              
+                return;
+            }
+
             WindowManager.Instance.Open(new MenuEditor());
         }
 
@@ -662,6 +747,16 @@ namespace RodizioSmartRestuarant
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             WindowManager.Instance.Open(new Settings());
+        }
+
+        void ShowWarning(string msg)
+        {
+            string messageBoxText = msg;
+            string caption = "Warning";
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Warning;
+
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
     }
 }
