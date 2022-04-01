@@ -68,24 +68,24 @@ namespace RodizioSmartRestuarant
             ToggleSpinner();
 
             errorMsgPassword.Visibility = Visibility.Hidden;
-            errorMsgUser.Visibility = Visibility.Hidden;            
+            errorMsgUser.Visibility = Visibility.Hidden;
 
-            string username = usernameField.Text.ToLower(); username = username.Replace(" ","");// This is just in case someone puts a space in the username by accident
-            string password = passwordField.Password; password = password.Replace(" ","");
+            string username = usernameField.Text.ToLower();
+            string password = passwordField.Password;
 
             if (username != null && password != null)
-                if(username != "" && password != "")
+                if (username != "" && password != "")
                 {
                     var u = await GetUsers();
 
                     List<AppUser> users = u;
                     for (int i = 0; i < users.Count; i++)
                     {
-                        if(users[i].UserName == username)
+                        if (users[i].UserName == username)
                         {
-                            if(PasswordCheck(users[i], password))
+                            if (PasswordCheck(users[i], password))
                             {
-                                if(users[i].branchId[0] == BranchSettings.Instance.branchId)
+                                if (users[i].branchId[0] == BranchSettings.Instance.branchId)
                                 {
                                     SignedIn(users[i]);
                                     return;
@@ -96,7 +96,7 @@ namespace RodizioSmartRestuarant
 
                                 ToggleSpinner();
 
-                                return;                                
+                                return;
                             }
 
                             errorMsgPassword.Content = "Password is incorrect";
@@ -114,8 +114,8 @@ namespace RodizioSmartRestuarant
 
                     return;
                 }
-            
-            if(username == null || username == "")
+
+            if (username == null || username == "")
             {
                 errorMsgUser.Content = "You cannot leave this field empty";
                 errorMsgUser.Visibility = Visibility.Visible;
@@ -142,7 +142,7 @@ namespace RodizioSmartRestuarant
             {
                 loadingCircle.Visibility = Visibility.Hidden;
                 pageContent.Visibility = Visibility.Visible;
-            }                
+            }
         }
 
         void SignedIn(AppUser user)
@@ -183,6 +183,37 @@ namespace RodizioSmartRestuarant
             return users;
         }
 
+        int block = 0;
+        private async void ResetPassword_Click(object sender, RoutedEventArgs e)
+        {
+            if (block == 0)
+            {
+                block = 1;
+
+                if (!(await new ConnectionChecker().CheckConnection()))
+                {
+                    //Message Box
+                    ShowWarning();
+                    block = 0;
+                    return;
+                }
+
+                WindowManager.Instance.CloseAndOpen(this, new ResetPasswordScreen());
+
+                block = 0;
+            }
+
+        }
+
+        void ShowWarning()
+        {
+            string messageBoxText = "You cannot reset your password without an internet connection.";
+            string caption = "Warning";
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Warning;
+
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
         private void forgotpassword_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
 
