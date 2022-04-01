@@ -15,10 +15,8 @@ namespace RodizioSmartRestuarant.Helpers
 
             foreach (var item in menuItems)
             {
-
-                if (item.Name.ToLower().Contains(query.ToLower()))
+                if (item.Name.ToLower().Contains(query.ToLower()) || item.Category.ToLower().Contains(query.ToLower()))
                 {
-
                     list.Add(item);
                 }
             }

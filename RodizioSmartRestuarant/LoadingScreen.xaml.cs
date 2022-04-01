@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant
 {
@@ -24,9 +25,7 @@ namespace RodizioSmartRestuarant
     {
         public LoadingScreen()
         {
-            InitializeComponent();
-
-            AppInitialization();
+            InitializeComponent();            
 
             NextPage();
         }
@@ -36,14 +35,6 @@ namespace RodizioSmartRestuarant
         {
             base.OnClosed(e);
             IsClosed = true;
-        }
-
-        void AppInitialization()
-        {
-            BranchSettings.Instance = new BranchSettings();
-            LocalStorage.Instance = new LocalStorage();
-            WindowManager.Instance = new WindowManager();
-            FirebaseDataContext.Instance = new FirebaseDataContext();
         }
 
         private void LoadingScreen_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -56,7 +47,20 @@ namespace RodizioSmartRestuarant
         {
             await Task.Delay(3000);
 
-            WindowManager.Instance.CloseAndOpen(this, new Login());
+            if (!FirstTime())
+                WindowManager.Instance.CloseAndOpen(this, new Login());
+
+            if (FirstTime())
+                WindowManager.Instance.CloseAndOpen(this, new Setup());
+        }
+
+        bool FirstTime()
+        {
+            List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.BranchId));
+            if (data == null)
+                return true;
+
+            return false;
         }
     }
 }

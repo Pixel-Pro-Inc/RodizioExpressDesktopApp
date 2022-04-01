@@ -24,7 +24,7 @@
         
         
         <StackPanel>
-            <Label Margin="10,0,0,0" FontWeight="DemiBold" FontSize="20">Menu Editor</Label>
+            <TextBlock Margin="10,0,0,0" FontWeight="DemiBold" FontSize="20">Menu Editor</TextBlock>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button                    
             Height="40"
@@ -115,8 +115,35 @@
             </StackPanel>            
         </StackPanel>
 
-        <WrapPanel Grid.Row="1" Name="menuView" HorizontalAlignment="Center">
-            
-        </WrapPanel>
+        <ScrollViewer Grid.Row="1">
+            <WrapPanel Name="menuView" HorizontalAlignment="Center">
+
+            </WrapPanel>
+        </ScrollViewer>
+
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
     </Grid>
 </Window>

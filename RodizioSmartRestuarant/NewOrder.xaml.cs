@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 using RodizioSmartRestuarant.Data;
+using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
 
 namespace RodizioSmartRestuarant
 {
@@ -48,6 +49,8 @@ namespace RodizioSmartRestuarant
 
         async void UpdateMenuView()
         {
+            ActivityIndicator.AddSpinner(spinner);
+
             menuView.Children.Clear();
 
             var result = await firebaseDataContext.GetData("Menu/" + BranchSettings.Instance.branchId);
@@ -56,9 +59,12 @@ namespace RodizioSmartRestuarant
 
             foreach (var item in result)
             {
-                MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
+                if (item != null)
+                {
+                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
 
-                items.Add(menuItem);
+                    items.Add(menuItem);
+                }                
             }
 
             menuItems = items;
@@ -68,6 +74,11 @@ namespace RodizioSmartRestuarant
                 if (items[i].Availability)
                     menuView.Children.Add(GetPanel(items[i]));
             }
+
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+
+            ActivityIndicator.RemoveSpinner(spinner);
         }
 
         void UpdateMenuViewSearch(List<MenuItem> items)
@@ -78,6 +89,9 @@ namespace RodizioSmartRestuarant
             {
                 menuView.Children.Add(GetPanel(items[i]));
             }
+
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
 
         StackPanel GetPanel(MenuItem menuItem)
@@ -95,21 +109,21 @@ namespace RodizioSmartRestuarant
 
             stackPanel.Children.Add(label);
 
-            if (menuItem.Category != "Meat")
+            if (menuItem.Category != "Meat" || menuItem.Price != "0.00")
             {
                 Label label1 = new Label()
                 {
-                    Content = "BWP " + menuItem.Price
+                    Content = "BWP " + Formatting.FormatAmountString(float.Parse(menuItem.Price))
                 };
 
                 stackPanel.Children.Add(label1);
             }
 
-            if (menuItem.Category == "Meat")
+            if (menuItem.Category == "Meat" && menuItem.Price == "0.00")
             {
                 Label label1 = new Label()
                 {
-                    Content = "Minimum price = " + menuItem.MinimumPrice
+                    Content = "Minimum price = " + Formatting.FormatAmountString(menuItem.MinimumPrice)
                 };
 
                 TextBox textBox = new TextBox()
@@ -129,6 +143,22 @@ namespace RodizioSmartRestuarant
                 stackPanel.Children.Add(label2);
             }
 
+            //Quantity Counter
+            Label label3 = new Label()
+            {
+                Content = "Quantity"
+            };
+
+            TextBox textBox1 = new TextBox()
+            {
+                Name = "q" + menuItem.Id,
+                Text = "1"
+            };
+
+            textBox1.TextChanged += Quantity_TextChanged;
+            stackPanel.Children.Add(label3);
+            stackPanel.Children.Add(textBox1);
+
             Button button = new Button()
             {
                 Content = "Add",
@@ -139,12 +169,54 @@ namespace RodizioSmartRestuarant
 
             if (menuItem.Category == "Meat")
             {
-                button.Visibility = Visibility.Collapsed;
+                if(menuItem.Price != "0.00")
+                {
+                    button.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    button.Visibility = Visibility.Collapsed;
+                }
             }
             
             stackPanel.Children.Add(button);
 
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+
             return stackPanel;
+        }
+
+        int lastQuantity = 1;
+
+        private void Quantity_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+
+            float inputNum = 0;
+
+            if (textBox.Text != "" && textBox.Text != null)
+                if (float.TryParse(textBox.Text, out inputNum))
+                {
+                    string id = textBox.Name.Remove(0, 1);
+
+                    int numId = Int32.Parse(id);
+
+                    for (int i = 0; i < menuItems.Count; i++)
+                    {
+                        if (menuItems[i].Id == numId)
+                        {
+                            if (inputNum >= 1)
+                            {
+                                lastQuantity = (int)inputNum;
+                                return;
+                            }
+
+                            StackPanel stack1 = (StackPanel)textBox.Parent;
+                            ((Button)stack1.Children[stack1.Children.Count - 1]).Visibility = Visibility.Collapsed;
+                        }
+                    }
+                }
         }
 
         void UpdateOrderView()
@@ -158,6 +230,9 @@ namespace RodizioSmartRestuarant
                 orderView.Children.Add(GetStackPanel(orders[i], i));
             }
 
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+
             UpdateTotal();
         }
 
@@ -169,22 +244,21 @@ namespace RodizioSmartRestuarant
                 Orientation = Orientation.Horizontal
             };
 
-            TextBlock label = new TextBlock()
+            Label label = new Label()
             {
                 Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(5,0,30,0),
-                Width = 100,
+                Margin = new Thickness(5,0,10,0),
                 VerticalAlignment = VerticalAlignment.Center,
-                TextWrapping = TextWrapping.WrapWithOverflow,
-                Text = orderItem.Name
+                MinWidth= 200,
+                Content = orderItem.Name + " x " + orderItem.Quantity
             };
 
             Label label1 = new Label()
             {
                 Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(0, 0, 30, 0),
+                Margin = new Thickness(0, 0, 10, 0),
                 Width = 80,
-                Content = orderItem.Weight != null? orderItem.Weight + " grams": "- grams"
+                Content = orderItem.Weight != null? orderItem.Weight + " grams" : "- grams"
             };
 
             float x = float.Parse(orderItem.Price);
@@ -192,9 +266,9 @@ namespace RodizioSmartRestuarant
             Label label2 = new Label()
             {
                 Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(0, 0, 30, 0),
+                Margin = new Thickness(0, 0, 10, 0),
                 Width = 80,
-                Content ="BWP " + x.ToString("f2")
+                Content ="BWP " + Formatting.FormatAmountString(x)
             };
 
             Button button = new Button()
@@ -211,6 +285,9 @@ namespace RodizioSmartRestuarant
             stackPanel.Children.Add(button);
 
             button.Click += Remove_Click;
+
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             return stackPanel;
         }
@@ -229,6 +306,16 @@ namespace RodizioSmartRestuarant
                     orders.RemoveAt(i);
 
                     UpdateOrderView();
+
+                    if (phoneNumber.Text != null && phoneNumber.Text != "")
+                        if (phoneNumber.Text.Length == 8 && orders.Count > 0)
+                        {
+                            confirmButton.Visibility = Visibility.Visible;
+
+                            return;
+                        }
+
+                    confirmButton.Visibility = Visibility.Collapsed;
 
                     return;
                 }
@@ -257,13 +344,13 @@ namespace RodizioSmartRestuarant
                                 StackPanel stack = (StackPanel)textBox.Parent;
                                 ((Label)stack.Children[3]).Content = "Weight = " + menuItems[i].Rate * inputNum + " grams";
 
-                                ((Button)stack.Children[4]).Visibility = Visibility.Visible;
+                                ((Button)stack.Children[stack.Children.Count - 1]).Visibility = Visibility.Visible;
 
                                 return;
                             }
 
                             StackPanel stack1 = (StackPanel)textBox.Parent;
-                            ((Button)stack1.Children[4]).Visibility = Visibility.Collapsed;
+                            ((Button)stack1.Children[stack1.Children.Count - 1]).Visibility = Visibility.Collapsed;
                         }
                     }
                 }
@@ -281,10 +368,10 @@ namespace RodizioSmartRestuarant
             {
                 if (menuItems[i].Id == numId)
                 {
-                    if(menuItems[i].Category == "Meat")
+                    if(menuItems[i].Category == "Meat" && menuItems[i].Price == "0.00")
                     {
                         string price = ((TextBox)((StackPanel)button.Parent).Children[2]).Text;
-                        string weight = (float.Parse(price) * menuItems[i].Rate).ToString();
+                        string weight = (float.Parse(price) * menuItems[i].Rate).ToString("f2") + " grams";
 
                         orders.Add(new OrderItem()
                         {
@@ -293,12 +380,35 @@ namespace RodizioSmartRestuarant
                             Fufilled = false,
                             Name = menuItems[i].Name,
                             Preparable = false,
-                            Price = price,
+                            Price = Formatting.FormatAmountString((float.Parse(price) * (float)lastQuantity)),
                             Purchased = false,
                             WaitingForPayment = true,
-                            Quantity = 1,
+                            PaymentMethod = "",
+                            Quantity = lastQuantity,
                             Reference = "till",
-                            Weight = weight
+                            Category = menuItems[i].Category,
+                            Weight = weight,
+                            PrepTime = Int32.Parse(menuItems[i].prepTime)
+                        });
+                    }
+                    else if (menuItems[i].Category == "Meat" && menuItems[i].Price != "0.00")
+                    {
+                        orders.Add(new OrderItem()
+                        {
+                            Collected = false,
+                            Description = menuItems[i].Description,
+                            Fufilled = false,
+                            Name = menuItems[i].Name,
+                            Preparable = false,
+                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
+                            Purchased = false,
+                            WaitingForPayment = true,
+                            PaymentMethod = "",
+                            Quantity = lastQuantity,
+                            Reference = "till",
+                            Category = menuItems[i].Category,
+                            Weight = menuItems[i].Weight,
+                            PrepTime = Int32.Parse(menuItems[i].prepTime)
                         });
                     }
                     else
@@ -310,21 +420,39 @@ namespace RodizioSmartRestuarant
                             Fufilled = false,
                             Name = menuItems[i].Name,
                             Preparable = false,
-                            Price = menuItems[i].Price,
+                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
+                            PaymentMethod = "",
                             Purchased = false,
+                            Category = menuItems[i].Category,
                             WaitingForPayment = true,
-                            Quantity = 1,
+                            Quantity = lastQuantity,
                             Reference = "till",
+                            PrepTime = Int32.Parse(menuItems[i].prepTime)
                         });
-                    }                    
+                    }
+
+                    lastQuantity = 1;
 
                     UpdateOrderView();
                 }
             }
+
+            if (phoneNumber.Text != null && phoneNumber.Text != "")
+                if (phoneNumber.Text.Length == 8 && orders.Count > 0)
+                {
+                    confirmButton.Visibility = Visibility.Visible;
+
+                    return;
+                }
+
+            confirmButton.Visibility = Visibility.Collapsed;
         }
 
         async void ConfirmOrder(List<OrderItem> orderItems)
         {
+            //Activity Indicator
+            ActivityIndicator.AddSpinner(spinner);
+
             int x = await GetOrderNum(BranchSettings.Instance.branchId);
 
             string d = DateTime.Now.Day.ToString("00") + "/" + DateTime.Now.Month.ToString("00") + "/"
@@ -337,11 +465,13 @@ namespace RodizioSmartRestuarant
                 orderItem.OrderNumber = d + "_" + x;
                 orderItem.OrderNumber = orderItem.OrderNumber.Replace('/', '-');
 
+                orderItem.OrderDateTime = DateTime.UtcNow;
+
                 orderItem.PhoneNumber = phoneNumber.Text;
 
                 orderItem.Id = i;
 
-                await firebaseDataContext.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
+                //await firebaseDataContext.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
             }            
 
             phoneNumber.Text = "";
@@ -359,11 +489,11 @@ namespace RodizioSmartRestuarant
             }
 
             if (pos == null)
-                pos = new POS();            
+                pos = new POS();
+
+            ActivityIndicator.RemoveSpinner(spinner);
 
             WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(orderItems, (POS)pos));
-
-            UpdateOrderView();
         }
 
         public async Task<int> GetOrderNum(string branchId)
@@ -426,7 +556,7 @@ namespace RodizioSmartRestuarant
                 totalAmt += float.Parse(orders[i].Price);
             }
 
-            total.Content = totalAmt.ToString("f2");
+            total.Content = Formatting.FormatAmountString(totalAmt);
         }
 
         //Search
@@ -494,15 +624,20 @@ namespace RodizioSmartRestuarant
             }
         }
 
+        int block1 = 0;
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
-            ConfirmOrder(orders);
+            if(block1 == 0)
+            {
+                ConfirmOrder(orders);
+                block1 = 1;
+            }            
         }
 
         private void phoneNumber_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (phoneNumber.Text != null)
-                if (phoneNumber.Text.Length == 8)
+            if (phoneNumber.Text != null && phoneNumber.Text != "")
+                if (phoneNumber.Text.Length == 8 && orders.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;
 

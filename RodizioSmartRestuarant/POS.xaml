@@ -8,6 +8,7 @@
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
         Icon="Images/rodizio_icon.ico"
+        WindowState="Maximized"
         Title="POS" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -45,11 +46,11 @@
             </Border.Background>
         </Border>
 
-        <Label Grid.ColumnSpan="2"
+        <TextBlock Grid.ColumnSpan="2"
                HorizontalAlignment="Center"
                FontSize="20"
                Foreground="White"
-               FontWeight="Bold">Rodizio Express POS</Label>
+               FontWeight="Bold">Rodizio Express POS</TextBlock>
 
         <StackPanel Grid.Row="1" Grid.Column="0">
             <Button
@@ -73,6 +74,7 @@
                 Click="Statuses_Click"
                 />
             <Button
+                Name="menuButton"
                 Style="{StaticResource ButtonStyleRound}"
                 Content="Menu"
                 VerticalAlignment="Bottom"
@@ -93,6 +95,16 @@
                 />
             <Button
                 Style="{StaticResource ButtonStyleRound}"
+                Content="Settings"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Customize views"
+                Width ="120"
+                Click="Settings_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
                 Content="Logout"
                 VerticalAlignment="Bottom"
                 Margin="0,10,0,0"
@@ -103,11 +115,11 @@
                 />            
         </StackPanel>
 
-        <Label Foreground="White"
+        <TextBlock Foreground="White"
                HorizontalAlignment="Center"
                Grid.Column="0"
                Grid.Row="1"
-               VerticalAlignment="Bottom">Version 1.0.0</Label>
+               VerticalAlignment="Bottom">Version 1.0.0</TextBlock>
 
         <StackPanel Grid.Column="1" Grid.Row="1">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Height="65">
@@ -200,11 +212,11 @@
             </StackPanel>
         </StackPanel>
 
-        <Label Grid.Row="1"
+        <TextBlock Grid.Row="1"
                Name ="activeOrdersCount"
                Grid.Column="1"
                Margin="20,55,0,0"
-               FontWeight="Medium">Active Orders</Label>
+               FontWeight="Medium">Active Orders</TextBlock>
 
         <Border 
             Grid.Row="1"
@@ -228,5 +240,29 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
             Source="Images/pixel_pro_logo.png"/>
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
     </Grid>
 </Window>

@@ -4,17 +4,8 @@ using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace RodizioSmartRestuarant
 {
@@ -43,6 +34,20 @@ namespace RodizioSmartRestuarant
                 itemsPanel.Children.Add(labels[i]);
             }
 
+            labels = GetLabels(order, "units");
+
+            for (int i = 0; i < labels.Count; i++)
+            {
+                unitsPanel.Children.Add(labels[i]);
+            }
+
+            labels = GetLabels(order, "unitPrice");
+
+            for (int i = 0; i < labels.Count; i++)
+            {
+                unitPricePanel.Children.Add(labels[i]);
+            }
+
             labels = GetLabels(order, "price");
 
             for (int i = 0; i < labels.Count; i++)
@@ -52,6 +57,9 @@ namespace RodizioSmartRestuarant
 
             title.Content = "Order number - " + order[0].OrderNumber.Substring(order[0].OrderNumber.IndexOf('_') + 1, 4);
 
+
+            //Update with size settings
+            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
         public bool IsClosed { get; private set; }
 
@@ -70,26 +78,47 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Items", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = item.Name });
+                    labels.Add(new Label() { Content = item.Name });//.Substring(0, item.Name.IndexOf(" x") + 1) });
                 }
                 labels.Add(new Label() { Content = "Total", FontWeight = FontWeights.Bold });
 
                 return labels;
             }
+            if (_type.Equals("units"))
+            {
+                labels.Add(new Label() { Content = "Units", FontWeight = FontWeights.Bold });
+                foreach (var item in order)
+                {
+                    labels.Add(new Label() { Content = item.Quantity});
+                }
+
+                return labels;
+            }
+            if (_type.Equals("unitPrice"))
+            {
+                labels.Add(new Label() { Content = "Unit Price", FontWeight = FontWeights.Bold });
+                foreach (var item in order)
+                {
+                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price)/(float)item.Quantity) });
+                }
+
+                return labels;
+            }
+
 
             float temp = 0;
 
             labels.Add(new Label() { Content = "Price", FontWeight = FontWeights.Bold });
             foreach (var item in order)
             {
-                labels.Add(new Label() { Content = item.Price });
+                labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price)) });
 
                 temp += float.Parse(item.Price);
             }
 
             SetTotal(temp);
 
-            labels.Add(new Label() { Content = temp.ToString("f2"), FontWeight = FontWeights.Bold });
+            labels.Add(new Label() { Content = Formatting.FormatAmountString(temp), FontWeight = FontWeights.Bold });
 
             return labels;
         }
@@ -106,7 +135,35 @@ namespace RodizioSmartRestuarant
                 float f = float.Parse(changeAmt.Content.ToString());
                 if (f >= 0)
                 {
+                    List<OrderItem> orderItems = new List<OrderItem>();
                     foreach (var item in _order)
+                    {
+                        orderItems.Add(new OrderItem()
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            Category = item.Category,
+                            Description = item.Description,
+                            Reference = item.Reference,
+                            Price = item.Price,
+                            Weight = item.Weight,
+                            Fufilled = item.Fufilled,
+                            Purchased = item.Purchased,
+                            PaymentMethod = item.PaymentMethod,
+                            Preparable = item.Preparable,
+                            WaitingForPayment = item.WaitingForPayment,
+                            Quantity = item.Quantity,
+                            PhoneNumber = item.PhoneNumber,
+                            OrderNumber = item.OrderNumber,
+                            //Add changes to OrderItem model here as well
+                            OrderDateTime = item.OrderDateTime,
+                            Collected = item.Collected,
+                            User = LocalStorage.Instance.user.FullName(),
+                            PrepTime = item.PrepTime
+                        });
+                    }
+
+                    foreach (var item in orderItems)
                     {
                         item.WaitingForPayment = false;
                         item.Purchased = true;
@@ -114,7 +171,7 @@ namespace RodizioSmartRestuarant
                         item.PaymentMethod = method;
                     }
 
-                    _pOS.OnTransaction(_order[0].OrderNumber, _order);
+                    _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
 
                     PrintReceipt(_order, BranchSettings.Instance.branch);
 
@@ -125,14 +182,18 @@ namespace RodizioSmartRestuarant
         //An option of whether the customer is using a card
         private void Card_Click(object sender, RoutedEventArgs e)
         {
-            amountBox.Text = total.ToString("f2");
+            amountBox.Text = Formatting.FormatAmountString(total);
             method = "card";
+
+            amountBox.IsEnabled = false;
         }
         //An option of whether the customer is using a cash
         private void Cash_Click(object sender, RoutedEventArgs e)
         {
             amountBox.Text = "";
             method = "cash";
+
+            amountBox.IsEnabled = true;
         }
         //This event handler calculates and displays the change amount in real time
         private void amountBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -159,7 +220,7 @@ namespace RodizioSmartRestuarant
 
         //OverLoads for promotion desired. Update the xaml if we are including it and use these 
         public void ApplyDiscount(string promoCode) => total *= 1 + Waiver.GetpromoPercent(promoCode);
-        public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user == _order[0].employee ? (float)amount : 0; //the zero needs to be replaced with error message
+        public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user.FullName() == _order[0].User ? (float)amount : 0; //the zero needs to be replaced with error message
         public void RemoveDiscount(string promoCode) => total /= 1 + Waiver.GetpromoPercent(promoCode);
         public void RemoveDiscount(double amount, OrderItem order) => total += Int32.Parse(order.Price) * order.Quantity >= total + amount ? (float)amount : 0;
 

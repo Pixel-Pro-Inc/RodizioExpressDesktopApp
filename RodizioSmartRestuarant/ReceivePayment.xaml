@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Icon="Images/rodizio_icon.ico"
         ResizeMode="NoResize"
-        Title="Receive Payment" Height="400" Width="600">
+        Title="Receive Payment" Height="400" Width="650">
     <Grid>
         <Border>
             <Border.Background>
@@ -18,9 +18,9 @@
         </Border>
         
         <StackPanel>
-            <Label HorizontalAlignment="Center"
+            <TextBlock HorizontalAlignment="Center"
                FontSize="30"
-               FontWeight="DemiBold">Receive Payment</Label>
+               FontWeight="DemiBold">Receive Payment</TextBlock>
 
             <Label FontSize="15"
                    Name="title"
@@ -30,6 +30,10 @@
                 <ScrollViewer Margin="0,0,60,0">
                     <StackPanel Orientation="Horizontal">
                         <StackPanel Name="itemsPanel">
+                        </StackPanel>
+                        <StackPanel Name="unitsPanel">
+                        </StackPanel>
+                        <StackPanel Name="unitPricePanel">
                         </StackPanel>
                         <StackPanel Name="pricePanel">
                         </StackPanel>
@@ -67,12 +71,13 @@
                         Enter Amount
                     </Label>
                     <TextBox Name="amountBox"
+                             IsEnabled="False"
                              TextChanged="amountBox_TextChanged"></TextBox>
 
-                    <Label FontSize="30"
+                    <TextBlock FontSize="30"
                            FontWeight="DemiBold">
                         Change
-                    </Label>
+                    </TextBlock>
                     <Label FontSize="15"
                            Name="changeAmt"
                            FontWeight="SemiBold"></Label>

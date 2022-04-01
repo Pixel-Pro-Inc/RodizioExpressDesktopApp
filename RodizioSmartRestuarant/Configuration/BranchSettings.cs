@@ -2,11 +2,14 @@
 using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Configuration
 {
@@ -18,9 +21,31 @@ namespace RodizioSmartRestuarant.Configuration
         public Branch branch { get; set; }
         public BranchSettings()
         {
-            branchId = "rd29502";
-
             Instance = this;
+
+            Init();
+        }
+        public void Init()
+        {
+            //Retrieve Data
+            List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.BranchId));
+            List<object> data1 = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.PrinterName));
+            
+            if (data != null)
+            {
+                string bId = (string)data[0];
+                string pName = (string)data1[0];
+
+                //Check if empty
+                if (bId != null)
+                {
+                    branchId = "rd" + bId;
+                    printerName = pName;
+
+                    FirebaseDataContext.Instance = new FirebaseDataContext();
+                    FirebaseDataContext.Instance.SetBranchId();
+                }
+            }
         }
     }
 }

@@ -16,5 +16,16 @@ namespace RodizioSmartRestuarant.Entities
             Search,
             StartUp
         }
+        public enum Directories
+        {
+            Order, 
+            Menu, 
+            Account, 
+            Branch,
+            BranchId,
+            PrinterName,
+            Settings,
+            NetworkInterface
+        }
     }
 }

@@ -1,11 +1,13 @@
-﻿using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace RodizioSmartRestuarant.Helpers
 {
@@ -44,7 +46,7 @@ namespace RodizioSmartRestuarant.Helpers
             public void Print(string printername)
             {
                 PrintDocument = new PrintDocument();
-                PrintDocument.PrinterSettings.PrinterName = printername;
+                PrintDocument.PrinterSettings.PrinterName = printername == "printername"? null: printername;
 
                 PrintDocument.PrintPage += new PrintPageEventHandler(FormatPage);
                 PrintDocument.Print();
@@ -107,15 +109,18 @@ namespace RodizioSmartRestuarant.Helpers
                 int Offset = 10;
                 int smallinc = 10, mediuminc = 12, largeinc = 15;
 
-                //Image image = Resources.logo;
-                //e.Graphics.DrawImage(image, startX + 50, startY + Offset, 100, 30);
+                var bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/Images/rodizio_express_logo.png", UriKind.Absolute));
 
-                //graphics.DrawString("Welcome to HOT AND CRISPY", smallfont,
-                //      new SolidBrush(Color.Black), startX + 22, startY + Offset);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create((BitmapImage)bitmapImage));
+                var stream = new MemoryStream();
+                encoder.Save(stream);
+                stream.Flush();
+                var image = new System.Drawing.Bitmap(stream);
 
-                Offset = Offset + mediuminc;
-                String Name = "Rodizio Express";
-                DrawSimpleString(Name, largefont, Offset, 28);
+                //Image image = new Bitmap("pack://application:,,,/Images/rodizio_express_logo.png");
+
+                e.Graphics.DrawImage(image, 50, Offset, 100, 30);
 
                 Offset = Offset + largeinc + 10;
 
@@ -123,7 +128,7 @@ namespace RodizioSmartRestuarant.Helpers
                 DrawLine(underLine, largefont, Offset, 0);
 
                 Offset = Offset + mediuminc;
-                DrawAtStart("Invoice Number: " + order[0].OrderNumber, Offset);
+                DrawAtStart("Order Number: " + order[0].OrderNumber.Substring(11, 4), Offset);
 
                 if (!String.Equals(order[0].PhoneNumber, "N/A"))
                 {
@@ -136,6 +141,15 @@ namespace RodizioSmartRestuarant.Helpers
                 Offset = Offset + mediuminc;
                 DrawAtStart("Date: " + DateTime.Now, Offset);
 
+                Offset = Offset + mediuminc;
+                int pTime = 0;
+                foreach (var item in order)
+                {
+                    if (pTime < item.PrepTime)
+                        pTime = item.PrepTime;
+                }
+                DrawAtStart("Order Preparation Time: " + pTime + " minutes", Offset);
+
                 Offset = Offset + smallinc;
                 underLine = "-------------------------------------";
                 DrawLine(underLine, largefont, Offset, 0);
@@ -147,37 +161,34 @@ namespace RodizioSmartRestuarant.Helpers
                 Offset = Offset + largeinc;
                 foreach (var itran in order)
                 {
-                    InsertItem(itran.Name, itran.Price, Offset);
+                    InsertItem(itran.Name + " x " + itran.Quantity, Formatting.FormatAmountString(float.Parse(itran.Price)), Offset);
                     Offset = Offset + smallinc;
                 }
 
+
                 float total = 0;
-                /*
-                 if (!order.Cash.Discount.IsZero())
+
                 foreach (var item in order)
                 {
                     total += float.Parse(item.Price);
                 }
-                */
-
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem(" Amount Received: ", Math.Round(amtReceived, 2).ToString("f2"), Offset);
+                InsertHeaderStyleItem(" Amount Payable: ", Formatting.FormatAmountString(total), Offset);
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem(" Change: ", Math.Round(changeAmt,2).ToString("f2"), Offset);
+                InsertHeaderStyleItem(" Amount Received: ", Formatting.FormatAmountString(amtReceived), Offset);
+
+                Offset = Offset + smallinc;
+                InsertHeaderStyleItem(" Change: ", Formatting.FormatAmountString(changeAmt), Offset);
 
                 Offset = Offset + largeinc;
-                String address = shop.Address;
+                String address = shop.Location;
                 DrawSimpleString("Address: " + address, minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
-                String number = "Tel: " + shop.RestaurantPhoneNumber;
+                String number = "Tel: " + shop.PhoneNumber;
                 DrawSimpleString(number, minifont, Offset, 35);
-
-                Offset = Offset + smallinc;
-                String served = "Served by: " + order[0].employee.UserName;
-                DrawSimpleString(served, minifont, Offset, 35);
 
                 Offset = Offset + 7;
                 underLine = "-------------------------------------";
@@ -191,17 +202,13 @@ namespace RodizioSmartRestuarant.Helpers
                 underLine = "-------------------------------------";
                 DrawLine(underLine, largefont, Offset, 0);
 
-                Offset += (2 * mediuminc);
-                string tip = "TIP: -----------------------------";
-                InsertItem(tip, "", Offset);
+                Offset = Offset + largeinc;
+                string Cashier = "Cashier: " + LocalStorage.Instance.user.FullName();
+                DrawSimpleString(Cashier, minifont, Offset, 15);
 
                 Offset = Offset + largeinc;
                 string DrawnBy = "Powered by Pixel Pro";
                 DrawSimpleString(DrawnBy, minifont, Offset, 15);
-            }
-            private void SetShopandOrder(OrderItem order, Branch shop)
-            {
-                //this is supposed to retrieve data from either local or firebase storage and then set order and shop to be the right values
             }
         }
     }
