@@ -103,7 +103,14 @@
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         Foreground="OrangeRed"/>
-
+            <Label 
+                HorizontalAlignment="Center"        
+                Visibility="Visible"
+                Name="forgotpassword"
+                Foreground="Red"
+                FontSize="17"
+                MouseDoubleClick="forgotpassword_MouseDoubleClick"
+                >Forgotten Your password?</Label>
             <Button
                 Style="{StaticResource ButtonStyleRound}"
                 Content="Sign In"

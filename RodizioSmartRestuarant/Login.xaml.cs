@@ -70,10 +70,10 @@ namespace RodizioSmartRestuarant
             errorMsgPassword.Visibility = Visibility.Hidden;
             errorMsgUser.Visibility = Visibility.Hidden;            
 
-            string username = usernameField.Text.ToLower();
-            string password = passwordField.Password;
+            string username = usernameField.Text.ToLower(); username = username.Replace(" ","");// This is just in case someone puts a space in the username by accident
+            string password = passwordField.Password; password = password.Replace(" ","");
 
-            if(username != null && password != null)
+            if (username != null && password != null)
                 if(username != "" && password != "")
                 {
                     var u = await GetUsers();
@@ -181,6 +181,11 @@ namespace RodizioSmartRestuarant
             }
 
             return users;
+        }
+
+        private void forgotpassword_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
