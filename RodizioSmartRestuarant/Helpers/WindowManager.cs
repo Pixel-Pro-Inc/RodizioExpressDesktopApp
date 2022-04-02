@@ -312,7 +312,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             if(BranchSettings.Instance.branchId != null && changeCount > 0)
             {
-                var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
+                var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
                 List<List<OrderItem>> temp = new List<List<OrderItem>>();
 

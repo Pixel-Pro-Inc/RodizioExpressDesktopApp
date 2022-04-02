@@ -600,31 +600,15 @@ namespace RodizioSmartRestuarant
                     string branchId = "";
                     string fullPath = "";
 
-                    if (!await new ConnectionChecker().CheckConnection())
-                    {
-                        branchId = BranchSettings.Instance.branchId;
-                        fullPath = "Order/" + branchId;
-
-                        foreach (var item in orders[i])
-                        {
-                            await firebaseDataContext.StoreData(fullPath, item);
-                        }
-
-                        return;
-                    }                    
+                    branchId = BranchSettings.Instance.branchId;
+                    fullPath = "Order/" + branchId;
 
                     foreach (var item in orders[i])
                     {
-                        branchId = BranchSettings.Instance.branchId;
-                        fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
-
-                        await firebaseDataContext.EditData(fullPath, item);
+                        await firebaseDataContext.StoreData(fullPath, item);
                     }
 
-                    branchId = BranchSettings.Instance.branchId;
-                    fullPath = "Order/" + branchId + "/" + orders[i][0].OrderNumber;
-
-                    await firebaseDataContext.CompleteOrder(fullPath);
+                    return;
                 }
             }
         }

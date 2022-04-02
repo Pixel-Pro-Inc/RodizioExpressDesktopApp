@@ -1,3 +1,5 @@
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
 using RodizioSmartRestuarant.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,96 +18,131 @@ namespace RodizioSmartRestuarant.Helpers
         public class PrintJob
         {
             private PrintDocument PrintDocument;
-            private Graphics graphics;
+            private XGraphics graphics;
             private List<OrderItem> order { set; get; }
             private Branch shop { set; get; }
 
             private float amtReceived { get; set; }
             private float changeAmt { get; set; }
-
-            private int InitialHeight = 360;
             public PrintJob(List<OrderItem> order, Branch shop, float amountReceived, float Change)
             {
                 this.order = order;
                 this.shop = shop;
                 amtReceived = amountReceived;
                 changeAmt = Change;
-
-                AdjustHeight();
-            }
-            private void AdjustHeight()
-            {
-                var capacity = 5 * order.Count;
-                InitialHeight += capacity;
-
-                /*
-                capacity = 5 * order.DealTransactions.Capacity;
-                InitialHeight += capacity;
-                */
             }
             public void Print(string printername)
             {
-                PrintDocument = new PrintDocument();
-                PrintDocument.PrinterSettings.PrinterName = printername == "printername"? null: printername;
+                string printerName = printername == "printername"? null: printername;
 
-                PrintDocument.PrintPage += new PrintPageEventHandler(FormatPage);
-                PrintDocument.Print();
+                PdfDocument pdfDoc = new PdfDocument();
+
+                PdfPage pdfPage = new PdfPage();
+                pdfDoc.Pages.Add(pdfPage);
+
+                graphics = XGraphics.FromPdfPage(pdfPage);
+
+                FormatPage();
+
+                string printPath = new SerializedObjectManager().PrintReceiptPath(Enums.Directories.Print) + "/receipt.pdf";
+
+                pdfDoc.Save(printPath);
+
+                new PrintReceiptScaled().Print(printerName, printPath);
             } //this is whats called when we print the receipt
             void DrawAtStart(string text, int Offset)
             {
                 int startX = 10;
                 int startY = 5;
-                Font minifont = new Font("Arial", 5);
+                Font minifont = new Font("Arial", 5, GraphicsUnit.World);
 
-                graphics.DrawString(text, minifont,
-                         new SolidBrush(Color.Black), startX + 5, startY + Offset);
+                XPoint xPoint = new XPoint()
+                {
+                    X = startX + 5,
+                    Y = startY + Offset
+                };
+
+                graphics.DrawString(text, minifont, new XSolidBrush(XColors.Black), xPoint);
+                            //new SolidBrush(Color.Black), startX + 5, startY + Offset);
             }
             void InsertItem(string key, string value, int Offset)
             {
-                Font minifont = new Font("Arial", 5);
+                Font minifont = new Font("Arial", 5, GraphicsUnit.World);
                 int startX = 10;
                 int startY = 5;
 
-                graphics.DrawString(key, minifont,
-                             new SolidBrush(Color.Black), startX + 5, startY + Offset);
+                XPoint xPoint = new XPoint()
+                {
+                    X = startX + 5,
+                    Y = startY + Offset
+                };
 
-                graphics.DrawString(value, minifont,
-                         new SolidBrush(Color.Black), startX + 130, startY + Offset);
+                XPoint xPoint_1 = new XPoint()
+                {
+                    X = startX + 130,
+                    Y = startY + Offset
+                };
+
+                graphics.DrawString(key, minifont, new XSolidBrush(XColors.Black), xPoint);
+                             //new SolidBrush(Color.Black), startX + 5, startY + Offset);
+
+                graphics.DrawString(value, minifont, new XSolidBrush(XColors.Black), xPoint_1);
+                            //new SolidBrush(Color.Black), startX + 130, startY + Offset);
             }
             void InsertHeaderStyleItem(string key, string value, int Offset)
             {
                 int startX = 10;
                 int startY = 5;
-                Font itemfont = new Font("Arial", 6, FontStyle.Bold);
+                Font itemfont = new Font("Arial", 6, FontStyle.Bold, GraphicsUnit.World);
 
-                graphics.DrawString(key, itemfont,
-                             new SolidBrush(Color.Black), startX + 5, startY + Offset);
+                XPoint xPoint = new XPoint()
+                {
+                    X = startX + 5,
+                    Y = startY + Offset
+                };
 
-                graphics.DrawString(value, itemfont,
-                         new SolidBrush(Color.Black), startX + 130, startY + Offset);
+                XPoint xPoint_1 = new XPoint()
+                {
+                    X = startX + 130,
+                    Y = startY + Offset
+                };
+
+                graphics.DrawString(key, itemfont, new XSolidBrush(XColors.Black), xPoint);
+                //new SolidBrush(Color.Black), startX + 5, startY + Offset);
+
+                graphics.DrawString(value, itemfont, new XSolidBrush(XColors.Black), xPoint_1);
+                //new SolidBrush(Color.Black), startX + 130, startY + Offset);
             }
             void DrawLine(string text, Font font, int Offset, int xOffset)
             {
                 int startX = 10;
                 int startY = 5;
-                graphics.DrawString(text, font,
-                         new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
+                XPoint xPoint = new XPoint()
+                {
+                    X = startX + xOffset,
+                    Y = startY + Offset
+                };
+                graphics.DrawString(text, font, new XSolidBrush(XColors.Black), xPoint);
+                //new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
             }
             void DrawSimpleString(string text, Font font, int Offset, int xOffset)
             {
                 int startX = 10;
                 int startY = 5;
-                graphics.DrawString(text, font,
-                         new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
+                XPoint xPoint = new XPoint()
+                {
+                    X = startX + xOffset,
+                    Y = startY + Offset
+                };
+                graphics.DrawString(text, font, new XSolidBrush(XColors.Black), xPoint);
+                         //new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
             }
-            private void FormatPage(object sender, PrintPageEventArgs e)
+            private void FormatPage()
             {
-                graphics = e.Graphics;
-                Font minifont = new Font("Arial", 5);
-                Font itemfont = new Font("Arial", 6);
-                Font smallfont = new Font("Arial", 8);
-                Font mediumfont = new Font("Arial", 10);
-                Font largefont = new Font("Arial", 12);
+                Font minifont = new Font("Arial", 5, FontStyle.Regular, GraphicsUnit.World);
+                Font mediumfont = new Font("Arial", 10, FontStyle.Regular, GraphicsUnit.World);
+                Font largefont = new Font("Arial", 12, FontStyle.Regular, GraphicsUnit.World);
+
                 int Offset = 10;
                 int smallinc = 10, mediuminc = 12, largeinc = 15;
 
@@ -116,16 +153,16 @@ namespace RodizioSmartRestuarant.Helpers
                 var stream = new MemoryStream();
                 encoder.Save(stream);
                 stream.Flush();
-                var image = new System.Drawing.Bitmap(stream);
 
-                //Image image = new Bitmap("pack://application:,,,/Images/rodizio_express_logo.png");
+                var xImage = XImage.FromStream(stream);
+                //var image = new System.Drawing.Bitmap(stream);
 
-                e.Graphics.DrawImage(image, 50, Offset, 100, 30);
+                graphics.DrawImage(xImage, 30, 5, 101, 26);
 
                 Offset = Offset + largeinc + 10;
 
                 String underLine = "-------------------------------------";
-                DrawLine(underLine, largefont, Offset, 0);
+                DrawLine(underLine, largefont, 40, 0);
 
                 Offset = Offset + mediuminc;
                 DrawAtStart("Order Number: " + order[0].OrderNumber.Substring(11, 4), Offset);
@@ -189,6 +226,27 @@ namespace RodizioSmartRestuarant.Helpers
                 Offset = Offset + smallinc;
                 String number = "Tel: " + shop.PhoneNumber;
                 DrawSimpleString(number, minifont, Offset, 35);
+
+                Offset = Offset + mediuminc;
+                String taxInvoice = "--------- TAX INVOICE ---------";
+                DrawSimpleString(taxInvoice, mediumfont, Offset, 28);
+
+                Offset = Offset + smallinc;
+                String vatNumber = "Vat Vendor No: BW00003654253";
+                DrawSimpleString(vatNumber, minifont, Offset, 35);
+
+                Offset = Offset + smallinc;
+                String vatRate = "Vat Rate: 14.00%";
+                DrawSimpleString(vatRate, minifont, Offset, 35);
+
+                Offset = Offset + smallinc;
+                InsertHeaderStyleItem("Exclusive: ", Formatting.FormatAmountString(total * .86f), Offset);
+
+                Offset = Offset + smallinc;
+                InsertHeaderStyleItem("Vat: ", Formatting.FormatAmountString(total * .14f), Offset);
+
+                Offset = Offset + smallinc;
+                InsertHeaderStyleItem("Inclusive: ", Formatting.FormatAmountString(total), Offset);
 
                 Offset = Offset + 7;
                 underLine = "-------------------------------------";

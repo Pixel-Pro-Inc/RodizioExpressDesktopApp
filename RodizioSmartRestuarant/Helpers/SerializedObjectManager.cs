@@ -140,6 +140,18 @@ namespace RodizioSmartRestuarant.Helpers
             //Save with data overwrite
             SaveOverwriteData(data, Directories.Order);
         }
+        public string PrintReceiptPath(Directories dir)
+        {
+            if (File.Exists(savePath(dir) + "/receipt.pdf"))
+                File.Delete(savePath(dir) + "/receipt.pdf");
+
+            if (!File.Exists(savePath(dir)))
+                Directory.CreateDirectory(savePath(dir));
+
+            File.SetAttributes(savePath(dir), FileAttributes.Normal);
+
+            return savePath(dir);
+        }
         public object RetrieveData(Directories dir)
         {
             object load = null;

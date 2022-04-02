@@ -98,10 +98,25 @@ namespace RodizioSmartRestuarant.Data
             if(elapsedTimeLastActive >= 1800)
             {
                 await SetLastActive();
+
+                if (DateTime.Now.Hour == 23 && DateTime.Now.Minute > 0)
+                    await SyncData();
             }
         }
 
+        #region Primarily Run Offline
         public async Task StoreData(string fullPath, object data)
+        {
+            await OfflineStoreData(fullPath, data);
+        }
+
+        public async Task<List<object>> GetData(string fullPath)
+        {
+            return await OfflineGetData(fullPath);
+        }
+        #endregion
+
+        public async Task StoreData_Online(string fullPath, object data)
         {
             if (await connectionChecker.CheckConnection())
             {
@@ -119,7 +134,7 @@ namespace RodizioSmartRestuarant.Data
             await OfflineStoreData(fullPath, data);
         }
 
-        public async Task<List<object>> GetData(string fullPath)
+        public async Task<List<object>> GetData_Online(string fullPath)
         {
             if (await connectionChecker.CheckConnection())
             {
@@ -156,7 +171,7 @@ namespace RodizioSmartRestuarant.Data
             return await OfflineGetData(fullPath);
         }        
 
-        public async Task EditData(string fullPath, object data)
+        public async Task EditData_Online(string fullPath, object data)
         {
             if (await connectionChecker.CheckConnection())
             {
@@ -196,7 +211,7 @@ namespace RodizioSmartRestuarant.Data
             if (branchId != "/")
             {
                 string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                await StoreData(destination, await GetData(fullPath));
+                await StoreData_Online(destination, await GetData(fullPath));
 
                 await DeleteData(fullPath);
             }
@@ -208,7 +223,7 @@ namespace RodizioSmartRestuarant.Data
             if (branchId != "/")
             {
                 string destination = "CancelledOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                var data = await GetData(fullPath);
+                var data = await GetData_Online(fullPath);
 
                 List<object> result = new List<object>();
 
@@ -220,7 +235,7 @@ namespace RodizioSmartRestuarant.Data
                     result.Add(JToken.FromObject(item));
                 }                
 
-                await StoreData(destination, result);
+                await StoreData_Online(destination, result);
 
                 await DeleteData(fullPath);
             }
@@ -462,7 +477,7 @@ namespace RodizioSmartRestuarant.Data
                     {
                         order[i].Id = i;
 
-                        await StoreData("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
+                        await StoreData_Online("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
                     }
                 }
 
@@ -476,7 +491,7 @@ namespace RodizioSmartRestuarant.Data
                         {
                             for (int i = 0; i < order.Count; i++)
                             {
-                                await EditData("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
+                                await EditData_Online("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
                             }
                         }
                 }

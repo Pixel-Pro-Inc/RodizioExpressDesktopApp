@@ -24,11 +24,12 @@ namespace RodizioSmartRestuarant.Helpers
 
             try
             {
+                if (!LocalStorage.Instance.networkIdentity.isServer)
+                    return false;
+
                 client = new FireSharp.FirebaseClient(config);
 
                 FirebaseResponse response = await client.GetAsync("Branch/" + BranchSettings.Instance.branchId);
-
-                result = false;//Testing offline stuff
             }
             catch(Exception ex)
             {

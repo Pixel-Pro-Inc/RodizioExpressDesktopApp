@@ -135,7 +135,7 @@ namespace RodizioSmartRestuarant
                     string branchId = BranchSettings.Instance.branchId;
                     string fullPath = "Menu/" + branchId + "/" + numId;
 
-                    await firebaseDataContext.EditData(fullPath, menuItems[i]);
+                    await firebaseDataContext.EditData_Online(fullPath, menuItems[i]);
 
                     UpdateMenuView();
                 }
