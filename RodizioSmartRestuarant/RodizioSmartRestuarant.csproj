@@ -62,11 +62,12 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\rodizio_icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup />
   <ItemGroup>
     <Reference Include="DynamicPDF.CoreSuite, Version=11.27.0.45906, Culture=neutral, PublicKeyToken=09b5ce0d5c0a9d8b, processorArchitecture=MSIL">
       <HintPath>..\packages\ceTe.DynamicPDF.CoreSuite.NET.11.27.0\lib\net40\DynamicPDF.CoreSuite.dll</HintPath>

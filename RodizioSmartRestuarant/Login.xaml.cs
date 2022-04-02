@@ -68,24 +68,24 @@ namespace RodizioSmartRestuarant
             ToggleSpinner();
 
             errorMsgPassword.Visibility = Visibility.Hidden;
-            errorMsgUser.Visibility = Visibility.Hidden;            
+            errorMsgUser.Visibility = Visibility.Hidden;
 
             string username = usernameField.Text.ToLower();
             string password = passwordField.Password;
 
-            if(username != null && password != null)
-                if(username != "" && password != "")
+            if (username != null && password != null)
+                if (username != "" && password != "")
                 {
                     var u = await GetUsers();
 
                     List<AppUser> users = u;
                     for (int i = 0; i < users.Count; i++)
                     {
-                        if(users[i].UserName == username)
+                        if (users[i].UserName == username)
                         {
-                            if(PasswordCheck(users[i], password))
+                            if (PasswordCheck(users[i], password))
                             {
-                                if(users[i].branchId[0] == BranchSettings.Instance.branchId)
+                                if (users[i].branchId[0] == BranchSettings.Instance.branchId)
                                 {
                                     SignedIn(users[i]);
                                     return;
@@ -96,7 +96,7 @@ namespace RodizioSmartRestuarant
 
                                 ToggleSpinner();
 
-                                return;                                
+                                return;
                             }
 
                             errorMsgPassword.Content = "Password is incorrect";
@@ -114,8 +114,8 @@ namespace RodizioSmartRestuarant
 
                     return;
                 }
-            
-            if(username == null || username == "")
+
+            if (username == null || username == "")
             {
                 errorMsgUser.Content = "You cannot leave this field empty";
                 errorMsgUser.Visibility = Visibility.Visible;
@@ -142,7 +142,7 @@ namespace RodizioSmartRestuarant
             {
                 loadingCircle.Visibility = Visibility.Hidden;
                 pageContent.Visibility = Visibility.Visible;
-            }                
+            }
         }
 
         void SignedIn(AppUser user)
@@ -186,7 +186,7 @@ namespace RodizioSmartRestuarant
         int block = 0;
         private async void ResetPassword_Click(object sender, RoutedEventArgs e)
         {
-            if(block == 0)
+            if (block == 0)
             {
                 block = 1;
 
@@ -202,7 +202,7 @@ namespace RodizioSmartRestuarant
 
                 block = 0;
             }
-            
+
         }
 
         void ShowWarning()
@@ -213,6 +213,10 @@ namespace RodizioSmartRestuarant
             MessageBoxImage icon = MessageBoxImage.Warning;
 
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
+        private void forgotpassword_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
