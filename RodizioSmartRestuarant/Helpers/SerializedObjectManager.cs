@@ -16,7 +16,7 @@ namespace RodizioSmartRestuarant.Helpers
         private const int NumberOfRetries = 6;
         private const int DelayOnRetry = 1000;
 
-        Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };
+        Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };//Exclusive of Printer, Settings So They Don't Get Deleted On UpdateOfflineData
         string savePath(Directories dir) { return Path.Combine(dir.ToString()); }
         public void DeleteAllData()
         {
@@ -25,6 +25,16 @@ namespace RodizioSmartRestuarant.Helpers
                 if (File.Exists(savePath(paths[i]) + "/data.txt"))
                     File.Delete(savePath(paths[i]) + "/data.txt");
             }           
+        }
+        public void DeleteData()
+        {
+            if (File.Exists(savePath(Directories.Order) + "/data.txt"))
+                File.Delete(savePath(Directories.Order) + "/data.txt");
+        }
+        public void DeleteMenu()
+        {
+            if (File.Exists(savePath(Directories.Menu) + "/data.txt"))
+                File.Delete(savePath(Directories.Menu) + "/data.txt");
         }
         public void SaveData(object serializedData, Directories dir)
         {
@@ -88,6 +98,59 @@ namespace RodizioSmartRestuarant.Helpers
                     Thread.Sleep(DelayOnRetry);
                 }
             }
+        }
+        public async void DeleteOrder(List<OrderItem> serializedData, Directories dir)
+        {
+            //Retrieve locally stored data
+            object offlineData = null;
+
+            var input = await OfflineDataContext.GetData(Directories.Order);
+
+            if (input is List<List<IDictionary<string, object>>>)
+                offlineData = (List<List<IDictionary<string, object>>>)input;
+
+            offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
+
+            //Covert IDictionary to OrderItem
+            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+
+            foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
+            {
+                offlineOrders.Add(new List<OrderItem>());
+
+                foreach (var itm in item)
+                {
+                    offlineOrders[offlineOrders.Count - 1].Add(itm.ToObject<OrderItem>());
+                }
+            }
+
+            //Replace old data with new data
+            int index = 0;
+            foreach (var order in offlineOrders)
+            {
+                if (order[0].OrderNumber == serializedData[0].OrderNumber)
+                    break;
+
+                index++;
+            }
+
+            offlineOrders.RemoveAt(index);
+
+            //Convert OrderItem to IDictionary for storage
+            List<List<IDictionary<string, object>>> data = new List<List<IDictionary<string, object>>>();
+
+            foreach (var item in offlineOrders)
+            {
+                data.Add(new List<IDictionary<string, object>>());
+
+                foreach (var itm in item)
+                {
+                    data[data.Count - 1].Add(itm.AsDictionary());
+                }
+            }
+
+            //Save with data overwrite
+            SaveOverwriteData(data, Directories.Order);
         }
         public async void EditOrderData(OrderItem serializedData, Directories dir)
         {

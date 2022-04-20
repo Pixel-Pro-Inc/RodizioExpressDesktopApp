@@ -10,6 +10,7 @@
         Height="450" 
         Width="400"
         ResizeMode="NoResize"
+        WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         Icon="Images/rodizio_icon.ico"
         >
@@ -23,11 +24,22 @@
             </Border.Background>
         </Border>
 
+        
+
+        <StackPanel>
+            <Button Width="120" 
+                    Height="30" 
+                    FontSize="15"
+                    HorizontalAlignment="Right"
+                    Click="Close_Button_Click"
+                    FontWeight="Bold">Close App</Button>
+        </StackPanel>
+
         <Image 
             Source="Images/rodizio_express_logo.png"
             Width="320"
             VerticalAlignment="Top"
-            Margin="0,30,0,0"/>
+            Margin="0,50,0,0"/>
 
         <Image
             Name="loadingCircle"
@@ -103,14 +115,7 @@
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         Foreground="OrangeRed"/>
-            <Label 
-                HorizontalAlignment="Center"        
-                Visibility="Visible"
-                Name="forgotpassword"
-                Foreground="Red"
-                FontSize="17"
-                MouseDoubleClick="forgotpassword_MouseDoubleClick"
-                >Forgotten Your password?</Label>
+            
             <Button
                 Style="{StaticResource ButtonStyleRound}"
                 Content="Sign In"
@@ -119,7 +124,7 @@
                 Height="35"
                 ToolTip="Sign In"
                 Width ="120"
-                Click="Button_Click"
+                Click="Signin_Button_Click"
                 />
 
             <Button Foreground="Red"

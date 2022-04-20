@@ -8,6 +8,7 @@
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
         WindowState="Maximized"
+        ResizeMode="NoResize"
         Icon="Images/rodizio_icon.ico"
         Title="NewOrder" Height="450" Width="800">
     <Grid>
@@ -131,30 +132,38 @@
 
         <ScrollViewer Grid.Row="1">
             <WrapPanel Name="menuView" HorizontalAlignment="Center">
-
+                
             </WrapPanel>
         </ScrollViewer>
 
-        <StackPanel Background="White" Grid.RowSpan="2" Grid.Column="1">
-            <StackPanel Orientation="Horizontal">
+        <StackPanel Background="White" Grid.RowSpan="1" Grid.Column="1">
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <TextBlock FontWeight="DemiBold" FontSize="25">Order</TextBlock>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                     <TextBlock>Enter the customer's phone number</TextBlock>
                     <TextBox TextChanged="phoneNumber_TextChanged" Name="phoneNumber" Width="200"></TextBox>
+                    <Label Name="orderPrepTime">Order will be ready in: </Label>
                 </StackPanel>
                 <StackPanel Margin="5,0,0,0" VerticalAlignment="Center">
                     <Label FontWeight="DemiBold">Total</Label>
                     <Label Name="total" FontWeight="DemiBold">0.00</Label>
                 </StackPanel>
             </StackPanel>
-            <ScrollViewer Height="279" Margin="0,50,-0.2,0">
-                <StackPanel Name="orderView">
-
-                </StackPanel>
-            </ScrollViewer>
         </StackPanel>
 
-        <Button Name="confirmButton" Visibility="Collapsed" Click="Confirm_Click" Background="DeepSkyBlue" Foreground="White" Grid.Row="1" Grid.Column="1" Margin="100,0,100,0" VerticalAlignment="Bottom">Confirm</Button>
+        <ScrollViewer Grid.Column="1" Grid.Row="1" Margin="0,0,0,20">
+            <StackPanel Name="orderView" Background="White">
+
+            </StackPanel>
+        </ScrollViewer>
+        <Button Name="confirmButton"
+                Click="Confirm_Click" 
+                Background="DeepSkyBlue" 
+                Foreground="White"
+                Grid.Row="1" 
+                Grid.Column="1"
+                Visibility="Collapsed"
+                VerticalAlignment="Bottom">Confirm</Button>
 
         <Grid Grid.RowSpan="2" 
               Grid.ColumnSpan="2"

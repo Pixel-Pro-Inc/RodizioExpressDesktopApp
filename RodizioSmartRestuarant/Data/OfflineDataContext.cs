@@ -16,6 +16,7 @@ namespace RodizioSmartRestuarant.Data
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().SaveData(data, path);
+                LocalDataChange();
                 return;
             }
 
@@ -26,6 +27,7 @@ namespace RodizioSmartRestuarant.Data
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().SaveOverwriteData(data, path);
+                LocalDataChange();
                 return;
             }
 
@@ -45,15 +47,46 @@ namespace RodizioSmartRestuarant.Data
 
             return await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
         }
+        public async static Task<List<object>> UpdateLocalDataClient(Directories path)
+        {
+            if (!LocalStorage.Instance.networkIdentity.isServer)
+            {
+                return await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.UpdateLocalDataRequest);
+            }
+
+            return new List<object>();
+        }
         public async static void EditOrderData(Directories path, OrderItem data)
         {
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().EditOrderData(data, path);
+                LocalDataChange();
                 return;
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Update);
+        }
+        public async static void DeleteOrder(Directories path, List<OrderItem> data)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                new SerializedObjectManager().DeleteOrder(data, path);
+                LocalDataChange();
+                return;
+            }
+
+            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Delete);
+        }
+        public static void LocalDataChange()
+        {
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
+            UpdateNetworkDevices();
+        }
+        public static void UpdateNetworkDevices()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.UpdateAllNetworkDevicesUI();
         }
     }
 }

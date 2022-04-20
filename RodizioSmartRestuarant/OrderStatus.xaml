@@ -28,8 +28,8 @@
         <Border Grid.Row="1" Grid.ColumnSpan="2">
             <Border.Background>
                 <LinearGradientBrush>
-                    <GradientStop Color="#fa6c00" Offset=".9"></GradientStop>
-                    <GradientStop Color="#ff2e00" Offset="-.5"></GradientStop>
+                    <GradientStop Color="Red" Offset=".9"></GradientStop>
+                    <GradientStop Color="Red" Offset="-.5"></GradientStop>
                 </LinearGradientBrush>
             </Border.Background>
         </Border>

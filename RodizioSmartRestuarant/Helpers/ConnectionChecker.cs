@@ -12,7 +12,7 @@ namespace RodizioSmartRestuarant.Helpers
     {
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "KIxlMLOIsiqVrQmM0V7pppI1Ao67UPZv5jOdU0QJ",
+            AuthSecret = "Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
         };
 

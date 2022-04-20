@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Entities
 {
-[Serializable]
+    [Serializable]
     public class Branch
     {
         public string Id { get; set; }
@@ -14,8 +12,8 @@ namespace RodizioSmartRestuarant.Entities
         public string ImgUrl { get; set; }
         public string PublicId { get; set; }
         public DateTime LastActive { get; set; }
-        public int PhoneNumber { get; set; }
-        public DateTime OpeningTime { get; set; }
-        public DateTime ClosingTime { get; set; }
+        public List<int> PhoneNumbers { get; set; }
+        public List<DateTime> OpeningTimes { get; set; }
+        public List<DateTime> ClosingTimes { get; set; }
     }
 }

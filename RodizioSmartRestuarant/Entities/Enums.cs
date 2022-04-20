@@ -26,7 +26,9 @@ namespace RodizioSmartRestuarant.Entities
             PrinterName,
             Settings,
             NetworkInterface,
-            Print
+            Print,
+            TCPServer,
+            TCPServerIP
         }
     }
 }

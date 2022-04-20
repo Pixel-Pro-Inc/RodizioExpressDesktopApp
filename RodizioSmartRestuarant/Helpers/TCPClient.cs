@@ -15,22 +15,52 @@ namespace RodizioSmartRestuarant.Helpers
 
         public static bool CreateClient()
         {
-            List<string> networkIPs = LocalIP.ScanNetwork();
+            string baseIP = LocalIP.GetBaseIP();
 
-            foreach (var ip in networkIPs)
+            if(LocalIP.GetStoredTCPServerIpPort() != "")
             {
-                client = new SimpleTcpClient(ip + ":2000");
+                client = new SimpleTcpClient(LocalIP.GetStoredTCPServerIpPort());
                 client.Events.DataReceived += Events_DataReceived;
                 client.Events.Disconnected += Events_Disconnected;
 
-                if (ConnectToServer())
+                try
                 {
-                    DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-                    dispatcherTimer.Start();
-                    return true;
+                    client.ConnectWithRetries(200);
                 }
+                catch
+                {
+                    ;
+                }
+
+                DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                dispatcherTimer.Start();
+                return true;
+            }
+            
+
+            for (int i = 1; i < 255; i++)
+            {
+                client = new SimpleTcpClient(baseIP + i + ":2000");
+                client.Events.DataReceived += Events_DataReceived;
+                client.Events.Disconnected += Events_Disconnected;
+                try
+                {
+                    client.ConnectWithRetries(200);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                dispatcherTimer.Start();
+
+                LocalIP.SetStoredTCPServerIpPort(baseIP + i + ":2000");
+                return true;
             }
 
             return false;
@@ -43,7 +73,12 @@ namespace RodizioSmartRestuarant.Helpers
 
         private static void Events_Disconnected(object sender, ConnectionEventArgs e)
         {
-            StartUp.InitNetworking();
+            Disconnect_Received();
+        }
+
+        private static void Reconnect()
+        {
+            WindowManager.Instance.CloseAllAndOpen(new ReconnectingPage());
         }
 
         public static bool ConnectToServer()
@@ -64,52 +99,102 @@ namespace RodizioSmartRestuarant.Helpers
         static List<object> awaitresponse = null;
         public async static Task<List<object>> SendRequest(object data, string fPath, RequestObject.requestMethod requestMethod)
         {
-            if (client.IsConnected)
-            {
-                RequestObject requestObject = new RequestObject()
+            if (client != null)
+                if (client.IsConnected)
                 {
-                    data = data,
-                    fullPath = fPath,
-                    requestType = requestMethod,
-                };
+                    RequestObject requestObject = new RequestObject()
+                    {
+                        data = data,
+                        fullPath = fPath,
+                        requestType = requestMethod,
+                    };
 
-                client.Send(requestObject.ToByteArray<RequestObject>("!MOBILE"));
+                    client.Send(requestObject.ToByteArray<RequestObject>("!MOBILE"));
 
-                if (requestMethod != RequestObject.requestMethod.Get)
-                    return new List<object>();
+                    if (requestMethod != RequestObject.requestMethod.Get)
+                        return new List<object>();
 
-                //await response
-                awaitresponse = null; // Set the state as undetermined
+                    //await response
+                    awaitresponse = null; // Set the state as undetermined
 
-                while (awaitresponse == null)
-                {
-                    await Task.Delay(25);
+                    while (awaitresponse == null)
+                    {
+                        await Task.Delay(25);
+                    }
+
+                    return awaitresponse;
                 }
-
-                return awaitresponse;
-            }
 
             return new List<object>();
         }
-        private static void Events_DataReceived(object sender, DataReceivedEventArgs e)
+
+        static int numRetries = 10;
+        static int delaySeconds = 2;
+
+        static bool processingRequest;
+        private async static void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
             var response = Encoding.UTF8.GetString(e.Data);
 
             //Update UI after network change
-            if (response == "REFRESH")
+            if (response.Contains("REFRESH"))
             {
-                Refresh_UI();
-                return;
+                for (int i = 0; i < numRetries; i++)
+                {
+                    if (!processingRequest)
+                    {
+                        Refresh_UI();
+                        return;
+                    }
+
+                    await Task.Delay(delaySeconds * 1000);
+                }
             }
 
-            Byte[] bytes = Convert.FromBase64String(response);
-            DataReceived(Encoding.UTF8.GetString(bytes));//There is a data limit for every packet once exceeded is sent in another packet
+            //var x = e.Data.FromByteArray<List<object>>();
+
+            //Introduced retries to reduce crashes
+            string receivedData = response;
+
+            for (int i = 0; i < numRetries; i++)
+            {
+                if (!processingRequest || receivedData[0] != '[')
+                {
+                    DataReceived(receivedData);//There is a data limit for every packet once exceeded is sent in another packet
+                    processingRequest = true;
+                    break;
+                }
+
+                await Task.Delay(delaySeconds * 1000);
+            }            
         }
         private static void Action()
         {
             Refresh_Action();
             DataReceived_Action();
+            Disconnect_Received();
         }
+        private static void Disconnect_Received()
+        {
+            startCounting_2 = true;
+            elapsedTime_2 = 0;
+        }
+        private static void Disconnect_Action()
+        {
+            if (startCounting_2)
+                elapsedTime_2++;
+
+            if (elapsedTime_2 > 1)
+            {
+                startCounting_2 = false;
+                elapsedTime_2 = 0;
+
+                Reconnect();
+            }
+        }
+        private static float elapsedTime_2 = 0;
+        private static bool startCounting_2 = false;
+
         private static void DataReceived_Action()
         {
             if (startCounting_1)
@@ -120,8 +205,9 @@ namespace RodizioSmartRestuarant.Helpers
                 startCounting_1 = false;
                 elapsedTime_1 = 0;
 
-                awaitresponse = (Encoding.UTF8.GetBytes(receivedData)).FromByteArray<List<object>>();
+                awaitresponse = (Convert.FromBase64String(receivedData)).FromByteArray<List<object>>();
                 receivedData = "";
+                processingRequest = false;
             }
         }
         private static float elapsedTime_1 = 0;

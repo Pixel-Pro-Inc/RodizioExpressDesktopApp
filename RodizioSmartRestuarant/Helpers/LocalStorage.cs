@@ -12,6 +12,8 @@ namespace RodizioSmartRestuarant.Helpers
         public static LocalStorage Instance { get; set; }
         public AppUser user { get; set; }
 
+        public List<string> ordersCalledOut = new List<string>();
+
         public NetworkIdentity networkIdentity { get; set; }
 
         public LocalStorage()

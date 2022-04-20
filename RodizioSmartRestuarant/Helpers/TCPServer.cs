@@ -71,6 +71,13 @@ namespace RodizioSmartRestuarant.Helpers
                 case RequestObject.requestMethod.Update:
                     await OfflineStoreData(request.fullPath, request.data);
                     break;
+                case RequestObject.requestMethod.Delete:
+                    OfflineDeleteOrder((List<OrderItem>)request.data);
+                    break;
+                case RequestObject.requestMethod.UpdateLocalDataRequest:
+                    var result_1 = await OfflineGetData(request.fullPath);
+                    SendData(ipPort, result_1, request.fullPath);
+                    break;
             }
         }
 

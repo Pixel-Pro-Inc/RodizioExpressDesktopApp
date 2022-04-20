@@ -6,8 +6,10 @@ using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Deployment.Application;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,7 +31,7 @@ namespace RodizioSmartRestuarant
     public partial class POS : Window
     {
         private static readonly HttpClient client = new HttpClient();
-        List<List<OrderItem>> orders = new List<List<OrderItem>>();
+        public List<List<OrderItem>> orders = new List<List<OrderItem>>();
         private FirebaseDataContext firebaseDataContext;
         private bool showingResults;
 
@@ -39,7 +41,19 @@ namespace RodizioSmartRestuarant
 
             firebaseDataContext = FirebaseDataContext.Instance;
 
-            OnStart();                        
+            OnStart();
+
+            string version = null;
+            try
+            {
+                version = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
+            }
+            catch (InvalidDeploymentException)
+            {
+                version = "Debugging Version";
+            }
+
+            versionText.Text = "Version : " + version;
         }
 
         public bool IsClosed { get; private set; }
@@ -54,15 +68,44 @@ namespace RodizioSmartRestuarant
         {
             ActivityIndicator.AddSpinner(spinner);
 
-            var result = await firebaseDataContext.GetData("Order/" + BranchSettings.Instance.branchId);            
+            var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
-            List<List<OrderItem>> temp = new List<List<OrderItem>>();
+            //Offline include completed orders
+            List<List<OrderItem>> tempOffline = (List<List<OrderItem>>)(await firebaseDataContext.GetOfflineOrdersCompletedInclusive());
 
-            foreach (var item in result)
+            //Online orders //Check to see if completed ones are included
+            List<List<OrderItem>> tempOnline = new List<List<OrderItem>>();            
+
+            foreach (var item in resultOnline)
             {
                 List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
 
-                temp.Add(data);
+                tempOnline.Add(data);
+            }
+
+            //Compare online orders with offline orders(Completed Order Inclusive)
+
+            //All Orders
+            List<List<OrderItem>> temp = new List<List<OrderItem>>();
+
+            //Primarily take offline over online
+            List<string> offlineOrderNumbers = GetOrderNumbers(tempOffline);
+
+            temp = tempOffline;
+
+            foreach (var item in tempOnline)
+            {
+                //if doesn't contain add to temp
+                if (!(offlineOrderNumbers.Contains(item[0].OrderNumber)))
+                {
+                    temp.Add(item);
+                }
+            }
+
+            //Delete Downloaded Orders From DB To Avoid Re-Downloading
+            foreach (var item in temp)
+            {
+                await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
             }
 
             UpdateOrderView(temp);  
@@ -87,7 +130,7 @@ namespace RodizioSmartRestuarant
         {
             this.Dispatcher.Invoke(() =>
             {
-                List<List<OrderItem>> temp = data.Where(o => !o[0].Collected).ToList();
+                List<List<OrderItem>> temp = data.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
 
                 if (source == null)
                     source = GetUIChangeSource(temp);
@@ -221,6 +264,11 @@ namespace RodizioSmartRestuarant
                 RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
                 UpdateOrderCount();
+
+                //Update Locally Stored Data
+                //We use the variable orders since it has been updated to include all the latest information by the code above
+                firebaseDataContext.ResetLocalData(orders);
+                //Update Offline Client With Server Data
             });            
         }
 
@@ -239,7 +287,7 @@ namespace RodizioSmartRestuarant
             return false;
         }
 
-        List<string> GetCurrentOrderNumbers()
+        public List<string> GetCurrentOrderNumbers()
         {
             List<string> orderNumbers = new List<string>();
 
@@ -251,9 +299,35 @@ namespace RodizioSmartRestuarant
 
             return orderNumbers;
         }
+        List<string> GetOrderNumbers(List<List<OrderItem>> orderItems)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orderItems)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber);
+            }
+
+            return orderNumbers;
+        }
+        List<string> GetOrderNumbers_4Digit(List<List<OrderItem>> orderItems)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orderItems)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber.Substring(item[0].OrderNumber.Length - 5, 4));
+            }
+
+            return orderNumbers;
+        }
 
         UIChangeSource GetUIChangeSource(List<List<OrderItem>> Orders)
         {
+            //Rethink this method nigga
+            // TODO: Rethink this method nigga
             List<string> orderNumbers = GetCurrentOrderNumbers();
 
             if (orderNumbers.Count == 0 || ContainsCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
@@ -261,8 +335,25 @@ namespace RodizioSmartRestuarant
             List<List<OrderItem>> order = Orders;//Updated Order List
 
             List<List<OrderItem>> _orders = order.Where(o => !o[0].Collected).ToList();
+            //the 'orders' mentioned here are the global orders stored locally  in the POS object
 
-            if (_orders.Count < orders.Count) return UIChangeSource.Deletion; //if new list has less items than current list deletion occurred
+            var updatedOrders = GetOrderNumbers_4Digit(_orders);
+            var currentOrders = GetOrderNumbers_4Digit(orders);
+
+            //If updatedOrders contains some offline made orders then UIChangeSource Was Not Online Change
+            //Offline Orders Alway Start with a zero so if the list of updated order numbers
+            //contains a zero in it then updated orders is inclusive of offline orders
+            if (updatedOrders.Where(uO => uO[0] == '0').Count() > 0)
+            {
+                foreach (var orderNum in currentOrders)
+                {
+                    if (!updatedOrders.Contains(orderNum))
+                        return UIChangeSource.Deletion;
+                }
+            }
+            
+
+            if (_orders.Count < orders.Count) return UIChangeSource.Addition;//UIChangeSource.Deletion; //if new list has less items than current list deletion occurred
 
             int count = _orders.Where(o => !orderNumbers.Contains(o[0].OrderNumber) && !o[0].Collected).Count();
 
@@ -375,7 +466,8 @@ namespace RodizioSmartRestuarant
                 Foreground = new SolidColorBrush(Colors.White),
                 Margin = new Thickness(20, 0, 0, 0),
                 Content = "Cancel Order",
-                Visibility = items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
+                IsEnabled = true, //false, //Hidden for now while I work on offline variant
+                Visibility = Visibility.Visible, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
                 Name = "c" + items[0].OrderNumber.Replace('-', 'e')
             };
 
@@ -479,6 +571,113 @@ namespace RodizioSmartRestuarant
                 stackPanel4_2.Children.Add(label3);
             }
 
+            StackPanel stackPanel4_3 = new StackPanel();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Label label2 = new Label()
+                    {
+                        FontWeight = FontWeights.Bold,
+                        Content = "Flavour"
+                    };
+
+                    stackPanel4_3.Children.Add(label2);
+                }
+
+                Label label3 = new Label()
+                {
+                    Content = "None"
+                };                
+
+                if (items[i].SubCategory != "Chicken" && items[i].SubCategory != "Platter")
+                {
+                    stackPanel4_3.Children.Add(label3);
+                    continue;
+                }
+
+                if (items[i].SubCategory == "Platter" && !items[i].Name.ToLower().Contains("chicken"))
+                {
+                    stackPanel4_3.Children.Add(label3);
+                    continue;
+                }
+
+
+                label3 = new Label()
+                {
+                    Content = items[i].Flavour == "None"? "None" : items[i].Flavour
+                };
+
+                stackPanel4_3.Children.Add(label3);
+            }
+
+            StackPanel stackPanel4_4 = new StackPanel();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Label label2 = new Label()
+                    {
+                        FontWeight = FontWeights.Bold,
+                        Content = "Readiness"
+                    };
+                    stackPanel4_4.Children.Add(label2);
+                }
+
+                Label label3 = new Label()
+                {
+                    Content = "None"
+                };
+
+                if (items[i].SubCategory != "Steak")
+                {
+                    stackPanel4_4.Children.Add(label3);
+                    continue;
+                }
+
+                label3 = new Label()
+                {
+                    Content = items[i].MeatTemperature
+                };
+
+                stackPanel4_4.Children.Add(label3);
+            }
+
+            StackPanel stackPanel4_5 = new StackPanel();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Label label2 = new Label()
+                    {
+                        FontWeight = FontWeights.Bold,
+                        Content = "Sauces"
+                    };
+                    stackPanel4_5.Children.Add(label2);
+                }
+
+                Label label3 = new Label()
+                {
+                    Content = "None"
+                };                
+
+                if (items[i].Category != "Meat") 
+                {
+                    stackPanel4_5.Children.Add(label3);
+                    continue;                
+                }
+
+                label3 = new Label()
+                {
+                    Content = items[i].Sauces == null? "None" : Formatting.FormatListToString(items[i].Sauces)
+                };
+
+                stackPanel4_5.Children.Add(label3);
+            }
+
             StackPanel stackPanel5 = new StackPanel();
 
             for (int i = 0; i < items.Count; i++)
@@ -523,7 +722,10 @@ namespace RodizioSmartRestuarant
             stackPanel3.Children.Add(stackPanel4);
             stackPanel3.Children.Add(stackPanel4_1);
             stackPanel3.Children.Add(stackPanel4_2);
-            stackPanel3.Children.Add(stackPanel5);           
+            stackPanel3.Children.Add(stackPanel4_3);
+            stackPanel3.Children.Add(stackPanel4_4);
+            stackPanel3.Children.Add(stackPanel4_5);
+            stackPanel3.Children.Add(stackPanel5);
 
             return stackPanel;
         }
@@ -542,12 +744,9 @@ namespace RodizioSmartRestuarant
                 {
                     if (orders[i][0].OrderNumber == n)
                     {
-                        string branchId = BranchSettings.Instance.branchId;
-                        string fullPath = "Order/" + branchId + "/" + orders[i][0].OrderNumber;
-
                         SendSMS(orders[i][0].PhoneNumber, n.Remove(0, 11));
 
-                        await firebaseDataContext.CancelOrder(fullPath);                      
+                        await firebaseDataContext.CancelOrder(orders[i]);                      
                     }
                 }
             }                
@@ -704,7 +903,7 @@ namespace RodizioSmartRestuarant
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            WindowManager.Instance.CloseAllAndOpen(new LoadingScreen());
+            WindowManager.Instance.CloseAllAndOpen(new Login());
         }
 
         private void Statuses_Click(object sender, RoutedEventArgs e)
@@ -716,7 +915,7 @@ namespace RodizioSmartRestuarant
         {
             if(!await FirebaseDataContext.Instance.connectionChecker.CheckConnection())
             {
-                ShowWarning("You need to be online to access the menu page.");              
+                ShowWarning("You need to be online or on the server computer to access the menu page.");              
                 return;
             }
 
@@ -725,7 +924,7 @@ namespace RodizioSmartRestuarant
 
         private void NewOrder_Click(object sender, RoutedEventArgs e)
         {
-            WindowManager.Instance.Open(new NewOrder());
+            WindowManager.Instance.Open(new OrderSource());
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e)

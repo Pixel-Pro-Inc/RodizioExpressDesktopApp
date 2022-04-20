@@ -17,13 +17,15 @@ using RodizioSmartRestuarant.Extensions;
 
 namespace RodizioSmartRestuarant.Data
 {
-    public class FirebaseDataContext:OfflineDataHelpers //Detect Changes In Local Storage Needs to call Updates As Well
+    public class FirebaseDataContext:OfflineDataHelpers
     {
         public static FirebaseDataContext Instance { get; set; }
 
+        bool startedSyncing = false;
+
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "KIxlMLOIsiqVrQmM0V7pppI1Ao67UPZv5jOdU0QJ",
+            AuthSecret = "Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
         };
 
@@ -48,9 +50,9 @@ namespace RodizioSmartRestuarant.Data
             DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-            dispatcherTimer.Start();
+            dispatcherTimer.Start();            
 
-            var response = await GetData("Branch");
+            var response = await GetData_Online("Branch");
 
             for (int i = 0; i < response.Count; i++)
             {
@@ -76,6 +78,44 @@ namespace RodizioSmartRestuarant.Data
             branchId = "/" + BranchSettings.Instance.branchId;
         }
 
+        public async Task UpdateLocalMenu() 
+        {
+            if (branchId == "/")
+                return;
+
+            //Delete Local Menu
+            new SerializedObjectManager().DeleteMenu();
+
+            List<MenuItem> onlineMenu = new List<MenuItem>();
+
+            var list = await GetData1("Menu" + branchId);
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+
+                if (item != null)
+                {
+                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
+
+                    onlineMenu.Add(menuItem);
+                }
+            }
+
+            List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+            values.Clear();
+
+            foreach (var item in onlineMenu)
+            {
+                values.Add(item.AsDictionary());
+            }
+
+            new SerializedObjectManager().SaveData(values, Directories.Menu);
+
+            OfflineDataContext.LocalDataChange();
+        }
+
         float elapsedTime = 0;
         bool startCounting = false;
 
@@ -89,19 +129,28 @@ namespace RodizioSmartRestuarant.Data
             {
                 startCounting = false;
                 elapsedTime = 0;
-                WindowManager.Instance.UpdateAllOrderViews();
+
+                if (LocalStorage.Instance.networkIdentity.isServer && !startedSyncing)
+                    WindowManager.Instance.UpdateAllOrderViews();
             }
-            //
 
             elapsedTimeLastActive++;
 
             if(elapsedTimeLastActive >= 1800)
             {
-                await SetLastActive();
-
-                if (DateTime.Now.Hour == 23 && DateTime.Now.Minute > 0)
-                    await SyncData();
+                await SetLastActive();                
             }
+
+            if (DateTime.Now.Hour != 23)
+                return;
+
+            if (DateTime.Now.Minute < 45)
+                return;
+
+            if (!startedSyncing)
+                WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB());
+
+            startedSyncing = true;
         }
 
         #region Primarily Run Offline
@@ -126,12 +175,32 @@ namespace RodizioSmartRestuarant.Data
 
                 var response = await client.SetAsync(fullPath, data);//Add Id of data  
 
-                //await //UpdateOfflineData();
+                if (fullPath.ToLower().Contains("menu"))
+                    await UpdateLocalMenu();
 
                 return;
             }
 
             await OfflineStoreData(fullPath, data);
+        }
+
+        public async Task<bool> StoreData_Online_EndOfDaySync(string fullPath, object data)
+        {
+            if (await connectionChecker.CheckConnection())
+            {
+                await SetLastActive();
+
+                client = new FireSharp.FirebaseClient(config);
+
+                var response = await client.SetAsync(fullPath, data);//Add Id of data  
+
+                if (fullPath.ToLower().Contains("menu"))
+                    await UpdateLocalMenu();
+
+                return true;
+            }
+
+            return false;//Failure to submit data
         }
 
         public async Task<List<object>> GetData_Online(string fullPath)
@@ -148,7 +217,10 @@ namespace RodizioSmartRestuarant.Data
 
                 dynamic data = JsonConvert.DeserializeObject<dynamic>(response.Body);
 
-                if(data != null)
+                if (fullPath.ToLower().Contains("menu"))
+                    await UpdateLocalMenu();
+
+                if (data != null)
                 {
                     if (data.GetType() != typeof(JArray))
                     {
@@ -163,7 +235,7 @@ namespace RodizioSmartRestuarant.Data
                         List<object> output = JsonConvert.DeserializeObject<List<object>>(((JArray)data).ToString());
                         return output;
                     }
-                }
+                }                
 
                 return objects;
             }
@@ -181,7 +253,8 @@ namespace RodizioSmartRestuarant.Data
 
                 var response = await client.UpdateAsync(fullPath, data);
 
-                //await //UpdateOfflineData();
+                if (fullPath.ToLower().Contains("menu"))
+                    await UpdateLocalMenu();
 
                 return;
             }
@@ -197,12 +270,8 @@ namespace RodizioSmartRestuarant.Data
 
                 var response = await client.DeleteAsync(fullPath);
 
-                //await //UpdateOfflineData();
-
                 return;
             }
-
-            //new OfflineDataContext().EditData(fullPath, (OrderItem)data);
         }
 
         public async Task CompleteOrder(string fullPath)
@@ -217,7 +286,20 @@ namespace RodizioSmartRestuarant.Data
             }
         }
 
-        public async Task CancelOrder(string fullPath)
+        public async Task CancelOrder(List<OrderItem> orderItems)
+        {
+            //Mark for deletion when back online
+            foreach (var item in orderItems)
+            {
+                item.MarkedForDeletion = true;
+                string branchId = BranchSettings.Instance.branchId;
+                string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
+
+                await StoreData(fullPath, item);//Remove from order view on all network devices
+            }
+        }
+
+        public async Task CancelOrder_Offline(string fullPath)
         {
             //Moves order to completed directory
             if (branchId != "/")
@@ -233,7 +315,7 @@ namespace RodizioSmartRestuarant.Data
                     item.User = LocalStorage.Instance.user.FullName();
 
                     result.Add(JToken.FromObject(item));
-                }                
+                }
 
                 await StoreData_Online(destination, result);
 
@@ -248,10 +330,10 @@ namespace RodizioSmartRestuarant.Data
                         DataReceived();
                     },
                     (sender, args, context) => {
-                        DataReceived();
+                        ;//DataReceived();
                     },
                     (sender, args, context) => {
-                        DataReceived();
+                        ;//DataReceived();
                     });
         }
 
@@ -311,7 +393,7 @@ namespace RodizioSmartRestuarant.Data
                     List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
 
                     if (!data[0].Collected)
-                        onlineOrders.Add(data);
+                        onlineOrders.Add(data); 
                 }
 
                 List<MenuItem> onlineMenu = new List<MenuItem>();
@@ -395,6 +477,18 @@ namespace RodizioSmartRestuarant.Data
             }
         }
 
+        public void StoreUserDataLocally(List<AppUser> users)
+        {
+            List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+            foreach (var item in users)
+            {
+                values.Add(item.AsDictionary());
+            }
+
+            new SerializedObjectManager().SaveOverwriteData(values, Directories.Account);
+        }
+
         public bool connected = false;
         bool lastStatus = false;
 
@@ -413,110 +507,33 @@ namespace RodizioSmartRestuarant.Data
             lastStatus = status;
         }
 
+        public async Task StoreDataBaseLocally_InitialStartUp()
+        {
+            await UpdateOfflineData();
+        }
+
         async void BackOnline()
         {
             if(connectionChecker.notifCount != 0)
             {
                 new Notification("Connectivity", "You're back online. We're syncing the changes you made while you were offline.");
+
+                //Display syncing
+                SyncData();
+                //Hide syncing
+
                 connectionChecker.notifCount = 0;
             }
-            
-            //Display syncing
-            await SyncData();
-            //Hide syncing
-            GetDataChanging("Order/" + BranchSettings.Instance.branchId);
-            await UpdateOfflineData();
+
+            if (LocalStorage.Instance.networkIdentity.isServer)
+                GetDataChanging("Order/" + BranchSettings.Instance.branchId);
         }
         bool syncing = false;
-        async Task SyncData() //Apply offline changes to db
+        void SyncData() //Apply offline changes to db
         {
             if(branchId != "/" && LocalStorage.Instance.networkIdentity.isServer)
             {
                 syncing = true;
-                //Include Completed Orders
-                #region Retrieve data
-                object offlineData = null;
-
-                if (await OfflineDataContext.GetData(Directories.Order) is List<List<IDictionary<string, object>>>)
-                    offlineData = (List<List<IDictionary<string, object>>>) await OfflineDataContext.GetData(Directories.Order);
-
-
-                offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
-
-                List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
-
-                foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
-                {
-                    offlineOrders.Add(new List<OrderItem>());
-
-                    foreach (var itm in item)
-                    {
-                        offlineOrders[offlineOrders.Count - 1].Add(itm.ToObject<OrderItem>());
-                    }
-                }
-
-                List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
-
-                List<object> list = await GetData1("Order" + branchId);
-
-                foreach (var item in list)
-                {
-                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
-
-                    onlineOrders.Add(data);
-                }
-                #endregion
-
-                //Add new offline orders to database
-                foreach (var order in offlineOrders)
-                {
-                    if (GetCurrentOrderNumbersModel(onlineOrders).Contains(order[0].OrderNumber))
-                        continue;
-
-                    for (int i = 0; i < order.Count; i++)
-                    {
-                        order[i].Id = i;
-
-                        await StoreData_Online("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
-                    }
-                }
-
-                //Update with offline changes
-                foreach (var order in offlineOrders)
-                {
-                    var ord = onlineOrders.Where(o => o[0].OrderNumber == order[0].OrderNumber).ToList();
-
-                    if(ord.Count != 0)
-                        if (OrderItemChanged(order, ord[0]))
-                        {
-                            for (int i = 0; i < order.Count; i++)
-                            {
-                                await EditData_Online("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i]);
-                            }
-                        }
-                }
-
-                //Transfer completed orders to completed order node
-                onlineOrders = new List<List<OrderItem>>();
-
-                list = await GetData1("Order" + branchId);
-
-                foreach (var item in list)
-                {
-                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
-
-                    onlineOrders.Add(data);
-                }
-
-                foreach (var item in onlineOrders)
-                {
-                    if (item[0].Collected)
-                    {
-                        string fullPath = "Order" + branchId + "/" + item[0].OrderNumber;
-
-                        await CompleteOrder(fullPath);
-                    }
-                }
 
                 //Update with online changes
                 if (WindowManager.Instance != null)
@@ -524,6 +541,43 @@ namespace RodizioSmartRestuarant.Data
 
                 syncing = false;
             }
+        }
+
+        //Including Completed
+        public async Task SyncDataEndOfDay(List<List<OrderItem>> orders)
+        {
+            //Add new offline orders to database
+            foreach (var order in orders)
+            {
+                for (int i = 0; i < order.Count; i++)
+                {
+                    order[i].Id = i;
+
+                    if (order[i].Collected)
+                    {
+                        if (!(await StoreData_Online_EndOfDaySync("CompletedOrders" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                            return;
+
+                        continue;
+                    }
+
+                    if (!order[i].MarkedForDeletion)
+                    {
+                        if (!(await StoreData_Online_EndOfDaySync("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                            return;
+
+                        continue;
+                    }
+
+                    if (!(await StoreData_Online_EndOfDaySync("CancelledOrders" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                        return;
+                }
+            }
+
+            //Delete Data
+            //Restore Data
+
+            await UpdateOfflineData();
         }
 
         async Task SetLastActive()
@@ -556,6 +610,57 @@ namespace RodizioSmartRestuarant.Data
                 }
             }                        
         }
+
+        public async Task<object> GetOfflineOrdersCompletedInclusive()
+        {
+            object offlineData = null;
+
+            if (await OfflineDataContext.GetData(Directories.Order) is List<List<IDictionary<string, object>>>)
+                offlineData = (List<List<IDictionary<string, object>>>)await OfflineDataContext.GetData(Directories.Order);
+
+
+            offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
+
+            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+
+            foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
+            {
+                offlineOrders.Add(new List<OrderItem>());
+
+                foreach (var itm in item)
+                {
+                    offlineOrders[offlineOrders.Count - 1].Add(itm.ToObject<OrderItem>());
+                }
+            }
+
+            return offlineOrders;
+        }
+
+        public void ResetLocalData(List<List<OrderItem>> orders)
+        {
+            //Clear hdd data
+            new SerializedObjectManager().DeleteData();
+
+            //Store data
+            List<List<IDictionary<string, object>>> holder = new List<List<IDictionary<string, object>>>();
+
+            foreach (var item in orders)
+            {
+                holder.Add(new List<IDictionary<string, object>>());
+
+                foreach (var keyValuePair in item)
+                {
+                    holder[holder.Count - 1].Add(keyValuePair.AsDictionary());
+                }
+            }
+
+            new SerializedObjectManager().SaveData(holder, Directories.Order);
+
+            //We update only the network devices since this one has already all the uptodate view data
+            OfflineDataContext.UpdateNetworkDevices();
+
+            return;
+        } 
 
         bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld)
         {

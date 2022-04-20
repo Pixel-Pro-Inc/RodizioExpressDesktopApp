@@ -25,8 +25,24 @@ namespace RodizioSmartRestuarant
     {
         public LoadingScreen()
         {
-            InitializeComponent();            
+            InitializeComponent();
 
+            /*const string appName = "RodizioSmartRestuarant";
+            bool createdNew;
+
+            _mutex = new Mutex(true, appName, out createdNew);
+
+            if (!createdNew)
+            {
+                //App Instance Already Running
+                Application.Current.Shutdown();
+                return;
+            }*/
+
+            //Check For Internet Before Running Setup
+
+            
+            
             NextPage();
         }
         public bool IsClosed { get; private set; }
@@ -45,10 +61,21 @@ namespace RodizioSmartRestuarant
 
         async void NextPage()
         {
+            //Some Exists Here Initiailiztion After Mutex Verification
+
+            if (FirstTime())
+                new StartUp().Initialize_Networking_Exclusive();
+
             await Task.Delay(3000);
 
+            App.Instance.isInitialSetup = FirstTime();
+
             if (!FirstTime())
-                WindowManager.Instance.CloseAndOpen(this, new Login());
+            {
+                WindowManager.Instance = new WindowManager();
+                new Helpers.Settings();
+                WindowManager.Instance.CloseAndOpen(this, new GettingReady());
+            }   
 
             if (FirstTime())
                 WindowManager.Instance.CloseAndOpen(this, new Setup());

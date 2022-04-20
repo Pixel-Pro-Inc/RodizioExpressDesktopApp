@@ -57,6 +57,8 @@ namespace RodizioSmartRestuarant
 
             title.Content = "Order number - " + order[0].OrderNumber.Substring(order[0].OrderNumber.IndexOf('_') + 1, 4);
 
+            totalPriceView.Text = "Total : " + Formatting.FormatAmountString(total);
+
 
             //Update with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
@@ -138,6 +140,7 @@ namespace RodizioSmartRestuarant
                     List<OrderItem> orderItems = new List<OrderItem>();
                     foreach (var item in _order)
                     {
+                        //Use a bloody mapper next time
                         orderItems.Add(new OrderItem()
                         {
                             Id = item.Id,
@@ -159,7 +162,11 @@ namespace RodizioSmartRestuarant
                             OrderDateTime = item.OrderDateTime,
                             Collected = item.Collected,
                             User = LocalStorage.Instance.user.FullName(),
-                            PrepTime = item.PrepTime
+                            PrepTime = item.PrepTime,
+                            Flavour = item.Flavour,
+                            MeatTemperature = item.MeatTemperature,
+                            Sauces = item.Sauces,
+                            SubCategory = item.SubCategory
                         });
                     }
 
@@ -175,7 +182,9 @@ namespace RodizioSmartRestuarant
 
                     PrintReceipt(_order, BranchSettings.Instance.branch);
 
-                    Close();
+                    options.Visibility = Visibility.Collapsed;
+
+                    //Close();
                 }
             }            
         }

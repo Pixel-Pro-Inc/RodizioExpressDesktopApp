@@ -81,11 +81,12 @@ namespace RodizioSmartRestuarant.Helpers
 
                     if(((List<object>)branchresult).Count == 0)
                     {
-                        ShowWarning("You have to have had an internet connection atleast once before using this application in offline mode.");
-
-                        App app = App.Instance;
-
-                        app.ShutdownApp();
+                        //Error Message
+                        MessageBoxResult messageBoxResult = MessageBox.Show("You have to have had internet at least once before using this application.", "Startup Failure", System.Windows.MessageBoxButton.OK);
+                        if (messageBoxResult == MessageBoxResult.OK)
+                        {
+                            Application.Current.Shutdown();
+                        }
 
                         result.Add(new Branch());
 
@@ -158,8 +159,30 @@ namespace RodizioSmartRestuarant.Helpers
                             }
                         }
 
+                        //Specifically here for call in orders
+                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
+                            || ((OrderItem)data).Purchased != false
+                            || ((OrderItem)data).Collected != oldOrderItem.Collected))
+                        {
+                            //If there are no differences with a standard order item || old order item
+
+                            int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
+
+                            IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
+
+                            orderresult[index].Add(itm);
+
+                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+
+                            LocalDataChange();
+
+                            return;
+                        }
+
+                        //This Block Causes Order 2593 To Duplicate Its Order Items Why?
                         if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled 
-                            || ((OrderItem)data).Purchased != true /*oldOrderItem.Purchased*/
+                            || ((OrderItem)data).Purchased != oldOrderItem.Purchased
                             || ((OrderItem)data).Collected != oldOrderItem.Collected))
                         {
                             //If there are no differences with a standard order item || old order item
@@ -198,6 +221,10 @@ namespace RodizioSmartRestuarant.Helpers
                     LocalDataChange();
                     break;
             }
+        }
+        protected void OfflineDeleteOrder(List<OrderItem> order)
+        {
+            OfflineDataContext.DeleteOrder(Directories.Order, order);
         }
         protected Directories GetDirectory(string path)
         {
@@ -259,12 +286,13 @@ namespace RodizioSmartRestuarant.Helpers
         }
         protected void LocalDataChange()
         {
-            WindowManager.Instance.UpdateAllOrderViews();
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
             UpdateNetworkDevices();
         }
         protected void UpdateNetworkDevices()
         {
-            TCPServer.Instance.UpdateAllNetworkDevicesUI();
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.UpdateAllNetworkDevicesUI();
         }
         protected List<string> GetCurrentOrderNumbers(List<List<IDictionary<string, object>>> orders)
         {
