@@ -172,7 +172,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             Refresh_Action();
             DataReceived_Action();
-            Disconnect_Received();
+            Disconnect_Action();
         }
         private static void Disconnect_Received()
         {

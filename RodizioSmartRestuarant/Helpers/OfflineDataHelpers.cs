@@ -82,10 +82,22 @@ namespace RodizioSmartRestuarant.Helpers
                     if(((List<object>)branchresult).Count == 0)
                     {
                         //Error Message
-                        MessageBoxResult messageBoxResult = MessageBox.Show("You have to have had internet at least once before using this application.", "Startup Failure", System.Windows.MessageBoxButton.OK);
-                        if (messageBoxResult == MessageBoxResult.OK)
+                        if(TCPServer.Instance != null)
                         {
-                            Application.Current.Shutdown();
+                            MessageBoxResult messageBoxResult = MessageBox.Show("You have to have had internet at least once before using this application.", "Startup Failure", System.Windows.MessageBoxButton.OK);
+                            if (messageBoxResult == MessageBoxResult.OK)
+                            {
+                                Application.Current.Shutdown();
+                            }
+                        }
+                        
+                        if(TCPServer.Instance == null)
+                        {
+                            MessageBoxResult messageBoxResult = MessageBox.Show("We were unable to connect to the local server. Please make sure its on and connected to the LAN before restarting this application again.", "Connection Failure", System.Windows.MessageBoxButton.OK);
+                            if (messageBoxResult == MessageBoxResult.OK)
+                            {
+                                Application.Current.Shutdown();
+                            }
                         }
 
                         result.Add(new Branch());
