@@ -136,7 +136,7 @@ namespace RodizioSmartRestuarant
                             {
                                 orderNumbers.Add(temp[i][0].OrderNumber);
 
-                                if (!item[0].Collected)
+                                if (!item[0].Collected || !item[0].MarkedForDeletion)
                                 {
                                     orders.Add(item);
 
@@ -147,12 +147,12 @@ namespace RodizioSmartRestuarant
                         ActivityIndicator.RemoveSpinner(spinner);
                         break;
                     case UIChangeSource.Edit:
-                        //Hide Collected Items
+                        //Hide Collected/Cancelled Items
                         for (int i = 0; i < orders.Count; i++)
                         {
                             var item = orders[i];
 
-                            if (item[0].Collected)
+                            if (item[0].Collected || item[0].MarkedForDeletion)
                             {
                                 orders.RemoveAt(i);
 
@@ -198,7 +198,7 @@ namespace RodizioSmartRestuarant
                         {
                             var item = temp[i];
 
-                            if (!item[0].Collected)
+                            if (!item[0].Collected || !item[0].MarkedForDeletion)
                             {
                                 orders.Add(item);
 
@@ -235,7 +235,7 @@ namespace RodizioSmartRestuarant
                         {
                             var item = temp[i];
 
-                            if (!item[0].Collected)
+                            if (!item[0].Collected || !item[0].MarkedForDeletion)
                             {
                                 orders.Add(item);
 
@@ -453,7 +453,7 @@ namespace RodizioSmartRestuarant
                 Margin = new Thickness(20, 0, 0, 0),
                 Content = "Cancel Order",
                 IsEnabled = true, //false, //Hidden for now while I work on offline variant
-                Visibility = Visibility.Hidden, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
+                Visibility = Visibility.Visible, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
                 Name = "c" + items[0].OrderNumber.Replace('-', 'e')
             };
 
