@@ -141,7 +141,7 @@ namespace RodizioSmartRestuarant.Data
                 await SetLastActive();                
             }
 
-            if (DateTime.Now.Hour != 23)
+            if (DateTime.Now.Hour != 2)
                 return;
 
             if (DateTime.Now.Minute < 45)

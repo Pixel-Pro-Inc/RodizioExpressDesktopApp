@@ -258,10 +258,10 @@ namespace RodizioSmartRestuarant.Helpers
                 DrawSimpleString(vatRate, minifont, Offset, 5);
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem("Exclusive: ", Formatting.FormatAmountString(total * .86f), Offset);
+                InsertHeaderStyleItem("Exclusive: ", Formatting.FormatAmountString(total / 1.14f), Offset);
 
                 Offset = Offset + smallinc;
-                InsertHeaderStyleItem("Vat: ", Formatting.FormatAmountString(total * .14f), Offset);
+                InsertHeaderStyleItem("Vat: ", Formatting.FormatAmountString(total - (total / 1.14f)), Offset);
 
                 Offset = Offset + smallinc;
                 InsertHeaderStyleItem("Inclusive: ", Formatting.FormatAmountString(total), Offset);

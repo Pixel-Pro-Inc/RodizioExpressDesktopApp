@@ -453,7 +453,7 @@ namespace RodizioSmartRestuarant
                 Margin = new Thickness(20, 0, 0, 0),
                 Content = "Cancel Order",
                 IsEnabled = true, //false, //Hidden for now while I work on offline variant
-                Visibility = Visibility.Visible, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
+                Visibility = Visibility.Hidden, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
                 Name = "c" + items[0].OrderNumber.Replace('-', 'e')
             };
 

@@ -389,11 +389,13 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     List<List<OrderItem>> ordersUpdated = new List<List<OrderItem>>();
-                    ordersUpdated = (List<List<OrderItem>>)await OfflineDataContext.GetData(Directories.Order);
+                    ordersUpdated = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());                    
 
                     if (openWindows[i].GetType() == typeof(OrderStatus))
                     {
-                        ((OrderStatus)openWindows[i]).UpdateScreen(ordersUpdated);
+                        var unCollected = ordersUpdated.Where(o => !o[0].Collected).ToList();
+
+                        ((OrderStatus)openWindows[i]).UpdateScreen(unCollected.Where(o => !o[0].MarkedForDeletion).ToList());
                     }
                 }
             }
