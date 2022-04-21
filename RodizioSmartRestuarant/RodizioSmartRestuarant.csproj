@@ -29,7 +29,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</InstallUrl>
     <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</UpdateUrl>
-    <ApplicationRevision>38</ApplicationRevision>
+    <ApplicationRevision>39</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
