@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,11 +24,12 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class LoadingScreen : Window
     {
+        private static Mutex _mutex = null;
         public LoadingScreen()
         {
             InitializeComponent();
 
-            /*const string appName = "RodizioSmartRestuarant";
+            const string appName = "RodizioSmartRestuarant";
             bool createdNew;
 
             _mutex = new Mutex(true, appName, out createdNew);
@@ -37,11 +39,7 @@ namespace RodizioSmartRestuarant
                 //App Instance Already Running
                 Application.Current.Shutdown();
                 return;
-            }*/
-
-            //Check For Internet Before Running Setup
-
-            
+            }
             
             NextPage();
         }

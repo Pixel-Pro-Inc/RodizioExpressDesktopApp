@@ -123,6 +123,64 @@ namespace RodizioSmartRestuarant.Helpers
                 case Directories.Order:
                     var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
 
+                    //if data originated from a TCP client it will be a List<OrderItem>
+                    if (data is List<OrderItem>)
+                    {
+                        if (TCPServer.Instance == null)//Is Client
+                        {
+                            //Client Sends this to server
+                            OfflineDataContext.StoreDataOverwrite(Directories.Order, (List<OrderItem>)data);
+
+                            return;
+                        }
+
+                        if (TCPServer.Instance != null)
+                        {
+                            //First we convert to a List<IDictionary<string, object>>
+                            List<IDictionary<string, object>> vals = new List<IDictionary<string, object>>();
+
+                            foreach (var oItem in (List<OrderItem>)data)
+                            {
+                                IDictionary<string, object> itm = oItem.AsDictionary();
+
+                                vals.Add(itm);
+                            }
+
+                            //Server Interprets Info
+                            List<string> currentOrderNums = GetCurrentOrderNumbers(orderresult);
+
+                            //If new order
+                            object receivedOrderNumber = null;
+                            vals[0].TryGetValue("OrderNumber", out receivedOrderNumber);
+
+                            if (!currentOrderNums.Contains((string)receivedOrderNumber))
+                            {
+                                //New Order
+                                orderresult.Add(vals);
+
+                                //Store DATA
+                                OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                                return;
+                            }
+
+                            //If Editing existing order
+                            //If Cancelling existing order
+                            if (currentOrderNums.Contains((string)receivedOrderNumber))
+                            {
+                                //Editing Operation
+                                //OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                                foreach (var orderItem in (List<OrderItem>)data)
+                                {
+                                    //Directly Call SerializedObjectManager To Avoid Extra LocalDataChangeCall
+                                    new SerializedObjectManager().EditOrderData(orderItem, Directories.Order);
+                                }
+
+                                LocalDataChange();
+                                return;
+                            }
+                        }
+                    }                    
+
                     if (orderresult.Count == 0)
                     {
                         List<IDictionary<string, object>> vals = new List<IDictionary<string, object>>();
@@ -174,7 +232,8 @@ namespace RodizioSmartRestuarant.Helpers
                         //Specifically here for call in orders
                         if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
                             || ((OrderItem)data).Purchased != false
-                            || ((OrderItem)data).Collected != oldOrderItem.Collected))
+                            || ((OrderItem)data).Collected != oldOrderItem.Collected
+                            || ((OrderItem)data).MarkedForDeletion != oldOrderItem.MarkedForDeletion))
                         {
                             //If there are no differences with a standard order item || old order item
 
@@ -195,7 +254,8 @@ namespace RodizioSmartRestuarant.Helpers
                         //This Block Causes Order 2593 To Duplicate Its Order Items Why?
                         if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled 
                             || ((OrderItem)data).Purchased != oldOrderItem.Purchased
-                            || ((OrderItem)data).Collected != oldOrderItem.Collected))
+                            || ((OrderItem)data).Collected != oldOrderItem.Collected
+                            || ((OrderItem)data).MarkedForDeletion != oldOrderItem.MarkedForDeletion))
                         {
                             //If there are no differences with a standard order item || old order item
                             

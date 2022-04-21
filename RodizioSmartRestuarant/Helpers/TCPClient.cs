@@ -26,17 +26,16 @@ namespace RodizioSmartRestuarant.Helpers
                 try
                 {
                     client.ConnectWithRetries(200);
+                    DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+                    dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                    dispatcherTimer.Start();
+                    return true;
                 }
                 catch
                 {
                     ;
                 }
-
-                DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-                dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-                dispatcherTimer.Start();
-                return true;
             }
             
 
@@ -223,7 +222,7 @@ namespace RodizioSmartRestuarant.Helpers
                 startCounting = false;
                 elapsedTime = 0;
 
-                WindowManager.Instance.UpdateAllOrderViews();
+                WindowManager.Instance.UpdateAllOrderViews_Offline();
             }
         }
         private static float elapsedTime = 0;

@@ -25,8 +25,6 @@ namespace RodizioSmartRestuarant
     public partial class GettingReady : Window
     {
         public static GettingReady Instance { get; set; }
-
-        private static Mutex _mutex = null;
         public GettingReady()
         {
             InitializeComponent();

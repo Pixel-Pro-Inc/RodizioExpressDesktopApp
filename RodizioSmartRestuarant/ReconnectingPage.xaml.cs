@@ -28,6 +28,9 @@ namespace RodizioSmartRestuarant
         }
         public async void Reconnect()
         {
+            //To Allow For The Window To Open
+            await Task.Delay(5000);
+
             if (TCPClient.CreateClient())
             {
                 WindowManager.Instance.CloseAndOpen(this, new POS());

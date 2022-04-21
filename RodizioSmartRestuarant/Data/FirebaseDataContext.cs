@@ -21,7 +21,7 @@ namespace RodizioSmartRestuarant.Data
     {
         public static FirebaseDataContext Instance { get; set; }
 
-        bool startedSyncing = false;
+        public bool startedSyncing = false;
 
         IFirebaseConfig config = new FirebaseConfig
         {
@@ -295,8 +295,12 @@ namespace RodizioSmartRestuarant.Data
                 string branchId = BranchSettings.Instance.branchId;
                 string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
 
-                await StoreData(fullPath, item);//Remove from order view on all network devices
+                if (TCPServer.Instance != null)
+                    await StoreData(fullPath, item);//Remove from order view on all network devices
             }
+
+            if (TCPServer.Instance == null)
+                await StoreData("Order/", orderItems);
         }
 
         public async Task CancelOrder_Offline(string fullPath)
@@ -528,7 +532,7 @@ namespace RodizioSmartRestuarant.Data
             if (LocalStorage.Instance.networkIdentity.isServer)
                 GetDataChanging("Order/" + BranchSettings.Instance.branchId);
         }
-        bool syncing = false;
+        public bool syncing = false;
         void SyncData() //Apply offline changes to db
         {
             if(branchId != "/" && LocalStorage.Instance.networkIdentity.isServer)
@@ -636,8 +640,20 @@ namespace RodizioSmartRestuarant.Data
             return offlineOrders;
         }
 
-        public void ResetLocalData(List<List<OrderItem>> orders)
+        public async void ResetLocalData(List<List<OrderItem>> orders)
         {
+            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+
+            //Offline include completed orders
+            orderItems = (List<List<OrderItem>>)(await GetOfflineOrdersCompletedInclusive());
+
+            foreach (var item in orderItems)
+            {
+                //Add Back Completed and Deleted Orders To Local HDD So They Can Be Sent BACK Up At Sync Time
+                if (item[0].Collected || item[0].MarkedForDeletion)
+                    orders.Add(item);
+            }
+
             //Clear hdd data
             new SerializedObjectManager().DeleteData();
 

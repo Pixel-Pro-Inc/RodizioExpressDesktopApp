@@ -45,7 +45,9 @@ namespace RodizioSmartRestuarant.Data
                 return data;
             }
 
-            return await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
+            var data_1 = await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
+
+            return data_1;
         }
         public async static Task<List<object>> UpdateLocalDataClient(Directories path)
         {

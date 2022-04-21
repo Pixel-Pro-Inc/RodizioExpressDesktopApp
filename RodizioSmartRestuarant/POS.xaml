@@ -48,6 +48,13 @@
         </Border>
 
         <TextBlock Grid.ColumnSpan="2"
+               HorizontalAlignment="Left"
+                   Name="welcomeMsg"
+               FontSize="20"
+               Foreground="White"
+               FontWeight="Bold">Welcome, </TextBlock>
+
+        <TextBlock Grid.ColumnSpan="2"
                HorizontalAlignment="Center"
                FontSize="20"
                Foreground="White"

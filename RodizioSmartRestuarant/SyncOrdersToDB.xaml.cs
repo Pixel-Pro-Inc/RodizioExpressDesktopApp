@@ -42,6 +42,8 @@ namespace RodizioSmartRestuarant
                 //Offline include completed orders
                 orderItems = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 
+                FirebaseDataContext.Instance.startedSyncing = true;
+
                 await FirebaseDataContext.Instance.SyncDataEndOfDay(orderItems);
             }            
 

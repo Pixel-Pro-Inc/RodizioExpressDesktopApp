@@ -42,6 +42,7 @@ namespace RodizioSmartRestuarant.Helpers
 
         private void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
+            //Handle Extra Large Request
             ProcessResponse(e.Data.FromByteArray<RequestObject>(), e.IpPort);
         }
 

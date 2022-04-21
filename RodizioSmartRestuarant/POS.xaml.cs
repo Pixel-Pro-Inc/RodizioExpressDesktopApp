@@ -54,6 +54,7 @@ namespace RodizioSmartRestuarant
             }
 
             versionText.Text = "Version : " + version;
+            welcomeMsg.Text = "Welcome, " + LocalStorage.Instance.user.FullName();
         }
 
         public bool IsClosed { get; private set; }
@@ -109,22 +110,7 @@ namespace RodizioSmartRestuarant
             }
 
             UpdateOrderView(temp);  
-        }
-
-        public async void OnTransaction(string orderNumber, List<OrderItem> order)
-        {
-            ActivityIndicator.AddSpinner(spinner);
-
-            string n = orderNumber;           
-
-            foreach (var item in order)
-            {
-                string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
-
-                await firebaseDataContext.StoreData(fullPath, item);
-            }            
-        }
+        }        
 
         public void UpdateOrderView(List<List<OrderItem>> data, UIChangeSource? source = null)
         {
@@ -318,7 +304,7 @@ namespace RodizioSmartRestuarant
             foreach (var item in orderItems)
             {
                 if (!orderNumbers.Contains(item[0].OrderNumber))
-                    orderNumbers.Add(item[0].OrderNumber.Substring(item[0].OrderNumber.Length - 5, 4));
+                    orderNumbers.Add(item[0].OrderNumber.Substring(item[0].OrderNumber.Length - 4, 4));
             }
 
             return orderNumbers;
@@ -334,7 +320,7 @@ namespace RodizioSmartRestuarant
 
             List<List<OrderItem>> order = Orders;//Updated Order List
 
-            List<List<OrderItem>> _orders = order.Where(o => !o[0].Collected).ToList();
+            List<List<OrderItem>> _orders = order.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
             //the 'orders' mentioned here are the global orders stored locally  in the POS object
 
             var updatedOrders = GetOrderNumbers_4Digit(_orders);
@@ -355,7 +341,7 @@ namespace RodizioSmartRestuarant
 
             if (_orders.Count < orders.Count) return UIChangeSource.Addition;//UIChangeSource.Deletion; //if new list has less items than current list deletion occurred
 
-            int count = _orders.Where(o => !orderNumbers.Contains(o[0].OrderNumber) && !o[0].Collected).Count();
+            int count = _orders.Where(o => !orderNumbers.Contains(o[0].OrderNumber) && !o[0].Collected && !o[0].MarkedForDeletion).Count();
 
             if (count > 0) return UIChangeSource.Addition;
 
@@ -467,7 +453,7 @@ namespace RodizioSmartRestuarant
                 Margin = new Thickness(20, 0, 0, 0),
                 Content = "Cancel Order",
                 IsEnabled = true, //false, //Hidden for now while I work on offline variant
-                Visibility = Visibility.Visible, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
+                Visibility = Visibility.Hidden, // items[0].Purchased || !FirebaseDataContext.Instance.connected ? Visibility.Hidden : Visibility.Visible,
                 Name = "c" + items[0].OrderNumber.Replace('-', 'e')
             };
 
@@ -730,6 +716,27 @@ namespace RodizioSmartRestuarant
             return stackPanel;
         }
 
+        //Order Functions
+
+        public async void OnTransaction(string orderNumber, List<OrderItem> order)
+        {
+            ActivityIndicator.AddSpinner(spinner);
+
+            string n = orderNumber;
+
+            foreach (var item in order)
+            {
+                string branchId = BranchSettings.Instance.branchId;
+                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
+
+                if (TCPServer.Instance != null)
+                    await firebaseDataContext.StoreData(fullPath, item);
+            }
+
+            if (TCPServer.Instance == null)
+                await firebaseDataContext.StoreData("Order/", order);
+        }
+
         private async void CancelOrder_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -750,31 +757,6 @@ namespace RodizioSmartRestuarant
                     }
                 }
             }                
-        }
-
-        async void SendSMS(string phoneNumber, string orderNumber)
-        {
-            await client.PostAsync("https://rodizioexpress.azurewebsites.net/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);//Switch to final domain name
-        }
-
-        private void View_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-
-            StackPanel mainPanel = (StackPanel)(((StackPanel)button.Parent).Parent);
-
-            StackPanel panel = (StackPanel)mainPanel.Children[1];
-
-            if(panel.Visibility == Visibility.Collapsed)
-            {
-                panel.Visibility = Visibility.Visible;
-                button.Content = "Hide";
-            }
-            else
-            {
-                panel.Visibility = Visibility.Collapsed;
-                button.Content = "View";
-            }
         }
 
         private async void Collection_Click(object sender, RoutedEventArgs e)
@@ -804,11 +786,40 @@ namespace RodizioSmartRestuarant
 
                     foreach (var item in orders[i])
                     {
-                        await firebaseDataContext.StoreData(fullPath, item);
+                        if (TCPServer.Instance != null)
+                            await firebaseDataContext.StoreData(fullPath, item);
                     }
+
+                    if (TCPServer.Instance == null)
+                        await firebaseDataContext.StoreData("Order/", orders[i]);
 
                     return;
                 }
+            }
+        }
+
+        async void SendSMS(string phoneNumber, string orderNumber)
+        {
+            await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);
+        }
+
+        private void View_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+
+            StackPanel mainPanel = (StackPanel)(((StackPanel)button.Parent).Parent);
+
+            StackPanel panel = (StackPanel)mainPanel.Children[1];
+
+            if(panel.Visibility == Visibility.Collapsed)
+            {
+                panel.Visibility = Visibility.Visible;
+                button.Content = "Hide";
+            }
+            else
+            {
+                panel.Visibility = Visibility.Collapsed;
+                button.Content = "View";
             }
         }
 
