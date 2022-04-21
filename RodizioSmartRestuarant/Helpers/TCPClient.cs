@@ -159,6 +159,9 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 if (!processingRequest || receivedData[0] != '[')
                 {
+                    if (receivedData[0] == '[')
+                        receivedData = receivedData.Remove(0, 1);
+
                     DataReceived(receivedData);//There is a data limit for every packet once exceeded is sent in another packet
                     processingRequest = true;
                     break;

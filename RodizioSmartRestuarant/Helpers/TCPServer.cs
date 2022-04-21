@@ -128,7 +128,13 @@ namespace RodizioSmartRestuarant.Helpers
                 {
                     Byte[] response = data.ToByteArray<List<object>>(lastRequestSource);
 
-                    string data_Base64 = Convert.ToBase64String(response);
+                    string data_Base64 = "";
+
+                    if (lastRequestSource == "!MOBILE")
+                        data_Base64 = "[" + Convert.ToBase64String(response);
+
+                    if (lastRequestSource == "MOBILE")
+                        data_Base64 = Convert.ToBase64String(response);
 
                     server.Send(ipPort, data_Base64);
                 }
