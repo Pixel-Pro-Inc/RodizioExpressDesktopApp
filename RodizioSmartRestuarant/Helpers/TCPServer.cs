@@ -137,6 +137,7 @@ namespace RodizioSmartRestuarant.Helpers
                         data_Base64 = Convert.ToBase64String(response);
 
                     server.Send(ipPort, data_Base64);
+                    //Comment
                 }
         }
 
