@@ -29,7 +29,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</InstallUrl>
     <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</UpdateUrl>
-    <ApplicationRevision>49</ApplicationRevision>
+    <ApplicationRevision>50</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -56,10 +56,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>33DADB1AD631CCCB2A9B9D4F37E53844FE14385F</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>4DC88FD464D49F4BF01393CA8F98A8650C30D419</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>RodizioSmartRestuarant_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>RodizioSmartRestuarant_2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -78,10 +78,10 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>RodizioSmartRestuarant_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>RodizioSmartRestuarant_2_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FireSharp, Version=2.0.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -413,6 +413,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="RodizioSmartRestuarant_1_TemporaryKey.pfx" />
+    <None Include="RodizioSmartRestuarant_2_TemporaryKey.pfx" />
     <None Include="RodizioSmartRestuarant_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -515,5 +516,8 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Text.Json.6.0.2\build\System.Text.Json.targets'))" />
+  </Target>
+  <Target Name="AfterCompile" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x64\signtool.exe&quot; sign /f &quot;C:\Users\pixel\source\repos\RodizioSmartRestuarant\RodizioSmartRestuarant\RodizioSmartRestuarant_2_TemporaryKey.pfx&quot; /p &quot;Domain47&quot; /v &quot;$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)&quot;" />
   </Target>
 </Project>
