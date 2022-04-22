@@ -19,10 +19,22 @@ namespace RodizioSmartRestuarant
     {
         public static App Instance { get; set; }
         public bool isInitialSetup { get; set; }
-
+        private static Mutex _mutex = null;
         public App()
         {
-            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+            const string appName = "RodizioSmartRestuarant";
+            bool createdNew;
+
+            _mutex = new Mutex(true, appName, out createdNew);
+
+            if (!createdNew)
+            {
+                //App Instance Already Running
+                Application.Current.Shutdown();
+                return;
+            }
+
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");           
 
             Instance = this;
         }

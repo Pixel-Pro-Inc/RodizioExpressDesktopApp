@@ -24,22 +24,9 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class LoadingScreen : Window
     {
-        private static Mutex _mutex = null;
         public LoadingScreen()
         {
-            InitializeComponent();
-
-            const string appName = "RodizioSmartRestuarant";
-            bool createdNew;
-
-            _mutex = new Mutex(true, appName, out createdNew);
-
-            if (!createdNew)
-            {
-                //App Instance Already Running
-                Application.Current.Shutdown();
-                return;
-            }
+            InitializeComponent();            
             
             NextPage();
         }
