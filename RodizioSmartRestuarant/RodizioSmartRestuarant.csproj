@@ -29,7 +29,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</InstallUrl>
     <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</UpdateUrl>
-    <ApplicationRevision>50</ApplicationRevision>
+    <ApplicationRevision>51</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -78,7 +78,7 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>RodizioSmartRestuarant_2_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
