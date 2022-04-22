@@ -29,7 +29,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</InstallUrl>
     <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</UpdateUrl>
-    <ApplicationRevision>48</ApplicationRevision>
+    <ApplicationRevision>49</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -56,11 +56,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>9EEDF2B2EBDFC8CEA61286DBB229A55EB1EFB651</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>33DADB1AD631CCCB2A9B9D4F37E53844FE14385F</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>
-    </ManifestKeyFile>
+    <ManifestKeyFile>RodizioSmartRestuarant_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -413,6 +412,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="RodizioSmartRestuarant_1_TemporaryKey.pfx" />
     <None Include="RodizioSmartRestuarant_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
