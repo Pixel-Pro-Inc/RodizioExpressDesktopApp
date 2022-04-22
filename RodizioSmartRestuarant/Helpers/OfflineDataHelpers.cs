@@ -130,7 +130,6 @@ namespace RodizioSmartRestuarant.Helpers
                         {
                             //Client Sends this to server
                             OfflineDataContext.StoreDataOverwrite(Directories.Order, (List<OrderItem>)data);
-
                             return;
                         }
 

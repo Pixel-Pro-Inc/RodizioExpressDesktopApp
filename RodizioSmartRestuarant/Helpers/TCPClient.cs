@@ -138,7 +138,10 @@ namespace RodizioSmartRestuarant.Helpers
             //Update UI after network change
             if (response.Contains("REFRESH"))
             {
-                for (int i = 0; i < numRetries; i++)
+                //Testing to see if it stopped receiving Refresh Signal Because it was processing request
+                Refresh_UI();
+                return;
+                /*for (int i = 0; i < numRetries; i++)
                 {
                     if (!processingRequest)
                     {
@@ -147,7 +150,7 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     await Task.Delay(delaySeconds * 1000);
-                }
+                }*/
             }
 
             //var x = e.Data.FromByteArray<List<object>>();
