@@ -125,7 +125,7 @@ namespace RodizioSmartRestuarant.Data
             if (startCounting)
                 elapsedTime++;
 
-            if(elapsedTime > 5)
+            if(elapsedTime > 1)
             {
                 startCounting = false;
                 elapsedTime = 0;

@@ -361,8 +361,22 @@ namespace RodizioSmartRestuarant.Helpers
         int changeCount = 0;
         public async void UpdateAllOrderViews()
         {
-            if(BranchSettings.Instance.branchId != null && changeCount > 0)
+            if(BranchSettings.Instance.branchId != null)
             {
+                bool pOSOpen = false;
+
+                for (int i = 0; i < openWindows.Count; i++)
+                {
+                    if (openWindows[i].GetType() == typeof(POS))
+                    {
+                        pOSOpen = true;
+                        break;
+                    }
+                }
+
+                if (!pOSOpen)
+                    return;
+
                 var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);                                
 
                 List<List<OrderItem>> temp = new List<List<OrderItem>>();
@@ -385,7 +399,7 @@ namespace RodizioSmartRestuarant.Helpers
                     if (openWindows[i].GetType() == typeof(POS))
                     {
                         ((POS)openWindows[i]).UpdateOrderView(temp);
-                        await Task.Delay(5000);//Waiting for the method called in the dispatcher to conclude
+                        await Task.Delay(500);//Waiting for the method called in the dispatcher to conclude
                     }
 
                     List<List<OrderItem>> ordersUpdated = new List<List<OrderItem>>();
