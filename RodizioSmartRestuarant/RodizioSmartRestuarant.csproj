@@ -27,12 +27,12 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</InstallUrl>
-    <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/raw/master/published/</UpdateUrl>
+    <InstallUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/blob/master/published/</InstallUrl>
+    <UpdateUrl>https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp/blob/master/published/</UpdateUrl>
     <ProductName>Rodizio Express Smart Restuarant</ProductName>
     <PublisherName>Pixel Pro</PublisherName>
     <SuiteName>Rodizio Express</SuiteName>
-    <ApplicationRevision>55</ApplicationRevision>
+    <ApplicationRevision>56</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
