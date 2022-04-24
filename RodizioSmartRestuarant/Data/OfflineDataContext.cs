@@ -20,6 +20,11 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
         }
         public async static void StoreDataOverwrite(Directories path, object data)
@@ -29,6 +34,11 @@ namespace RodizioSmartRestuarant.Data
                 new SerializedObjectManager().SaveOverwriteData(data, path);
                 LocalDataChange();
                 return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
@@ -45,18 +55,14 @@ namespace RodizioSmartRestuarant.Data
                 return data;
             }
 
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
             var data_1 = await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
 
             return data_1;
-        }
-        public async static Task<List<object>> UpdateLocalDataClient(Directories path)
-        {
-            if (!LocalStorage.Instance.networkIdentity.isServer)
-            {
-                return await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.UpdateLocalDataRequest);
-            }
-
-            return new List<object>();
         }
         public async static void EditOrderData(Directories path, OrderItem data)
         {
@@ -65,6 +71,11 @@ namespace RodizioSmartRestuarant.Data
                 new SerializedObjectManager().EditOrderData(data, path);
                 LocalDataChange();
                 return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Update);
@@ -76,6 +87,11 @@ namespace RodizioSmartRestuarant.Data
                 new SerializedObjectManager().DeleteOrder(data, path);
                 LocalDataChange();
                 return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Delete);

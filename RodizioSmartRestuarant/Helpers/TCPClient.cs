@@ -108,7 +108,11 @@ namespace RodizioSmartRestuarant.Helpers
                         requestType = requestMethod,
                     };
 
-                    client.Send(requestObject.ToByteArray<RequestObject>("!MOBILE"));
+                    byte[] request = requestObject.ToByteArray<RequestObject>("!MOBILE");
+
+                    string requestString = "[" + Convert.ToBase64String(request);
+
+                    client.Send(requestString);
 
                     if (requestMethod != RequestObject.requestMethod.Get)
                         return new List<object>();
@@ -130,7 +134,8 @@ namespace RodizioSmartRestuarant.Helpers
         static int numRetries = 10;
         static int delaySeconds = 2;
 
-        static bool processingRequest;
+        public static bool processingRequest;
+        //public static bool refreshing;
         private async static void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
             var response = Encoding.UTF8.GetString(e.Data);
@@ -139,9 +144,15 @@ namespace RodizioSmartRestuarant.Helpers
             if (response.Contains("REFRESH"))
             {
                 //Testing to see if it stopped receiving Refresh Signal Because it was processing request
-                Refresh_UI();
-                return;
-                /*for (int i = 0; i < numRetries; i++)
+                /*if (!refreshing)
+                {
+                    Refresh_UI();
+                    refreshing = true;
+                }
+
+                return;*/
+
+                for (int i = 0; i < numRetries; i++)
                 {
                     if (!processingRequest)
                     {
@@ -150,7 +161,7 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     await Task.Delay(delaySeconds * 1000);
-                }*/
+                }
             }
 
             //var x = e.Data.FromByteArray<List<object>>();

@@ -642,6 +642,9 @@ namespace RodizioSmartRestuarant.Data
 
         public async void ResetLocalData(List<List<OrderItem>> orders)
         {
+            if (TCPServer.Instance == null)
+                return;
+
             List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
 
             //Offline include completed orders
@@ -672,7 +675,7 @@ namespace RodizioSmartRestuarant.Data
 
             new SerializedObjectManager().SaveData(holder, Directories.Order);
 
-            //We update only the network devices since this one has already all the uptodate view data
+            //We update only the network devices since this one has already all the uptodate view data            
             OfflineDataContext.UpdateNetworkDevices();
 
             return;

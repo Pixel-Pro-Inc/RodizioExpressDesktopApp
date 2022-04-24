@@ -394,8 +394,7 @@ namespace RodizioSmartRestuarant.Helpers
                 }
 
                 for (int i = 0; i < openWindows.Count; i++)
-                {                   
-
+                {
                     if (openWindows[i].GetType() == typeof(POS))
                     {
                         ((POS)openWindows[i]).UpdateOrderView(temp);
@@ -418,7 +417,7 @@ namespace RodizioSmartRestuarant.Helpers
 
         public async void UpdateAllOrderViews_Offline()
         {
-            if (BranchSettings.Instance.branchId != null && changeCount > 0)
+            if (BranchSettings.Instance.branchId != null)
             {
                 var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
 
@@ -443,6 +442,10 @@ namespace RodizioSmartRestuarant.Helpers
                         ((OrderStatus)openWindows[i]).UpdateScreen(temp);
                     }
                 }
+
+                //if (TCPClient.client != null)
+                    //TCPClient.refreshing = false;
+
             }
             changeCount++;
         }

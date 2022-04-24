@@ -16,6 +16,17 @@ namespace RodizioSmartRestuarant.Helpers
         private const int NumberOfRetries = 6;
         private const int DelayOnRetry = 1000;
 
+        public SerializedObjectManager()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = true;
+        }
+        ~SerializedObjectManager()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = false;
+        }
+
         Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };//Exclusive of Printer, Settings So They Don't Get Deleted On UpdateOfflineData
         string savePath(Directories dir) { return Path.Combine(dir.ToString()); }
         public void DeleteAllData()
@@ -66,6 +77,9 @@ namespace RodizioSmartRestuarant.Helpers
                     Thread.Sleep(DelayOnRetry);
                 }
             }
+
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = false;
         }
         public void SaveOverwriteData(object serializedData, Directories dir)
         {
@@ -98,6 +112,9 @@ namespace RodizioSmartRestuarant.Helpers
                     Thread.Sleep(DelayOnRetry);
                 }
             }
+
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = false;
         }
         public async void DeleteOrder(List<OrderItem> serializedData, Directories dir)
         {
@@ -213,6 +230,9 @@ namespace RodizioSmartRestuarant.Helpers
 
             File.SetAttributes(savePath(dir), FileAttributes.Normal);
 
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = false;
+
             return savePath(dir);
         }
         public object RetrieveData(Directories dir)
@@ -241,6 +261,9 @@ namespace RodizioSmartRestuarant.Helpers
                     Thread.Sleep(DelayOnRetry);
                 }
             }
+
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.localDataInUse = false;
 
             return load;
         }
