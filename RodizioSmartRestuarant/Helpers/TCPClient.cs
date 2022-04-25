@@ -131,7 +131,7 @@ namespace RodizioSmartRestuarant.Helpers
             return new List<object>();
         }
 
-        static int numRetries = 10;
+        static int numRetries = 1000;
         static int delaySeconds = 2;
 
         public static bool processingRequest;
@@ -181,7 +181,7 @@ namespace RodizioSmartRestuarant.Helpers
                     break;
                 }
 
-                await Task.Delay(delaySeconds * 1000);
+                await Task.Delay(100);
             }            
         }
         private static void Action()

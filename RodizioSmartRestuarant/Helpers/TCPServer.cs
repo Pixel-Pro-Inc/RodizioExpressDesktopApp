@@ -49,8 +49,8 @@ namespace RodizioSmartRestuarant.Helpers
                 networkIps.Add(e.IpPort);
         }
 
-        int numRetries = 10;
-        int delayMiliSeconds = 2000;
+        int numRetries = 1000;
+        int delayMiliSeconds = 100;
         bool receivingPacket = false;
         string lastIpPort = "";
         private async void Events_DataReceived(object sender, DataReceivedEventArgs e)
@@ -120,8 +120,8 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 var e = requestPool[0];
 
-                if (localDataInUse)
-                    return;
+                //if (localDataInUse)
+                   //return;
 
                 foreach (var keyValuePair in e)
                 {
@@ -228,10 +228,10 @@ namespace RodizioSmartRestuarant.Helpers
 
         public async void UpdateAllNetworkDevicesUI()
         {
-            while (localDataInUse)
-            {
-                await Task.Delay(25);
-            }
+            //while (localDataInUse)
+            //{
+                //await Task.Delay(25);
+            //}
 
             //Sends a specific byte array to trigger a UI refresh
             System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();

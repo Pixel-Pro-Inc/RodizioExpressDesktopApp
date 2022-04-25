@@ -31,7 +31,7 @@
     <ProductName>Rodizio Express Smart Restuarant</ProductName>
     <PublisherName>Pixel Pro</PublisherName>
     <SuiteName>Rodizio Express</SuiteName>
-    <ApplicationRevision>65</ApplicationRevision>
+    <ApplicationRevision>68</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
