@@ -67,7 +67,7 @@ namespace RodizioSmartRestuarant
 
         async void OnStart()
         {
-            ActivityIndicator.AddSpinner(spinner);
+            //ActivityIndicator.AddSpinner(spinner);
 
             var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
@@ -116,15 +116,63 @@ namespace RodizioSmartRestuarant
         {
             this.Dispatcher.Invoke(() =>
             {
-                List<List<OrderItem>> temp = data.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
+                ActivityIndicator.AddSpinner(spinner);
 
-                if (source == null)
-                    source = GetUIChangeSource(temp);
+                List<List<OrderItem>> temp = data;//.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
 
                 temp = Formatting.ChronologicalOrderList(temp);
 
                 List<string> orderNumbers = GetCurrentOrderNumbers();
+                orderViewer.Children.Clear();
+                List<int> indexesToChange = new List<int>();
+                List<int> indexesOfNewValues = new List<int>();
 
+
+                foreach (var item in temp)//New Updates
+                {
+                    if (!orderNumbers.Contains(item[0].OrderNumber))
+                    {
+                        //Addition of new order
+                        orders.Add(item);
+                        continue;//Continue so we dont trigger part 2
+                    }                    
+
+                    if (orderNumbers.Contains(item[0].OrderNumber))
+                    {
+                        //Edit / Completed order
+                        foreach (var _item in orders)
+                        {
+                            //Loop through current orders find match and update it
+                            if(_item[0].OrderNumber == item[0].OrderNumber)
+                            {
+                                indexesToChange.Add(orders.IndexOf(_item));
+
+                                indexesOfNewValues.Add(temp.IndexOf(item));
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < indexesToChange.Count; i++)
+                {
+                    orders[indexesToChange[i]] = temp[indexesOfNewValues[i]];
+                }
+
+                orders = orders.Where(o => !o[0].Collected).ToList();
+
+                orders = Formatting.ChronologicalOrderList(orders);
+
+                foreach (var order in orders)
+                {
+                    orderViewer.Children.Add(GetPanel(order));
+                }
+
+                #region Old Update UI/Orders Code
+                //if (source == null)
+                //source = GetUIChangeSource(temp);
+
+                //temp = Formatting.ChronologicalOrderList(temp);
+                /*
                 switch (source)
                 {
                     case UIChangeSource.Addition:
@@ -245,6 +293,10 @@ namespace RodizioSmartRestuarant
                         ActivityIndicator.RemoveSpinner(spinner);
                         break;
                 }
+                */
+                #endregion
+
+                ActivityIndicator.RemoveSpinner(spinner);
 
                 //Update with size settings
                 RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
@@ -316,7 +368,7 @@ namespace RodizioSmartRestuarant
             // TODO: Rethink this method nigga
             List<string> orderNumbers = GetCurrentOrderNumbers();
 
-            if (orderNumbers.Count == 0 || ContainsCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
+            if (orderNumbers.Count == 0 || ContainsOnlyCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
 
             List<List<OrderItem>> order = Orders;//Updated Order List
 
@@ -348,7 +400,7 @@ namespace RodizioSmartRestuarant
             return UIChangeSource.Edit;
         }
 
-        bool ContainsCollectedOrder(List<List<OrderItem>> orderItems)
+        bool ContainsOnlyCollectedOrder(List<List<OrderItem>> orderItems)
         {
             int count = 0;
 
@@ -357,7 +409,7 @@ namespace RodizioSmartRestuarant
                  count += orderItem.Where(o => o.Collected).ToList().Count();
             }
 
-            return count > 0? true: false;
+            return count == orderItems.Count? true: false;
         }
 
         StackPanel GetPanel(List<OrderItem> items)

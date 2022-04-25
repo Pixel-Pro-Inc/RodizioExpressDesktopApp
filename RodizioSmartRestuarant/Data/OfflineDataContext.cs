@@ -20,7 +20,7 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
-            while (TCPClient.processingRequest)
+            while (TCPClient.receivingPacket)
             {
                 await Task.Delay(25);
             }
@@ -36,7 +36,7 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
-            while (TCPClient.processingRequest)
+            while (TCPClient.receivingPacket)
             {
                 await Task.Delay(25);
             }
@@ -55,7 +55,7 @@ namespace RodizioSmartRestuarant.Data
                 return data;
             }
 
-            while (TCPClient.processingRequest)
+            while (TCPClient.receivingPacket)
             {
                 await Task.Delay(25);
             }
@@ -73,7 +73,7 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
-            while (TCPClient.processingRequest)
+            while (TCPClient.receivingPacket)
             {
                 await Task.Delay(25);
             }
@@ -89,7 +89,7 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
 
-            while (TCPClient.processingRequest)
+            while (TCPClient.receivingPacket)
             {
                 await Task.Delay(25);
             }

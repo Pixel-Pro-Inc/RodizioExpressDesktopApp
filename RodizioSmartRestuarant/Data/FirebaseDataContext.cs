@@ -112,8 +112,6 @@ namespace RodizioSmartRestuarant.Data
             }
 
             new SerializedObjectManager().SaveData(values, Directories.Menu);
-
-            OfflineDataContext.LocalDataChange();
         }
 
         float elapsedTime = 0;

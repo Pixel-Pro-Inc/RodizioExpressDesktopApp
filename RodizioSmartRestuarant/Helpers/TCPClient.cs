@@ -28,7 +28,7 @@ namespace RodizioSmartRestuarant.Helpers
                     client.ConnectWithRetries(200);
                     DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                     dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
                     dispatcherTimer.Start();
                     return true;
                 }
@@ -110,7 +110,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                     byte[] request = requestObject.ToByteArray<RequestObject>("!MOBILE");
 
-                    string requestString = "[" + Convert.ToBase64String(request);
+                    string requestString = "{" + Convert.ToBase64String(request) + "}";
 
                     client.Send(requestString);
 
@@ -130,12 +130,8 @@ namespace RodizioSmartRestuarant.Helpers
 
             return new List<object>();
         }
-
-        static int numRetries = 10;
-        static int delaySeconds = 2;
-
-        public static bool processingRequest;
-        //public static bool refreshing;
+        public static bool receivingPacket = false;
+        static List<string> receivedPacketsBase64 = new List<string>();
         private async static void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
             var response = Encoding.UTF8.GetString(e.Data);
@@ -143,51 +139,98 @@ namespace RodizioSmartRestuarant.Helpers
             //Update UI after network change
             if (response.Contains("REFRESH"))
             {
-                //Testing to see if it stopped receiving Refresh Signal Because it was processing request
-                /*if (!refreshing)
+                while (true)
                 {
-                    Refresh_UI();
-                    refreshing = true;
-                }
-
-                return;*/
-
-                for (int i = 0; i < numRetries; i++)
-                {
-                    if (!processingRequest)
+                    if (!receivingPacket)
                     {
-                        Refresh_UI();
+                        Refresh_Action();
                         return;
                     }
 
-                    await Task.Delay(delaySeconds * 1000);
-                }
+                    await Task.Delay(25);
+                }                
             }
 
-            //var x = e.Data.FromByteArray<List<object>>();
+            //Sometimes it sends multiple at once
+            var singlePackets = splitPackets(Encoding.UTF8.GetString(e.Data));
 
-            //Introduced retries to reduce crashes
-            string receivedData = response;
-
-            for (int i = 0; i < numRetries; i++)
+            foreach (var packet in singlePackets)
             {
-                if (!processingRequest || receivedData[0] != '[')
-                {
-                    if (receivedData[0] == '[')
-                        receivedData = receivedData.Remove(0, 1);
+                if (receivedPacketsBase64.Contains(packet))
+                    continue;
 
-                    DataReceived(receivedData);//There is a data limit for every packet once exceeded is sent in another packet
-                    processingRequest = true;
-                    break;
-                }
+                receivedPacketsBase64.Add(packet);
+            }
+        }
 
-                await Task.Delay(delaySeconds * 1000);
-            }            
+        static List<string> splitPackets(string input)
+        {
+            List<string> output = new List<string>();
+
+            var strings = input.Split('{', '}');
+
+            foreach (var str in strings)
+            {
+                if (!string.IsNullOrEmpty(str))
+                    output.Add("{" + str + "}");
+            }
+
+            return output;
+        }
+        static void ProcessPackets()
+        {
+            if (receivedPacketsBase64.Count == 0)
+                return;
+
+            string _receivedData = receivedPacketsBase64[0];
+
+            //Start of Packet
+            if (!receivingPacket && _receivedData[_receivedData.Length - 1] != '}')
+            {
+                receivingPacket = true;
+
+                //Remove Packet Header
+                _receivedData = _receivedData.Remove(0, 1);
+
+                DataReceived(_receivedData);//There is a data limit for every packet once exceeded is sent in another packet
+            }
+            //Full Packet
+            if (!receivingPacket && _receivedData[_receivedData.Length - 1] == '}')
+            {
+                receivingPacket = true;
+
+                //Remove Packet Header and Footer
+                _receivedData = _receivedData.Remove(0, 1);
+                _receivedData = _receivedData.Remove(_receivedData.Length - 1, 1);
+
+                DataReceived(_receivedData);//There is a data limit for every packet once exceeded is sent in another packet
+                CompletePacketReception();
+            }
+            //Middle of Packet
+            else if (receivingPacket && _receivedData[0] != '{' && _receivedData[_receivedData.Length - 1] != '}')
+            {
+                DataReceived(_receivedData);
+            }
+            //End of Packet
+            else if (receivingPacket && _receivedData[_receivedData.Length - 1] == '}')
+            {
+                _receivedData = _receivedData.Remove(_receivedData.Length - 1, 1);
+                DataReceived(_receivedData);
+                CompletePacketReception();
+            }
+
+            receivedPacketsBase64.RemoveAt(0);
+        }
+        private static void CompletePacketReception()
+        {
+            awaitresponse = (Convert.FromBase64String(receivedData)).FromByteArray<List<object>>();
+            receivedData = "";
+
+            receivingPacket = false;
         }
         private static void Action()
         {
-            Refresh_Action();
-            DataReceived_Action();
+            ProcessPackets();
             Disconnect_Action();
         }
         private static void Disconnect_Received()
@@ -198,9 +241,9 @@ namespace RodizioSmartRestuarant.Helpers
         private static void Disconnect_Action()
         {
             if (startCounting_2)
-                elapsedTime_2++;
+                elapsedTime_2 += 50;
 
-            if (elapsedTime_2 > 1)
+            if (elapsedTime_2 > 1000)
             {
                 startCounting_2 = false;
                 elapsedTime_2 = 0;
@@ -209,52 +252,15 @@ namespace RodizioSmartRestuarant.Helpers
             }
         }
         private static float elapsedTime_2 = 0;
-        private static bool startCounting_2 = false;
-
-        private static void DataReceived_Action()
-        {
-            if (startCounting_1)
-                elapsedTime_1++;
-
-            if (elapsedTime_1 > 1)
-            {
-                startCounting_1 = false;
-                elapsedTime_1 = 0;
-
-                awaitresponse = (Convert.FromBase64String(receivedData)).FromByteArray<List<object>>();
-                receivedData = "";
-                processingRequest = false;
-            }
-        }
-        private static float elapsedTime_1 = 0;
-        private static bool startCounting_1 = false;
+        private static bool startCounting_2 = false;       
 
         private static void Refresh_Action()
         {
-            if (startCounting)
-                elapsedTime++;
-
-            if (elapsedTime > 1)
-            {
-                startCounting = false;
-                elapsedTime = 0;
-
-                WindowManager.Instance.UpdateAllOrderViews_Offline();
-            }
-        }
-        private static float elapsedTime = 0;
-        private static bool startCounting = false;
-        private static void Refresh_UI()
-        {
-            startCounting = true;
-            elapsedTime = 0;
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
         }
         private static string receivedData = "";
         private static void DataReceived(string data)
         {
-            startCounting_1 = true;
-            elapsedTime_1 = 0;
-
             receivedData += data;
         }
     }

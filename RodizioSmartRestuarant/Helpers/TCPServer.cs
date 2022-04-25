@@ -49,69 +49,107 @@ namespace RodizioSmartRestuarant.Helpers
                 networkIps.Add(e.IpPort);
         }
 
-        int numRetries = 10;
-        int delayMiliSeconds = 2000;
         bool receivingPacket = false;
         string lastIpPort = "";
-        private async void Events_DataReceived(object sender, DataReceivedEventArgs e)
+        List<string> receivedPacketsBase64 = new List<string>();
+        List<string> ipPorts = new List<string>();
+        private void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
-            var response = Encoding.UTF8.GetString(e.Data);
+            //Sometimes it sends multiple at once
+            var singlePackets = splitPackets(Encoding.UTF8.GetString(e.Data));
 
-            //Introduced retries to reduce crashes
-            string receivedData = response;
-
-            for (int i = 0; i < numRetries; i++)
+            foreach (var packet in singlePackets)
             {
-                if (!receivingPacket || receivedData[0] != '[')
-                {
-                    receivingPacket = true;
+                if (receivedPacketsBase64.Contains(packet))
+                    continue;
 
-                    if (receivedData[0] == '[')
-                        receivedData = receivedData.Remove(0, 1);
-
-                    lastIpPort = e.IpPort;
-                    DataReceived(receivedData);//There is a data limit for every packet once exceeded is sent in another packet
-                    break;
-                }
-
-                await Task.Delay(delayMiliSeconds);
+                receivedPacketsBase64.Add(packet);
+                ipPorts.Add(e.IpPort);
             }
         }
+        List<string> splitPackets(string input)
+        {
+            List<string> output = new List<string>();
+
+            var strings = input.Split('{', '}');
+
+            foreach (var str in strings)
+            {
+                if (!string.IsNullOrEmpty(str))
+                    output.Add("{" + str + "}");
+            }
+
+            return output;
+        }
+        void ProcessPackets()
+        {
+            if (receivedPacketsBase64.Count == 0)
+                return;
+
+            string _receivedData = receivedPacketsBase64[0];
+
+            //Start of Packet
+            if (!receivingPacket && _receivedData[_receivedData.Length - 1] != '}')
+            {
+                receivingPacket = true;
+
+                //Remove Packet Header
+                _receivedData = _receivedData.Remove(0, 1);
+
+                lastIpPort = ipPorts[0];
+                DataReceived(_receivedData);//There is a data limit for every packet once exceeded is sent in another packet
+            }
+            //Full Packet
+            if (!receivingPacket && _receivedData[_receivedData.Length - 1] == '}')
+            {
+                receivingPacket = true;
+
+                //Remove Packet Header and Footer
+                _receivedData = _receivedData.Remove(0, 1);
+                _receivedData = _receivedData.Remove(_receivedData.Length - 1, 1);
+
+                lastIpPort = ipPorts[0];
+                DataReceived(_receivedData);//There is a data limit for every packet once exceeded is sent in another packet
+                CompletePacketReception();
+            }
+            //Middle of Packet
+            else if (receivingPacket && _receivedData[0] != '{' && _receivedData[_receivedData.Length - 1] != '}')
+            {
+                DataReceived(_receivedData);
+            }
+            //End of Packet
+            else if (receivingPacket && _receivedData[_receivedData.Length - 1] == '}')
+            {
+                _receivedData = _receivedData.Remove(_receivedData.Length - 1, 1);
+                DataReceived(_receivedData);
+                CompletePacketReception();
+            }
+
+            receivedPacketsBase64.RemoveAt(0);
+            ipPorts.RemoveAt(0);
+        }
         private string receivedData = "";
-        bool startCounting = false;
-        int elapsedTime = 0;
         private void DataReceived(string data)
         {
-            startCounting = true;
-            elapsedTime = 0;
-
             receivedData += data;
         }
 
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            DataReceived_Action();
-            TryProcessRequest();
+            ProcessPackets();
         }
 
-        private void DataReceived_Action()
+        private void CompletePacketReception()
         {
-            if (startCounting)
-                elapsedTime += 50;
+            Dictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
+            keyValuePairs.Add(lastIpPort, Convert.FromBase64String(receivedData));
 
-            if (elapsedTime > 200)
-            {
-                startCounting = false;
-                elapsedTime = 0;
+            requestPool.Add(keyValuePairs);
 
-                Dictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
-                keyValuePairs.Add(lastIpPort, Convert.FromBase64String(receivedData));
+            receivedData = "";
+            receivingPacket = false;
 
-                requestPool.Add(keyValuePairs);
-
-                receivedData = "";
-                receivingPacket = false;
-            }
+            TryProcessRequest();
         }
 
         private void TryProcessRequest()
@@ -217,7 +255,7 @@ namespace RodizioSmartRestuarant.Helpers
                     string data_Base64 = "";
 
                     if (lastRequestSource == "!MOBILE")
-                        data_Base64 = "[" + Convert.ToBase64String(response);
+                        data_Base64 = "{" + Convert.ToBase64String(response) + "}";
 
                     if (lastRequestSource == "MOBILE")
                         data_Base64 = Convert.ToBase64String(response);
