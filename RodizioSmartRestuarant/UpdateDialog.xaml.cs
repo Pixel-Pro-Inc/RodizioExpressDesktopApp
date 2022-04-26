@@ -21,7 +21,6 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class UpdateDialog : Window
     {
-        UpdateManager manager;
         public UpdateDialog()
         {
             InitializeComponent();
@@ -31,12 +30,24 @@ namespace RodizioSmartRestuarant
         public async void StartUpdate()
         {
             await Task.Delay(5000);
-            await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
+            //Added GC to make sure updateManager Is Disposed to avoid Mutex Leaks
+            try
+            {
+                using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
+                {
+                    await updateManager.UpdateApp();
+                }
 
-            await manager.UpdateApp();
+                GC.WaitForFullGCComplete();
 
-            message.Content = "We have successfully installed the updates you need to close and reopen the app";
-            closeButton.Visibility = Visibility.Visible;
+                message.Content = "We have successfully installed the updates you need to close and reopen the app";
+                closeButton.Visibility = Visibility.Visible;
+            }
+            catch
+            {
+                message.Content = "We were unable to update the app you need to close and reopen the app";
+                closeButton.Visibility = Visibility.Visible;
+            }   
         }
 
         private void Close_Button_Click(object sender, RoutedEventArgs e)

@@ -25,7 +25,6 @@ namespace RodizioSmartRestuarant
     /// </summary>    
     public partial class LoadingScreen : Window
     {
-        UpdateManager manager;
         public LoadingScreen()
         {
             InitializeComponent();            
@@ -48,22 +47,31 @@ namespace RodizioSmartRestuarant
 
         async void NextPage()
         {
+            bool update = false;
             try
             {
                 //Check For Updates
-                manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
-
-                var updateInfo = await manager.CheckForUpdate();
-
-                if (updateInfo.ReleasesToApply.Count > 0)
+                using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
                 {
+                    var updateInfo = await updateManager.CheckForUpdate();
+
+                    if (updateInfo.ReleasesToApply.Count > 0)
+                    {
+                        update = true;
+                    }
+                }
+
+                if (update)
+                {
+                    GC.WaitForFullGCComplete();
+
                     //Show Update Dialog
                     WindowManager.Instance = new WindowManager();
                     new Helpers.Settings();
                     WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
-                    return;
                 }
 
+                GC.WaitForFullGCComplete();
             }
             catch
             {
