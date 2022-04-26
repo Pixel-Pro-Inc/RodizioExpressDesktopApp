@@ -4,6 +4,7 @@ using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
+using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
@@ -34,6 +35,7 @@ namespace RodizioSmartRestuarant
         public List<List<OrderItem>> orders = new List<List<OrderItem>>();
         private FirebaseDataContext firebaseDataContext;
         private bool showingResults;
+        UpdateManager manager;
 
         public POS()
         {
@@ -42,18 +44,7 @@ namespace RodizioSmartRestuarant
             firebaseDataContext = FirebaseDataContext.Instance;
 
             OnStart();
-
-            string version = null;
-            try
-            {
-                version = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-            }
-            catch (InvalidDeploymentException)
-            {
-                version = "Debugging Version";
-            }
-
-            versionText.Text = "Version : " + version;
+            
             welcomeMsg.Text = "Welcome, " + LocalStorage.Instance.user.FullName();
         }
 
@@ -67,6 +58,19 @@ namespace RodizioSmartRestuarant
 
         async void OnStart()
         {
+            string version = "";
+            try
+            {
+                await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
+                version = manager.CurrentlyInstalledVersion().ToString();
+            }
+            catch
+            {
+                version = "null";
+            }
+
+            versionText.Text = "Version : " + version;
+
             //ActivityIndicator.AddSpinner(spinner);
 
             var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
@@ -111,7 +115,9 @@ namespace RodizioSmartRestuarant
 
             UpdateOrderView(temp);
         }
-
+        /// <summary>
+        /// Logic for compiling and displaying relevant orders
+        /// </summary>
         public void UpdateOrderView(List<List<OrderItem>> data, UIChangeSource? source = null)
         {
             this.Dispatcher.Invoke(() =>

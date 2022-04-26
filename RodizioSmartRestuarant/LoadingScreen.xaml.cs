@@ -1,6 +1,7 @@
 ﻿using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Helpers;
+using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +22,10 @@ namespace RodizioSmartRestuarant
 {
     /// <summary>
     /// Interaction logic for LoadingScreen.xaml
-    /// </summary>
+    /// </summary>    
     public partial class LoadingScreen : Window
     {
+        UpdateManager manager;
         public LoadingScreen()
         {
             InitializeComponent();            
@@ -46,6 +48,27 @@ namespace RodizioSmartRestuarant
 
         async void NextPage()
         {
+            try
+            {
+                //Check For Updates
+                manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
+
+                var updateInfo = await manager.CheckForUpdate();
+
+                if (updateInfo.ReleasesToApply.Count > 0)
+                {
+                    //Show Update Dialog
+                    WindowManager.Instance = new WindowManager();
+                    WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
+                    return;
+                }
+
+            }
+            catch
+            {
+                ;
+            }
+            
             //Some Exists Here Initiailiztion After Mutex Verification
 
             if (FirstTime())
