@@ -35,7 +35,6 @@ namespace RodizioSmartRestuarant
         public List<List<OrderItem>> orders = new List<List<OrderItem>>();
         private FirebaseDataContext firebaseDataContext;
         private bool showingResults;
-        UpdateManager manager;
 
         public POS()
         {
@@ -61,8 +60,12 @@ namespace RodizioSmartRestuarant
             string version = "";
             try
             {
-                await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
-                version = manager.CurrentlyInstalledVersion().ToString();
+                using (var manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
+                {
+                    version = manager.CurrentlyInstalledVersion().ToString();
+                }
+
+                GC.WaitForFullGCComplete();
             }
             catch
             {
