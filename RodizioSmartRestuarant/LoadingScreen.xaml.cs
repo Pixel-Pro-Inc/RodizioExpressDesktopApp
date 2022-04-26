@@ -59,6 +59,7 @@ namespace RodizioSmartRestuarant
                 {
                     //Show Update Dialog
                     WindowManager.Instance = new WindowManager();
+                    new Helpers.Settings();
                     WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
                     return;
                 }
