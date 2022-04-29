@@ -28,7 +28,14 @@ namespace RodizioSmartRestuarant.Helpers
         }
 
         Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };//Exclusive of Printer, Settings So They Don't Get Deleted On UpdateOfflineData
-        string savePath(Directories dir) { return Path.Combine(dir.ToString()); }
+        public string savePath(Directories dir) 
+        {
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            string fullPath = Path.Combine(path + "\\RodizioExpressApplicationFiles\\", dir.ToString());
+
+            return fullPath;
+        }
         public void DeleteAllData()
         {
             for (int i = 0; i < paths.Length; i++)

@@ -40,7 +40,7 @@ namespace RodizioSmartRestuarant
 
                 GC.WaitForFullGCComplete();
 
-                message.Content = "We have successfully installed the updates you need to close and reopen the app";
+                message.Content = "We have successfully installed the updates. You need to restart this computer";
                 closeButton.Visibility = Visibility.Visible;
             }
             catch
@@ -52,7 +52,8 @@ namespace RodizioSmartRestuarant
 
         private void Close_Button_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            //Application.Current.Shutdown();
+            System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
         }
     }
 }

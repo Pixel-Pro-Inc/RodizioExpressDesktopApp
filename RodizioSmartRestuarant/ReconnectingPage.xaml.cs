@@ -33,7 +33,7 @@ namespace RodizioSmartRestuarant
 
             if (TCPClient.CreateClient())
             {
-                WindowManager.Instance.CloseAndOpen(this, new POS());
+                WindowManager.Instance.CloseAndOpen(this, new Login());
                 return;
             }
 

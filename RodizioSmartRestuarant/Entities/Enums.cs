@@ -28,7 +28,9 @@ namespace RodizioSmartRestuarant.Entities
             NetworkInterface,
             Print,
             TCPServer,
-            TCPServerIP
+            TCPServerIP,
+            Error,
+            CalledOutOrders
         }
     }
 }

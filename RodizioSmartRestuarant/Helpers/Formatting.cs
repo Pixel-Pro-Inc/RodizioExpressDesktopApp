@@ -17,6 +17,9 @@ namespace RodizioSmartRestuarant.Helpers
         public static string FormatListToString(List<string> strings)
         {
             string data = "";
+            if (strings == null)
+                return data;
+
             foreach (var item in strings)
             {
                 if (strings.IndexOf(item) == 0)

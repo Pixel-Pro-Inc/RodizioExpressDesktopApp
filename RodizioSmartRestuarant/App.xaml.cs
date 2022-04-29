@@ -1,10 +1,12 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,10 +36,32 @@ namespace RodizioSmartRestuarant
                 return;
             }
 
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");           
 
             Instance = this;
         }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
+
+            string fileName = "error_log.txt";
+
+            if(!File.Exists(folder + "/" + fileName))
+            {
+                Directory.CreateDirectory(folder);
+
+                FileStream fileStream = File.Create(folder + "/" + fileName);
+                fileStream.Close();
+            }            
+
+            File.SetAttributes(folder + "/" + fileName, FileAttributes.Normal);
+
+            File.WriteAllText(folder + "/" + fileName, System.DateTime.Now.ToString() + "_" + e.ExceptionObject.ToString());
+        }
+
         public void Config_StartUp()
         {
             new StartUp(this);

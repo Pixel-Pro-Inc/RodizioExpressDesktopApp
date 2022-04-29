@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Speech.Synthesis;
+using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant
 {
@@ -49,10 +50,13 @@ namespace RodizioSmartRestuarant
                 if (order.Where(o => o.Fufilled).Count() != order.Count)
                     continue;
 
-                if (LocalStorage.Instance.ordersCalledOut.Contains(order[0].OrderNumber))
+                if (getCalledOutOrders().Contains(order[0].OrderNumber))
                     continue;
 
-                LocalStorage.Instance.ordersCalledOut.Add(order[0].OrderNumber);
+                var calledOutOrders = getCalledOutOrders();
+                calledOutOrders.Add(order[0].OrderNumber);
+
+                saveCalledOutOrders(calledOutOrders);
 
                 //Call Order
                 SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer();
@@ -71,6 +75,19 @@ namespace RodizioSmartRestuarant
                 speechSynthesizer.Speak("Order Number " + oNumberCallOut.Trim());
                 await Task.Delay(5000);
             }
+        }
+
+        List<string> getCalledOutOrders()
+        {
+            List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.CalledOutOrders));
+            List<string> calledOutOrders = data == null ? new List<string>() : (List<string>)data[0];
+
+            return calledOutOrders;
+        }
+
+        void saveCalledOutOrders(List<string> orderNumbers)
+        {
+            new SerializedObjectManager().SaveData(orderNumbers, Directories.CalledOutOrders);
         }
 
         public void Logic(List<List<OrderItem>> orders)
@@ -103,7 +120,7 @@ namespace RodizioSmartRestuarant
                 }
             }
 
-            CallOutOrders(orders);
+            //CallOutOrders(orders);
         }
 
         Label GetLabel(List<OrderItem> order)

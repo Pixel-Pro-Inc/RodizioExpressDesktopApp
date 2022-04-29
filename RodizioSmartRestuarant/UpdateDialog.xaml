@@ -50,7 +50,7 @@
                 Name="closeButton"
                 Visibility="Collapsed"
                 Click="Close_Button_Click">
-            Close
+            Restart
         </Button>
     </Grid>
 </Window>
