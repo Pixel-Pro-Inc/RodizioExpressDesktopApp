@@ -43,7 +43,7 @@ namespace RodizioSmartRestuarant
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            IsClosed = true;
+            IsClosed = true;            
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -58,7 +58,7 @@ namespace RodizioSmartRestuarant
             loadingCircle.RenderTransform = rotateTransform;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Signin_Button_Click(object sender, RoutedEventArgs e)
         {
             Signin();
         }
@@ -85,13 +85,14 @@ namespace RodizioSmartRestuarant
                         {
                             if (PasswordCheck(users[i], password))
                             {
-                                if (users[i].branchId[0] == BranchSettings.Instance.branchId)
-                                {
-                                    SignedIn(users[i]);
-                                    return;
-                                }
+                                if (users[i].branchId != null)
+                                    if (users[i].branchId.Contains(BranchSettings.Instance.branchId))
+                                    {
+                                        SignedIn(users[i]);
+                                        return;
+                                    }
 
-                                errorMsgUser.Content = "You are not a member of this branch";
+                                errorMsgUser.Content = "You are not a staff member of this branch";
                                 errorMsgUser.Visibility = Visibility.Visible;
 
                                 ToggleSpinner();
@@ -169,7 +170,7 @@ namespace RodizioSmartRestuarant
 
         async Task<List<AppUser>> GetUsers()
         {
-            var result = await fireBaseDataContext.GetData("Account");
+            var result = await fireBaseDataContext.GetData_Online("Account");
 
             List<AppUser> users = new List<AppUser>();
 
@@ -179,6 +180,8 @@ namespace RodizioSmartRestuarant
 
                 users.Add(u);
             }
+
+            FirebaseDataContext.Instance.StoreUserDataLocally(users);
 
             return users;
         }
@@ -214,9 +217,10 @@ namespace RodizioSmartRestuarant
 
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
-        private void forgotpassword_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
 
+        private void Close_Button_Click(object sender, RoutedEventArgs e)
+        {
+            WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB());
         }
     }
 }

@@ -16,7 +16,13 @@ namespace RodizioSmartRestuarant.Data
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().SaveData(data, path);
+                LocalDataChange();
                 return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
@@ -26,7 +32,13 @@ namespace RodizioSmartRestuarant.Data
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().SaveOverwriteData(data, path);
+                LocalDataChange();
                 return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
             }
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
@@ -43,17 +55,56 @@ namespace RodizioSmartRestuarant.Data
                 return data;
             }
 
-            return await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            var data_1 = await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
+
+            return data_1;
         }
         public async static void EditOrderData(Directories path, OrderItem data)
         {
             if (LocalStorage.Instance.networkIdentity.isServer)
             {
                 new SerializedObjectManager().EditOrderData(data, path);
+                LocalDataChange();
                 return;
             }
 
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Update);
+        }
+        public async static void DeleteOrder(Directories path, List<OrderItem> data)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                new SerializedObjectManager().DeleteOrder(data, path);
+                LocalDataChange();
+                return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Delete);
+        }
+        public static void LocalDataChange()
+        {
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
+            UpdateNetworkDevices();
+        }
+        public static void UpdateNetworkDevices()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.UpdateAllNetworkDevicesUI();
         }
     }
 }

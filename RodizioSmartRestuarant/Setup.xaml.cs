@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace RodizioSmartRestuarant
     public partial class Setup : Window
     {
         public NetworkInterfaceType networkInterfaceType = NetworkInterfaceType.Wireless80211;
+        public bool isPrimaryTCPServer = false;
         public Setup()
         {
             InitializeComponent();
@@ -68,14 +70,20 @@ namespace RodizioSmartRestuarant
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
-        void Next(string id, string name)
-        {            
+        async void Next(string id, string name)
+        {
+            //Activity Indicator
+            ActivityIndicator.AddSpinner(spinner);
+
             new SerializedObjectManager().SaveData(id, Directories.BranchId);
             new SerializedObjectManager().SaveData(name, Directories.PrinterName);
             new SerializedObjectManager().SaveData(networkInterfaceType, Directories.NetworkInterface);
+            new SerializedObjectManager().SaveData(isPrimaryTCPServer, Directories.TCPServer);            
 
-            BranchSettings.Instance.Init();
-            WindowManager.Instance.CloseAndOpen(this, new Login());
+            //Close Activity Indicator
+            ActivityIndicator.RemoveSpinner(spinner);
+
+            WindowManager.Instance.CloseAndOpen(this, new GettingReady());
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -91,6 +99,16 @@ namespace RodizioSmartRestuarant
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             networkInterfaceType = NetworkInterfaceType.Wireless80211;
+        }
+
+        private void Server_CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            isPrimaryTCPServer = true;
+        }
+
+        private void Server_CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            isPrimaryTCPServer = false;
         }
     }
 }

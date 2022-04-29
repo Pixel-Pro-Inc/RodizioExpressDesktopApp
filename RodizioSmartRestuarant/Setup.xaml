@@ -46,6 +46,11 @@
             <CheckBox Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked" Width="200" Margin="0,10,0,0">
                 Prefer Ethernet
             </CheckBox>
+            <CheckBox Checked="Server_CheckBox_Checked" Unchecked="Server_CheckBox_Unchecked" Width="200" Margin="0,10,0,0">
+                <TextBlock TextWrapping="Wrap">
+                    Set as primary TCP SERVER (Only 1 POS can have this checked true.)
+                </TextBlock>
+            </CheckBox>
 
             <Button Margin="0,10,0,0"
                     Width="100"
@@ -62,6 +67,30 @@
                 </StackPanel>                
             </Button>
         </StackPanel>
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
         
     </Grid>
 </Window>

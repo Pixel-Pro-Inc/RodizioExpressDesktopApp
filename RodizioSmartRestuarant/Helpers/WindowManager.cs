@@ -74,6 +74,23 @@ namespace RodizioSmartRestuarant.Helpers
                 return;
             }
 
+            if (target is ReceivePayment)
+            {
+                for (int i = 0; i < openWindows.Count; i++)
+                {
+                    if (openWindows[i].GetType() == target.GetType())
+                        Close(openWindows[i]);
+                }
+
+                close.Close();
+
+                target.Show();
+
+                AddToOpenWindows(target);
+
+                return;
+            }
+
             ShowWarning();
         }
 
@@ -81,6 +98,21 @@ namespace RodizioSmartRestuarant.Helpers
         {
             if (!WindowAlreadyOpen(target))
             {
+                target.Show();
+
+                AddToOpenWindows(target);
+
+                return;
+            }
+
+            if(target is ReceivePayment)
+            {
+                for (int i = 0; i < openWindows.Count; i++)
+                {
+                    if (openWindows[i].GetType() == target.GetType())
+                        Close(openWindows[i]);
+                }
+
                 target.Show();
 
                 AddToOpenWindows(target);
@@ -222,6 +254,17 @@ namespace RodizioSmartRestuarant.Helpers
                             }
                         }
 
+                    if (i < openWindows.Count)
+                        if (openWindows[i].GetType() == typeof(OrderSource))
+                        {
+                            if (((OrderSource)openWindows[i]).IsClosed)
+                            {
+                                openWindows.RemoveAt(i);
+
+                                i = 100000;
+                            }
+                        }
+
                 }
 
                 for (int i = 0; i < openWindows.Count; i++)
@@ -299,6 +342,14 @@ namespace RodizioSmartRestuarant.Helpers
                             k = 0;
                         }
                     }
+
+                    if (openWindows[i].GetType() == typeof(OrderSource))
+                    {
+                        if (((OrderSource)openWindows[i]).IsClosed)
+                        {
+                            k = 0;
+                        }
+                    }
                 }
                 if (openWindows.Count == 0)
                     k = 1;
@@ -310,9 +361,65 @@ namespace RodizioSmartRestuarant.Helpers
         int changeCount = 0;
         public async void UpdateAllOrderViews()
         {
-            if(BranchSettings.Instance.branchId != null && changeCount > 0)
+            if(BranchSettings.Instance.branchId != null)
             {
-                var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);
+                bool pOSOpen = false;
+
+                for (int i = 0; i < openWindows.Count; i++)
+                {
+                    if (openWindows[i].GetType() == typeof(POS))
+                    {
+                        pOSOpen = true;
+                        break;
+                    }
+                }
+
+                if (!pOSOpen)
+                    return;
+
+                var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);                                
+
+                List<List<OrderItem>> temp = new List<List<OrderItem>>();
+
+                foreach (var item in result)
+                {
+                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    temp.Add(data);
+                }
+
+                foreach (var item in temp)
+                {
+                    await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
+                }
+
+                for (int i = 0; i < openWindows.Count; i++)
+                {
+                    if (openWindows[i].GetType() == typeof(POS))
+                    {
+                        ((POS)openWindows[i]).UpdateOrderView(temp);
+                        await Task.Delay(500);//Waiting for the method called in the dispatcher to conclude
+                    }
+
+                    List<List<OrderItem>> ordersUpdated = new List<List<OrderItem>>();
+                    ordersUpdated = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());                    
+
+                    if (openWindows[i].GetType() == typeof(OrderStatus))
+                    {
+                        var unCollected = ordersUpdated.Where(o => !o[0].Collected).ToList();
+
+                        ((OrderStatus)openWindows[i]).UpdateScreen(unCollected.Where(o => !o[0].MarkedForDeletion).ToList());
+                    }
+                }
+            }
+            changeCount++;
+        }
+
+        public async void UpdateAllOrderViews_Offline()
+        {
+            if (BranchSettings.Instance.branchId != null)
+            {
+                var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
 
                 List<List<OrderItem>> temp = new List<List<OrderItem>>();
 
@@ -335,6 +442,10 @@ namespace RodizioSmartRestuarant.Helpers
                         ((OrderStatus)openWindows[i]).UpdateScreen(temp);
                     }
                 }
+
+                //if (TCPClient.client != null)
+                    //TCPClient.refreshing = false;
+
             }
             changeCount++;
         }

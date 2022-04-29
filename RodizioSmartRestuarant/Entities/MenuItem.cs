@@ -20,8 +20,13 @@ namespace RodizioSmartRestuarant.Entities
         public string PublicId { get; set; }
         public string prepTime { get; set; }
         public string Category { get; set; }
+        public string SubCategory { get; set; }
         public float MinimumPrice { get; set; }
         public float Rate { get; set; }
         public bool Availability { get; set; }
+        //New Additions
+        public List<string> Flavours { get; set; }
+        public List<string> MeatTemperatures { get; set; }
+        public List<string> Sauces { get; set; }
     }
 }

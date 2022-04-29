@@ -8,6 +8,7 @@
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
         Icon="Images/rodizio_icon.ico"
+        WindowStyle="None"
         WindowState="Maximized"
         Title="POS" Height="450" Width="800">
     <Grid>
@@ -45,6 +46,13 @@
                 </LinearGradientBrush>
             </Border.Background>
         </Border>
+
+        <TextBlock Grid.ColumnSpan="2"
+               HorizontalAlignment="Left"
+                   Name="welcomeMsg"
+               FontSize="20"
+               Foreground="White"
+               FontWeight="Bold">Welcome, </TextBlock>
 
         <TextBlock Grid.ColumnSpan="2"
                HorizontalAlignment="Center"
@@ -117,6 +125,7 @@
 
         <TextBlock Foreground="White"
                HorizontalAlignment="Center"
+                   Name="versionText"
                Grid.Column="0"
                Grid.Row="1"
                VerticalAlignment="Bottom">Version 1.0.0</TextBlock>

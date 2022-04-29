@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Speech.Synthesis;
 
 namespace RodizioSmartRestuarant
 {
@@ -37,6 +38,42 @@ namespace RodizioSmartRestuarant
         }
 
         public void UpdateScreen(List<List<OrderItem>> orders)
+        {
+            Dispatcher.BeginInvoke(new Action(() => Logic(orders)));
+        }
+
+        public async void CallOutOrders(List<List<OrderItem>> orders)
+        {
+            foreach (var order in orders)
+            {
+                if (order.Where(o => o.Fufilled).Count() != order.Count)
+                    continue;
+
+                if (LocalStorage.Instance.ordersCalledOut.Contains(order[0].OrderNumber))
+                    continue;
+
+                LocalStorage.Instance.ordersCalledOut.Add(order[0].OrderNumber);
+
+                //Call Order
+                SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer();
+                speechSynthesizer.SelectVoiceByHints(VoiceGender.Female, VoiceAge.Adult);
+
+                string oNumber = order[0].OrderNumber;
+                oNumber = oNumber.Substring(oNumber.Length - 4, 4);//e.g 2345
+
+                string oNumberCallOut = "";
+
+                for (int i = 0; i < oNumber.Length; i++)//Return order number with spaces e.g 2 3 4 5
+                {
+                    oNumberCallOut += oNumber[i] + " ";
+                }
+
+                speechSynthesizer.Speak("Order Number " + oNumberCallOut.Trim());
+                await Task.Delay(5000);
+            }
+        }
+
+        public void Logic(List<List<OrderItem>> orders)
         {
             ready.Children.Clear();
             inProgress.Children.Clear();
@@ -63,8 +100,10 @@ namespace RodizioSmartRestuarant
                     {
                         inProgress.Children.Add(GetLabel(orders[i]));
                     }
-                }                
+                }
             }
+
+            CallOutOrders(orders);
         }
 
         Label GetLabel(List<OrderItem> order)
@@ -74,7 +113,7 @@ namespace RodizioSmartRestuarant
                 Margin = new Thickness(10), 
                 FontWeight = FontWeights.DemiBold,
                 Foreground = new SolidColorBrush(Colors.White), 
-                FontSize = 25
+                FontSize = 50
             };
 
             string number = order[0].OrderNumber.Substring(order[0].OrderNumber.IndexOf('_') + 1, 4);

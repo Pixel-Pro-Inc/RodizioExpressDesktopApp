@@ -1,70 +1,125 @@
 ﻿using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Configuration
 {
-    public static class StartUp
+    public class StartUp
     {
-        public static void Initialize()
-        {
-            LocalStorage.Instance = new LocalStorage();
-            InitNetworking();
+        private App _app;
+        public static StartUp Instance { get; set; }
 
-            BranchSettings.Instance = new BranchSettings();    
-            
-            WindowManager.Instance = new WindowManager();      
+        public StartUp()
+        {
+            //Intended to allow initialization without networking to be called alone
+        }
+
+        public StartUp(App app)
+        {
+            Instance = this;
+
+            StartMethod(app);
+        }
+        async void StartMethod(App app)
+        {
+            if (!( await Initialize_WithNetworking(app)))
+            {
+                //Error Message
+                MessageBoxResult messageBoxResult = MessageBox.Show("We were unable to connect to the local server. Please make sure its on and connected to the LAN before restarting this application again.", "Connection Failure", System.Windows.MessageBoxButton.OK);
+                if (messageBoxResult == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+        }
+        public async Task<bool> Initialize_WithNetworking(App app)
+        {
+            _app = app;            
+
+            LocalStorage.Instance = new LocalStorage();            
+
+            if (!InitNetworking())
+                return false;
+
+            BranchSettings.Instance = new BranchSettings();
 
             if (FirebaseDataContext.Instance == null)
                 FirebaseDataContext.Instance = new FirebaseDataContext();
 
-            new Helpers.Settings();
+            BranchSettings.Instance.Init();
 
-            ActivityIndicator.StartTimer();            
+            if (app.isInitialSetup)
+                await FirebaseDataContext.Instance.StoreDataBaseLocally_InitialStartUp();
+
+            ActivityIndicator.StartTimer();
+
+            WindowManager.Instance.CloseAndOpen(GettingReady.Instance, new Login());
+
+            return true;
         }
 
-        public static void InitNetworking()
+        //Intended for initial start up only
+        public void Initialize_Networking_Exclusive()
+        {
+            WindowManager.Instance = new WindowManager();
+
+            LocalStorage.Instance = new LocalStorage();
+
+            BranchSettings.Instance = new BranchSettings();
+
+            new Helpers.Settings();
+
+            ActivityIndicator.StartTimer();
+        }
+
+        public bool InitNetworking()
         {
             LocalStorage.Instance.networkIdentity = new Entities.NetworkIdentity("desktop", false);
             Entities.NetworkIdentity identity = LocalStorage.Instance.networkIdentity;
 
             //Check local area network connectivity
-            if (LocalIP.ScanNetwork().Count == 0) {
-                ShowWarning("Please connect to a local area network and restart the application");
-
-                Application.Current.Shutdown();
-                return;            
+            if (!(new ConnectionChecker()).CheckLAN())
+            {
+                //Error Message
+                MessageBoxResult messageBoxResult = MessageBox.Show("Please connect to a local area network and restart the application.", "Connection Failure", System.Windows.MessageBoxButton.OK);
+                if (messageBoxResult == MessageBoxResult.OK)
+                {
+                    Application.Current.Shutdown();
+                }
             }
 
             //Try to connect to server
             //If there is no server it returns false but it does initialize a client
             // REFACTOR: Consider renaming the method or extracting logic, its been poorly named. Why create a client anyways but return false, It will be 
             //miss leading in the future
+            if (!LocalIP.GetIsPrefferedTCPServer())
+            {
+                //Try to connect to server
 
-            if (TCPClient.CreateClient())
-                return;
+                if (TCPClient.CreateClient())
+                    return true;
 
-            TCPClient.client = null;
+                TCPClient.client = null;
 
-            //Try start a server 
-            // UPDATE: It doesn't try to update here but in CreateClient, this is the wrong place for the above comment
+                //Display Failure To Connect Message With Advice
+                return false;
+            }
 
-           //Tags this client as Server
-           // REFACTOR: Consider making a check here to find if this worked properly, AFTER the server has been created. 
-            identity.isServer = true;            
+            //Try start a server
+
+            identity.isServer = true;
 
             TCPServer server = new TCPServer();
             //Makes this client the server
             identity.serverIP = server.CreateServer();
+
+            return true;
         }
 
-        static void ShowWarning(string msg)
+        void ShowWarning(string msg)
         {
             string messageBoxText = msg;
             string caption = "Warning";

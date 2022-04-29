@@ -10,12 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 using RodizioSmartRestuarant.Data;
 using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
@@ -30,9 +25,16 @@ namespace RodizioSmartRestuarant
         List<MenuItem> menuItems = new List<MenuItem>();
         List<OrderItem> orders = new List<OrderItem>();
         private FirebaseDataContext firebaseDataContext;
-        public NewOrder()
+        private string _source;
+
+        string lastSelectedFlavour = "None";
+        string lastSelectedMeatTemp = "Well Done";
+        string lastSelectedSauce = "Lemon & Garlic";
+        public NewOrder(string source)
         {
             InitializeComponent();
+
+            _source = source;
 
             firebaseDataContext = FirebaseDataContext.Instance;
 
@@ -53,7 +55,7 @@ namespace RodizioSmartRestuarant
 
             menuView.Children.Clear();
 
-            var result = await firebaseDataContext.GetData("Menu/" + BranchSettings.Instance.branchId);
+            var result = await firebaseDataContext.GetData_Online("Menu/" + BranchSettings.Instance.branchId);
 
             List<MenuItem> items = new List<MenuItem>();
 
@@ -159,6 +161,86 @@ namespace RodizioSmartRestuarant
             stackPanel.Children.Add(label3);
             stackPanel.Children.Add(textBox1);
 
+            //Dropdown Flavours
+            if(menuItem.Flavours != null)
+            {
+                if(menuItem.Flavours.Count > 0)
+                {
+                    Label label3_1 = new Label()
+                    {
+                        Content = "Flavour"
+                    };
+
+                    ComboBox comboBox = new ComboBox();
+                    comboBox.Items.Add((new ComboBoxItem()).Content = (new TextBlock()).Text = "None");
+
+                    foreach (var flavour in menuItem.Flavours)
+                    {
+                        comboBox.Items.Add((new ComboBoxItem()).Content = (new TextBlock()).Text = flavour);
+                    }
+
+                    comboBox.SelectionChanged += Flavour_SelectionChanged;
+                    
+                    stackPanel.Children.Add(label3_1);
+                    stackPanel.Children.Add(comboBox);
+                }
+            }
+
+            //Dropdown Meat Temp
+            if (menuItem.MeatTemperatures != null)
+            {
+                if (menuItem.MeatTemperatures.Count > 0)
+                {
+                    Label label3_1 = new Label()
+                    {
+                        Content = "Readiness"
+                    };
+
+                    ComboBox comboBox = new ComboBox();
+
+                    for (int i = menuItem.MeatTemperatures.Count - 1; i >= 0; i--)
+                    {
+                        var meatTemp = menuItem.MeatTemperatures[i];
+
+                        comboBox.Items.Add((new ComboBoxItem()).Content = (new TextBlock()).Text = meatTemp);
+                    }
+
+                    comboBox.SelectionChanged += MeatTemperature_SelectionChanged;
+
+                    stackPanel.Children.Add(label3_1);
+                    stackPanel.Children.Add(comboBox);
+                }
+            }
+
+            //Dropdown Sauces
+            if (menuItem.Sauces != null)
+            {
+                if (menuItem.Sauces.Count > 0)
+                {
+                    if(menuItem.SubCategory != "Platter")
+                    {
+                        Label label3_1 = new Label()
+                        {
+                            Content = "Sauces"
+                        };
+
+                        ComboBox comboBox = new ComboBox();
+
+                        for (int i = 0; i < menuItem.Sauces.Count; i++)
+                        {
+                            var sauce = menuItem.Sauces[i];
+
+                            comboBox.Items.Add((new ComboBoxItem()).Content = (new TextBlock()).Text = sauce);
+                        }
+
+                        comboBox.SelectionChanged += Sauce_SelectionChanged;
+
+                        stackPanel.Children.Add(label3_1);
+                        stackPanel.Children.Add(comboBox);
+                    }                    
+                }
+            }
+
             Button button = new Button()
             {
                 Content = "Add",
@@ -184,7 +266,25 @@ namespace RodizioSmartRestuarant
             //Update with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
+            if (!menuItem.Availability)
+                stackPanel.Visibility = Visibility.Collapsed;
+
             return stackPanel;
+        }
+
+        private void Sauce_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lastSelectedSauce = (((ComboBox)sender).SelectedItem).ToString();
+        }
+
+        private void MeatTemperature_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lastSelectedMeatTemp = (((ComboBox)sender).SelectedItem).ToString();
+        }
+
+        private void Flavour_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lastSelectedFlavour = (((ComboBox)sender).SelectedItem).ToString();
         }
 
         int lastQuantity = 1;
@@ -234,10 +334,16 @@ namespace RodizioSmartRestuarant
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             UpdateTotal();
+            UpdateOrderPrepTime(orders);
         }
 
         StackPanel GetStackPanel(OrderItem orderItem, int index)
         {
+            StackPanel mainStackPanel = new StackPanel()
+            {
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#343434"),
+            };
+
             StackPanel stackPanel = new StackPanel()
             {
                 Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#343434"),
@@ -286,10 +392,73 @@ namespace RodizioSmartRestuarant
 
             button.Click += Remove_Click;
 
+            StackPanel orderPropertiesStackPanel = new StackPanel()
+            {
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#343434"),
+                Orientation = Orientation.Horizontal
+            };
+
+            bool condition = true;
+
+            if (orderItem.SubCategory != "Chicken" && orderItem.SubCategory != "Platter")
+                condition = false;
+
+            if (orderItem.SubCategory == "Platter" && !orderItem.Name.ToLower().Contains("chicken"))
+                condition = false;
+
+            Label label_1 = new Label()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(5, 2, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                MinWidth = 200,
+                Content = condition? $"Flavour : " + orderItem.Flavour : "Flavour : None",
+                Visibility = condition? Visibility.Visible : Visibility.Collapsed
+            };
+
+            condition = true;
+
+            if (orderItem.SubCategory != "Steak")
+                condition = false;
+
+            orderPropertiesStackPanel.Children.Add(label_1);
+
+            Label label_2 = new Label()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(5, 2, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                MinWidth = 200,
+                Content = condition? $"Readiness : " + orderItem.MeatTemperature : "Readiness : None",
+                Visibility = condition? Visibility.Visible : Visibility.Collapsed
+            };
+
+            orderPropertiesStackPanel.Children.Add(label_2);
+
+            condition = true;
+
+            if (orderItem.Category != "Meat")
+                condition = false;
+
+            Label label_3 = new Label()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                Margin = new Thickness(5, 2, 10, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                MinWidth = 200,
+                Content = condition? $"Sauces : " + orderItem.Sauces == null? "Sauces : None" : "Sauces : " + Formatting.FormatListToString(orderItem.Sauces) : "Sauces : None",
+                Visibility = condition ? Visibility.Visible : Visibility.Collapsed
+            };
+
+            orderPropertiesStackPanel.Children.Add(label_3);
+
             //Update with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
-            return stackPanel;
+            mainStackPanel.Children.Add(stackPanel);
+            mainStackPanel.Children.Add(orderPropertiesStackPanel);
+
+            return mainStackPanel;
         }
 
         private void Remove_Click(object sender, RoutedEventArgs e)
@@ -388,7 +557,11 @@ namespace RodizioSmartRestuarant
                             Reference = "till",
                             Category = menuItems[i].Category,
                             Weight = weight,
-                            PrepTime = Int32.Parse(menuItems[i].prepTime)
+                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            Flavour = lastSelectedFlavour,
+                            MeatTemperature = lastSelectedMeatTemp,
+                            Sauces = menuItems[i].SubCategory != "Platter"? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
+                            SubCategory = menuItems[i].SubCategory
                         });
                     }
                     else if (menuItems[i].Category == "Meat" && menuItems[i].Price != "0.00")
@@ -408,7 +581,11 @@ namespace RodizioSmartRestuarant
                             Reference = "till",
                             Category = menuItems[i].Category,
                             Weight = menuItems[i].Weight,
-                            PrepTime = Int32.Parse(menuItems[i].prepTime)
+                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            Flavour = lastSelectedFlavour,
+                            MeatTemperature = lastSelectedMeatTemp,
+                            Sauces = menuItems[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
+                            SubCategory = menuItems[i].SubCategory
                         });
                     }
                     else
@@ -427,9 +604,17 @@ namespace RodizioSmartRestuarant
                             WaitingForPayment = true,
                             Quantity = lastQuantity,
                             Reference = "till",
-                            PrepTime = Int32.Parse(menuItems[i].prepTime)
+                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            Flavour = lastSelectedFlavour,
+                            MeatTemperature = lastSelectedMeatTemp,
+                            Sauces = menuItems[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
+                            SubCategory = menuItems[i].SubCategory
                         });
                     }
+
+                    lastSelectedFlavour = "None";
+                    lastSelectedMeatTemp = "Well Done";
+                    lastSelectedSauce = "Lemon & Garlic";
 
                     lastQuantity = 1;
 
@@ -453,7 +638,7 @@ namespace RodizioSmartRestuarant
             //Activity Indicator
             ActivityIndicator.AddSpinner(spinner);
 
-            int x = await GetOrderNum(BranchSettings.Instance.branchId);
+            string x = await GetOrderNum(BranchSettings.Instance.branchId);
 
             string d = DateTime.Now.Day.ToString("00") + "/" + DateTime.Now.Month.ToString("00") + "/"
                     + DateTime.Now.Year.ToString("0000");
@@ -485,7 +670,7 @@ namespace RodizioSmartRestuarant
                 if (WindowManager.Instance.openWindows[i].GetType() == typeof(POS))
                 {
                     pos = WindowManager.Instance.openWindows[i];
-                }                
+                }
             }
 
             if (pos == null)
@@ -493,10 +678,70 @@ namespace RodizioSmartRestuarant
 
             ActivityIndicator.RemoveSpinner(spinner);
 
-            WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(orderItems, (POS)pos));
+            if (_source.ToLower() == "walkin") 
+            {
+                WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(orderItems, (POS)pos));
+                return;
+            }
+            //Add Unpaid Order
+            if (_source.ToLower() == "call")
+            {
+                CreateUnpaidOrder(orderItems, (POS)pos);
+                return;
+            }            
         }
 
-        public async Task<int> GetOrderNum(string branchId)
+        private void CreateUnpaidOrder(List<OrderItem> _order, POS _pOS)
+        {
+            List<OrderItem> orderItems = new List<OrderItem>();
+            foreach (var item in _order)
+            {
+                orderItems.Add(new OrderItem()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Category = item.Category,
+                    Description = item.Description,
+                    Reference = item.Reference,
+                    Price = item.Price,
+                    Weight = item.Weight,
+                    Fufilled = item.Fufilled,
+                    Purchased = false,
+                    Preparable = item.Preparable,
+                    WaitingForPayment = true,
+                    Quantity = item.Quantity,
+                    PhoneNumber = item.PhoneNumber,
+                    OrderNumber = item.OrderNumber,
+                    //Add changes to OrderItem model here as well
+                    OrderDateTime = item.OrderDateTime,
+                    Collected = item.Collected,
+                    User = LocalStorage.Instance.user.FullName(),
+                    PrepTime = item.PrepTime,
+                    Flavour = lastSelectedFlavour,
+                    MeatTemperature = lastSelectedMeatTemp,
+                    Sauces = item.SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : item.Sauces,
+                    SubCategory = item.SubCategory
+                });
+            }
+
+            lastSelectedFlavour = "None";
+            lastSelectedMeatTemp = "Well Done";
+            lastSelectedSauce = "Lemon & Garlic";
+
+            foreach (var item in orderItems)
+            {
+                item.WaitingForPayment = true;
+                item.Purchased = false;
+                item.Preparable = true;
+                item.Reference = "Call";
+            }
+
+            _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
+
+            WindowManager.Instance.Close(this);
+        }
+
+        public async Task<string> GetOrderNum(string branchId)
         {
             var response = await firebaseDataContext.GetData("Order/" + branchId);
             List<OrderItem> orders = new List<OrderItem>();
@@ -511,10 +756,11 @@ namespace RodizioSmartRestuarant
                 }
             }
 
-            int candidateNumber = new Random().Next(1000, 9999);
+            //Offline Made Orders will always start with 0 to avoid them matching an order made online
+            string candidateNumber = (new Random().Next(1, 1000)).ToString("0000");
 
             //Check Against Other Order Numbers For The Day
-            List<int> orderNums = new List<int>();
+            List<string> orderNums = new List<string>();
 
             for (int i = 0; i < orders.Count; i++)
             {
@@ -535,13 +781,13 @@ namespace RodizioSmartRestuarant
 
                 if (date == dateToday)
                 {
-                    orderNums.Add((Int32.Parse(number)));
+                    orderNums.Add(number);
                 }
             }
 
             while (orderNums.Contains(candidateNumber))
             {
-                candidateNumber = new Random().Next(1000, 9999);
+                candidateNumber = (new Random().Next(1, 1000)).ToString("0000");
             }
 
             return candidateNumber;
@@ -632,6 +878,17 @@ namespace RodizioSmartRestuarant
                 ConfirmOrder(orders);
                 block1 = 1;
             }            
+        }
+        private void UpdateOrderPrepTime(List<OrderItem> orderItems)
+        {
+            int orderTime = 0;
+            foreach (var item in orderItems)
+            {
+                if (item.PrepTime > orderTime)
+                    orderTime = item.PrepTime;
+            }
+
+            orderPrepTime.Content = $"Order will be ready in: {orderTime} minutes";
         }
 
         private void phoneNumber_TextChanged(object sender, TextChangedEventArgs e)

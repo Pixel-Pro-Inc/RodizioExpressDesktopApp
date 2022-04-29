@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System.Collections.Generic;
 using System.IO;
@@ -56,6 +57,7 @@ namespace RodizioSmartRestuarant.Extensions
 
             if (obj == null)
                 return null;
+
             BinaryFormatter bf = new BinaryFormatter();
             using (MemoryStream ms = new MemoryStream())
             {
@@ -64,7 +66,7 @@ namespace RodizioSmartRestuarant.Extensions
             }
         }
 
-        public static T FromByteArray<T>(this byte[] data)
+        public static T FromByteArray<T>(this byte[] data) where T : class, new()
         {
             if (data == null)
                 return default(T);
@@ -76,11 +78,16 @@ namespace RodizioSmartRestuarant.Extensions
 
                 if (obj is string)
                 {
-                    TCPServer.Instance.lastRequestSource = "MOBILE";
-                    return JsonConvert.DeserializeObject<T>(obj.ToString());                    
+                    if (TCPServer.Instance != null)
+                        TCPServer.Instance.lastRequestSource = "MOBILE";
+
+                    return JsonConvert.DeserializeObject<T>(obj.ToString());
                 }
 
-                TCPServer.Instance.lastRequestSource = "!MOBILE";
+                //Test
+                if (TCPServer.Instance != null)
+                    TCPServer.Instance.lastRequestSource = "!MOBILE";
+
                 return (T)obj;
             }
         }

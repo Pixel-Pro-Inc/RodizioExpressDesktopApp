@@ -8,7 +8,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Helvetica"/>
             <Setter Property="FontWeight" Value="Heavy"/>
-            <Setter Property="Background" Value="OrangeRed"/>
+            <Setter Property="Background" Value="Red"/>
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="Template">
                 <Setter.Value>

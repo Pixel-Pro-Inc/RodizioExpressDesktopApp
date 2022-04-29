@@ -51,7 +51,7 @@ namespace RodizioSmartRestuarant
 
             menuView.Children.Clear();
 
-            var result = await firebaseDataContext.GetData("Menu/" + BranchSettings.Instance.branchId);
+            var result = await firebaseDataContext.GetData_Online("Menu/" + BranchSettings.Instance.branchId);
 
             List<MenuItem> items = new List<MenuItem>();
 

@@ -14,6 +14,8 @@ namespace RodizioSmartRestuarant.Helpers
             Get,
             Store,
             Update,
+            Delete,
+            UpdateLocalDataRequest
         }
 
         public string fullPath { get; set; }        

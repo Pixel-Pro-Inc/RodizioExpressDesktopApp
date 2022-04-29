@@ -62,6 +62,27 @@ namespace RodizioSmartRestuarant.Helpers
             return networkInterfaceType;
         }
 
+        public static bool GetIsPrefferedTCPServer()
+        {
+            List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.TCPServer));
+            bool isPrefferedTCPServer = data == null ? false : (bool)data[0];
+
+            return isPrefferedTCPServer;
+        }
+
+        public static string GetStoredTCPServerIpPort()
+        {
+            List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.TCPServerIP));
+            string TCPServerIpPort = data == null ? "" : (string)data[0];
+
+            return TCPServerIpPort;
+        }
+
+        public static void SetStoredTCPServerIpPort(string ipPort)
+        {
+            new SerializedObjectManager().SaveOverwriteData(ipPort, Directories.TCPServerIP);
+        }
+
         public static string GetBaseIP() 
         {
             string ip = GetLocalIPv4();

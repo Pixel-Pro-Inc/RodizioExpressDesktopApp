@@ -14,6 +14,21 @@ namespace RodizioSmartRestuarant.Helpers
             return String.Format("{0:n}", amount);
         }
 
+        public static string FormatListToString(List<string> strings)
+        {
+            string data = "";
+            foreach (var item in strings)
+            {
+                if (strings.IndexOf(item) == 0)
+                    data += item;
+
+                if (strings.IndexOf(item) != 0)
+                    data += ", " + item;
+            }
+
+            return data;
+        }
+
         public static List<List<OrderItem>> ChronologicalOrderList(List<List<OrderItem>> orderItems)
         {
             List<List<OrderItem>> temp = new List<List<OrderItem>>();
