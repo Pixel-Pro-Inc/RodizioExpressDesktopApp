@@ -105,7 +105,17 @@ namespace RodizioSmartRestuarant.Helpers
                 elapsedTime = 0;
 
                 Dictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
-                keyValuePairs.Add(lastIpPort, Convert.FromBase64String(receivedData));
+                try
+                {
+                    keyValuePairs.Add(lastIpPort, Convert.FromBase64String(receivedData));
+                }
+                catch
+                {
+                    //Incorrect String Format
+                    receivedData = "";
+                    receivingPacket = false;
+                    return;
+                }                
 
                 requestPool.Add(keyValuePairs);
 

@@ -35,7 +35,6 @@ namespace RodizioSmartRestuarant
         public List<List<OrderItem>> orders = new List<List<OrderItem>>();
         private FirebaseDataContext firebaseDataContext;
         private bool showingResults;
-        UpdateManager manager;
 
         public POS()
         {
@@ -61,8 +60,12 @@ namespace RodizioSmartRestuarant
             string version = "";
             try
             {
-                await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp");
-                version = manager.CurrentlyInstalledVersion().ToString();
+                using (var manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
+                {
+                    version = manager.CurrentlyInstalledVersion().ToString();
+                }
+
+                GC.WaitForFullGCComplete();
             }
             catch
             {
@@ -83,7 +86,9 @@ namespace RodizioSmartRestuarant
 
             foreach (var item in resultOnline)
             {
-                List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                List<OrderItem> data = new List<OrderItem>();
+
+                data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
 
                 tempOnline.Add(data);
             }
@@ -120,9 +125,9 @@ namespace RodizioSmartRestuarant
         /// </summary>
         public void UpdateOrderView(List<List<OrderItem>> data, UIChangeSource? source = null)
         {
+            ActivityIndicator.AddSpinner(spinner);
             this.Dispatcher.Invoke(() =>
             {
-                ActivityIndicator.AddSpinner(spinner);
 
                 List<List<OrderItem>> temp = data;//.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
 
@@ -968,6 +973,11 @@ namespace RodizioSmartRestuarant
 
                 OnStart(); //Since We need to reload all orders
             }
+        }
+
+        private void Cashier_Report_Click(object sender, RoutedEventArgs e)
+        {
+            WindowManager.Instance.Open(new CashierReport());
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

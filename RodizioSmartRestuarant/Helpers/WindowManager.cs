@@ -265,6 +265,17 @@ namespace RodizioSmartRestuarant.Helpers
                             }
                         }
 
+                    if (i < openWindows.Count)
+                        if (openWindows[i].GetType() == typeof(CashierReport))
+                        {
+                            if (((CashierReport)openWindows[i]).IsClosed)
+                            {
+                                openWindows.RemoveAt(i);
+
+                                i = 100000;
+                            }
+                        }
+
                 }
 
                 for (int i = 0; i < openWindows.Count; i++)
@@ -346,6 +357,14 @@ namespace RodizioSmartRestuarant.Helpers
                     if (openWindows[i].GetType() == typeof(OrderSource))
                     {
                         if (((OrderSource)openWindows[i]).IsClosed)
+                        {
+                            k = 0;
+                        }
+                    }
+
+                    if (openWindows[i].GetType() == typeof(CashierReport))
+                    {
+                        if (((CashierReport)openWindows[i]).IsClosed)
                         {
                             k = 0;
                         }

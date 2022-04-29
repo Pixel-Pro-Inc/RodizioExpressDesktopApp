@@ -113,6 +113,16 @@
                 />
             <Button
                 Style="{StaticResource ButtonStyleRound}"
+                Content="Cashier Report"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Generate Cashier Report"
+                Width ="120"
+                Click="Cashier_Report_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
                 Content="Logout"
                 VerticalAlignment="Bottom"
                 Margin="0,10,0,0"
