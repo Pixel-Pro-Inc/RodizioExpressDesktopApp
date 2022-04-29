@@ -43,18 +43,24 @@ namespace RodizioSmartRestuarant.Configuration
             }
 
             //Try to connect to server
+            //If there is no server it returns false but it does initialize a client
+            // REFACTOR: Consider renaming the method or extracting logic, its been poorly named. Why create a client anyways but return false, It will be 
+            //miss leading in the future
 
             if (TCPClient.CreateClient())
                 return;
 
             TCPClient.client = null;
 
-            //Try start a server
+            //Try start a server 
+            // UPDATE: It doesn't try to update here but in CreateClient, this is the wrong place for the above comment
 
+           //Tags this client as Server
+           // REFACTOR: Consider making a check here to find if this worked properly, AFTER the server has been created. 
             identity.isServer = true;            
 
             TCPServer server = new TCPServer();
-
+            //Makes this client the server
             identity.serverIP = server.CreateServer();
         }
 

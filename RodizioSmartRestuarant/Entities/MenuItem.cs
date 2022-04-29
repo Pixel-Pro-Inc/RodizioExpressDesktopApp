@@ -13,6 +13,8 @@ namespace RodizioSmartRestuarant.Entities
         public string Description { get; set; }
         public string Restuarant { get; set; }
         public string Price { get; set; }
+
+        // TRACK: Here I want to tag this cause this was added when Offline functionality was merged into master
         public string Weight { get; set; }
         public string ImgUrl { get; set; }
         public string PublicId { get; set; }
