@@ -41,6 +41,7 @@ namespace RodizioSmartRestuarant.Helpers
 
         static List<Image> indicators = new List<Image>();
 
+        // REFACTOR: This amougst others are have the same name and similar purpose, we have to consider having overloads of a single method (that takes advantage of 'base' syntax)
         private static void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             int spinAngle = numOfSpins * 5;

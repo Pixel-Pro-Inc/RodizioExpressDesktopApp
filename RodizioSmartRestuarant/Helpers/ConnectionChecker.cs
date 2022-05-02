@@ -10,6 +10,7 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class ConnectionChecker
     {
+        //REFACTOR: We need to use environment variables here
         IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = "Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl",
@@ -56,6 +57,7 @@ namespace RodizioSmartRestuarant.Helpers
 
         public bool CheckLAN()
         {
+            // @Yewo: You have this property but you never define it. Are we just passing nulls?
             int desc;
             return InternetGetConnectedState(out desc, 0);
         }

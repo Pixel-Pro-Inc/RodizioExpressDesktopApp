@@ -21,6 +21,7 @@ namespace RodizioSmartRestuarant.Helpers
             if (TCPServer.Instance != null)
                 TCPServer.Instance.localDataInUse = true;
         }
+        // NOTE: I'm assuming this is cause we want it to do something specific when the garbage collector comes through to delete
         ~SerializedObjectManager()
         {
             if (TCPServer.Instance != null)

@@ -45,6 +45,8 @@ namespace RodizioSmartRestuarant
             base.OnClosed(e);
             IsClosed = true;            
         }
+
+        // REFACTOR: This amougst others are have the same name and similar purpose, we have to consider having overloads of a single method (that takes advantage of 'base' syntax)
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             int spinAngle = numOfSpins * 5;

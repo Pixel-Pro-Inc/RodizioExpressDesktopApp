@@ -14,7 +14,7 @@ namespace RodizioSmartRestuarant.Configuration
 
         public StartUp()
         {
-            //Intended to allow initialization without networking to be called alone
+            // TODO: Intended to allow initialization without networking to be called alone
         }
 
         public StartUp(App app)
@@ -91,14 +91,12 @@ namespace RodizioSmartRestuarant.Configuration
                 }
             }
 
-            //Try to connect to server
-            //If there is no server it returns false but it does initialize a client
-            // REFACTOR: Consider renaming the method or extracting logic, its been poorly named. Why create a client anyways but return false, It will be 
-            //miss leading in the future
             if (!LocalIP.GetIsPrefferedTCPServer())
             {
                 //Try to connect to server
-
+                //If there is no server it returns false but it does initialize a client
+                // REFACTOR: Consider renaming the method or extracting logic, its been poorly named. Why create a client anyways but return false, It will be 
+                //miss leading in the future
                 if (TCPClient.CreateClient())
                     return true;
 

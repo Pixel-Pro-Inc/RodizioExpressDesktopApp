@@ -14,6 +14,8 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class OfflineDataHelpers
     {
+        #region Download
+
         protected async Task<List<object>> OfflineGetData(string fullPath)
         {
             Directories currentDirectory = GetDirectory(fullPath);
@@ -79,10 +81,10 @@ namespace RodizioSmartRestuarant.Helpers
                         return result;
                     }
 
-                    if(((List<object>)branchresult).Count == 0)
+                    if (((List<object>)branchresult).Count == 0)
                     {
                         //Error Message
-                        if(TCPServer.Instance != null)
+                        if (TCPServer.Instance != null)
                         {
                             MessageBoxResult messageBoxResult = MessageBox.Show("You have to have had internet at least once before using this application.", "Startup Failure", System.Windows.MessageBoxButton.OK);
                             if (messageBoxResult == MessageBoxResult.OK)
@@ -90,8 +92,8 @@ namespace RodizioSmartRestuarant.Helpers
                                 Application.Current.Shutdown();
                             }
                         }
-                        
-                        if(TCPServer.Instance == null)
+
+                        if (TCPServer.Instance == null)
                         {
                             MessageBoxResult messageBoxResult = MessageBox.Show("We were unable to connect to the local server. Please make sure its on and connected to the LAN before restarting this application again.", "Connection Failure", System.Windows.MessageBoxButton.OK);
                             if (messageBoxResult == MessageBoxResult.OK)
@@ -114,10 +116,17 @@ namespace RodizioSmartRestuarant.Helpers
 
             return null;
         }
+
+        #endregion
+        #region Store
+
         protected async Task OfflineStoreData(string fullPath, object data)
         {
             Directories currentDirectory = GetDirectory(fullPath);
 
+            // REFACTOR: Too much different logic exists in this method. Please consider extracting logic. Really, what I'm saying is I understand what is going on here but,
+            // @Yewo: I don't know what you are trying to accomplish here.
+            // REFACTOR: // @Yewo: Why not just say if(currentDirectory is Directories.Order) ?
             switch (currentDirectory)
             {
                 case Directories.Order:
@@ -178,7 +187,7 @@ namespace RodizioSmartRestuarant.Helpers
                                 return;
                             }
                         }
-                    }                    
+                    }
 
                     if (orderresult.Count == 0)
                     {
@@ -251,13 +260,13 @@ namespace RodizioSmartRestuarant.Helpers
                         }
 
                         //This Block Causes Order 2593 To Duplicate Its Order Items Why?
-                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled 
+                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
                             || ((OrderItem)data).Purchased != oldOrderItem.Purchased
                             || ((OrderItem)data).Collected != oldOrderItem.Collected
                             || ((OrderItem)data).MarkedForDeletion != oldOrderItem.MarkedForDeletion))
                         {
                             //If there are no differences with a standard order item || old order item
-                            
+
                             int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
 
                             IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
@@ -293,10 +302,24 @@ namespace RodizioSmartRestuarant.Helpers
                     break;
             }
         }
-        protected void OfflineDeleteOrder(List<OrderItem> order)
+
+        #endregion
+        #region Update
+
+        protected void OfflineDeleteOrder(List<OrderItem> order) => OfflineDataContext.DeleteOrder(Directories.Order, order);
+        protected void LocalDataChange()
         {
-            OfflineDataContext.DeleteOrder(Directories.Order, order);
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
+            UpdateNetworkDevices();
         }
+        protected void UpdateNetworkDevices()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.UpdateAllNetworkDevicesUI();
+        }
+
+        #endregion
+
         protected Directories GetDirectory(string path)
         {
             string query = "";
@@ -354,16 +377,6 @@ namespace RodizioSmartRestuarant.Helpers
             }
 
             return keyValuePairs;
-        }
-        protected void LocalDataChange()
-        {
-            WindowManager.Instance.UpdateAllOrderViews_Offline();
-            UpdateNetworkDevices();
-        }
-        protected void UpdateNetworkDevices()
-        {
-            if (TCPServer.Instance != null)
-                TCPServer.Instance.UpdateAllNetworkDevicesUI();
         }
         protected List<string> GetCurrentOrderNumbers(List<List<IDictionary<string, object>>> orders)
         {

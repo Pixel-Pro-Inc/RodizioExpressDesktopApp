@@ -65,6 +65,8 @@ namespace RodizioSmartRestuarant.Helpers
             return false;
         }
 
+
+        // REFACTOR: This amougst others are have the same name and similar purpose, we have to consider having overloads of a single method (that takes advantage of 'base' syntax)
         private static void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             Action();
@@ -184,6 +186,9 @@ namespace RodizioSmartRestuarant.Helpers
                 await Task.Delay(100);
             }            
         }
+
+        // TRACK: This need to be better named, but Ill leave it
+        // @Yewo: look up
         private static void Action()
         {
             Refresh_Action();

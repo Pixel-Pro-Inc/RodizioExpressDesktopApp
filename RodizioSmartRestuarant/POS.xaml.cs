@@ -40,26 +40,19 @@ namespace RodizioSmartRestuarant
         {
             InitializeComponent();
 
+            // REFACTOR: Here is a place where the Infrastructure architeture can be used
             firebaseDataContext = FirebaseDataContext.Instance;
 
             OnStart();
             
             welcomeMsg.Text = "Welcome, " + LocalStorage.Instance.user.FullName();
         }
-
-        public bool IsClosed { get; private set; }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-            IsClosed = true;
-        }
-
         async void OnStart()
         {
             string version = "";
             try
             {
+                // TRACK: Try explaining what this does 
                 using (var manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
                 {
                     version = manager.CurrentlyInstalledVersion().ToString();
@@ -75,13 +68,14 @@ namespace RodizioSmartRestuarant
             versionText.Text = "Version : " + version;
 
             //ActivityIndicator.AddSpinner(spinner);
-
+            #region We try to prepare online and offline data before updating
             var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
             //Offline include completed orders
             List<List<OrderItem>> tempOffline = (List<List<OrderItem>>)(await firebaseDataContext.GetOfflineOrdersCompletedInclusive());
 
-            //Online orders //Check to see if completed ones are included
+            //Online orders 
+            // TODO: Check to see if completed ones are included
             List<List<OrderItem>> tempOnline = new List<List<OrderItem>>();
 
             foreach (var item in resultOnline)
@@ -100,11 +94,14 @@ namespace RodizioSmartRestuarant
 
             //Primarily take offline over online
             List<string> offlineOrderNumbers = GetOrderNumbers(tempOffline);
-
+            //We are adding the offline ones without checking logic cause they take precedence
             temp = tempOffline;
 
             foreach (var item in tempOnline)
             {
+                // REFACTOR: We need to find a way to deal with an element that is null, ( not even sure how it came but power went out for it to happen)
+                if (item[0] == null)
+                    continue;
                 //if doesn't contain add to temp
                 if (!(offlineOrderNumbers.Contains(item[0].OrderNumber)))
                 {
@@ -113,13 +110,91 @@ namespace RodizioSmartRestuarant
             }
 
             //Delete Downloaded Orders From DB To Avoid Re-Downloading
+            // TRACK: I want to know how and why the Re-downloading takes place
             foreach (var item in temp)
             {
                 await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
             }
+            #endregion
 
             UpdateOrderView(temp);
         }
+        public bool IsClosed { get; private set; }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            IsClosed = true;
+        }
+
+        #region Order logic
+
+        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld, int index)
+        {
+            string newItem = itemsNew[0].OrderNumber;
+            string oldItem = itemsOld[0].OrderNumber;
+
+            if (itemsNew.Count == itemsOld.Count)
+                for (int i = 0; i < itemsNew.Count; i++)
+                {
+                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled || itemsNew[i].Purchased != itemsOld[i].Purchased)
+                        return true;
+                }
+
+            return false;
+        }
+
+        // REFACTOR: Consider making the three methods below overrides or each other since they are too alike
+        public List<string> GetCurrentOrderNumbers()
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orders)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber);
+            }
+
+            return orderNumbers;
+        }
+        List<string> GetOrderNumbers(List<List<OrderItem>> orderItems)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orderItems)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber);
+            }
+
+            return orderNumbers;
+        }
+        List<string> GetOrderNumbers_4Digit(List<List<OrderItem>> orderItems)
+        {
+            List<string> orderNumbers = new List<string>();
+
+            foreach (var item in orderItems)
+            {
+                if (!orderNumbers.Contains(item[0].OrderNumber))
+                    orderNumbers.Add(item[0].OrderNumber.Substring(item[0].OrderNumber.Length - 4, 4));
+            }
+
+            return orderNumbers;
+        }
+        bool ContainsOnlyCollectedOrder(List<List<OrderItem>> orderItems)
+        {
+            int count = 0;
+
+            foreach (var orderItem in orderItems)
+            {
+                count += orderItem.Where(o => o.Collected).ToList().Count();
+            }
+
+            return count == orderItems.Count ? true : false;
+        }
+
+        #endregion
+        #region View logic
+
         /// <summary>
         /// Logic for compiling and displaying relevant orders
         /// </summary>
@@ -138,22 +213,23 @@ namespace RodizioSmartRestuarant
                 List<int> indexesToChange = new List<int>();
                 List<int> indexesOfNewValues = new List<int>();
 
-
-                foreach (var item in temp)//New Updates
+                //New Updates
+                foreach (var item in temp)
                 {
+                    //if the order isn't already there
                     if (!orderNumbers.Contains(item[0].OrderNumber))
                     {
                         //Addition of new order
                         orders.Add(item);
                         continue;//Continue so we dont trigger part 2
                     }
-
+                    //If the order is already offline
                     if (orderNumbers.Contains(item[0].OrderNumber))
                     {
                         //Edit / Completed order
                         foreach (var _item in orders)
                         {
-                            //Loop through current orders find match and update it
+                            //Loop through current orders find match and update it on both lists
                             if (_item[0].OrderNumber == item[0].OrderNumber)
                             {
                                 indexesToChange.Add(orders.IndexOf(_item));
@@ -163,7 +239,7 @@ namespace RodizioSmartRestuarant
                         }
                     }
                 }
-
+                // We have this outside the previous block cause we want to take advantage of the 'i' counting feature of the for syntax, (I'm assuming)
                 for (int i = 0; i < indexesToChange.Count; i++)
                 {
                     orders[indexesToChange[i]] = temp[indexesOfNewValues[i]];
@@ -321,108 +397,8 @@ namespace RodizioSmartRestuarant
             });
         }
 
-        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld, int index)
-        {
-            string newItem = itemsNew[0].OrderNumber;
-            string oldItem = itemsOld[0].OrderNumber;
-
-            if (itemsNew.Count == itemsOld.Count)
-                for (int i = 0; i < itemsNew.Count; i++)
-                {
-                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled || itemsNew[i].Purchased != itemsOld[i].Purchased)
-                        return true;
-                }
-
-            return false;
-        }
-
-        public List<string> GetCurrentOrderNumbers()
-        {
-            List<string> orderNumbers = new List<string>();
-
-            foreach (var item in orders)
-            {
-                if (!orderNumbers.Contains(item[0].OrderNumber))
-                    orderNumbers.Add(item[0].OrderNumber);
-            }
-
-            return orderNumbers;
-        }
-        List<string> GetOrderNumbers(List<List<OrderItem>> orderItems)
-        {
-            List<string> orderNumbers = new List<string>();
-
-            foreach (var item in orderItems)
-            {
-                if (!orderNumbers.Contains(item[0].OrderNumber))
-                    orderNumbers.Add(item[0].OrderNumber);
-            }
-
-            return orderNumbers;
-        }
-        List<string> GetOrderNumbers_4Digit(List<List<OrderItem>> orderItems)
-        {
-            List<string> orderNumbers = new List<string>();
-
-            foreach (var item in orderItems)
-            {
-                if (!orderNumbers.Contains(item[0].OrderNumber))
-                    orderNumbers.Add(item[0].OrderNumber.Substring(item[0].OrderNumber.Length - 4, 4));
-            }
-
-            return orderNumbers;
-        }
-
-        UIChangeSource GetUIChangeSource(List<List<OrderItem>> Orders)
-        {
-            //Rethink this method nigga
-            // TODO: Rethink this method nigga
-            List<string> orderNumbers = GetCurrentOrderNumbers();
-
-            if (orderNumbers.Count == 0 || ContainsOnlyCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
-
-            List<List<OrderItem>> order = Orders;//Updated Order List
-
-            List<List<OrderItem>> _orders = order.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
-            //the 'orders' mentioned here are the global orders stored locally  in the POS object
-
-            var updatedOrders = GetOrderNumbers_4Digit(_orders);
-            var currentOrders = GetOrderNumbers_4Digit(orders);
-
-            //If updatedOrders contains some offline made orders then UIChangeSource Was Not Online Change
-            //Offline Orders Alway Start with a zero so if the list of updated order numbers
-            //contains a zero in it then updated orders is inclusive of offline orders
-            if (updatedOrders.Where(uO => uO[0] == '0').Count() > 0)
-            {
-                foreach (var orderNum in currentOrders)
-                {
-                    if (!updatedOrders.Contains(orderNum))
-                        return UIChangeSource.Deletion;
-                }
-            }
-
-
-            if (_orders.Count < orders.Count) return UIChangeSource.Addition;//UIChangeSource.Deletion; //if new list has less items than current list deletion occurred
-
-            int count = _orders.Where(o => !orderNumbers.Contains(o[0].OrderNumber) && !o[0].Collected && !o[0].MarkedForDeletion).Count();
-
-            if (count > 0) return UIChangeSource.Addition;
-
-            return UIChangeSource.Edit;
-        }
-
-        bool ContainsOnlyCollectedOrder(List<List<OrderItem>> orderItems)
-        {
-            int count = 0;
-
-            foreach (var orderItem in orderItems)
-            {
-                count += orderItem.Where(o => o.Collected).ToList().Count();
-            }
-
-            return count == orderItems.Count ? true : false;
-        }
-
+        // UPDATE: I changed the name of the method to be more specific to the cancel function
+        void UpdateOrderCount() => activeOrdersCount.Text = orderViewer.Children.Count + " - Active Orders";
         StackPanel GetPanel(List<OrderItem> items)
         {
             StackPanel stackPanel = new StackPanel()
@@ -778,31 +754,26 @@ namespace RodizioSmartRestuarant
 
             return stackPanel;
         }
-
-        //Order Functions
-
-        public async void OnTransaction(string orderNumber, List<OrderItem> order)
+        void ShowWarning(string msg)
         {
-            ActivityIndicator.AddSpinner(spinner);
+            string messageBoxText = msg;
+            string caption = "Warning";
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Warning;
 
-            string n = orderNumber;
-
-            foreach (var item in order)
-            {
-                string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
-
-                if (TCPServer.Instance != null)
-                    await firebaseDataContext.StoreData(fullPath, item);
-            }
-
-            if (TCPServer.Instance == null)
-                await firebaseDataContext.StoreData("Order/", order);
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
+
+        #endregion
+        #region Button Logic
 
         private async void CancelOrder_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
+
+            // REFACTOR: I'm assuming that you use a convention here that you use in other places alot, like with the in house orders starting with 0. 
+            //Please deeply consider extracting the logic to a more abstract form so that in case that changed in the future it will be easier to manage.
+            // Also it will simply be easier to work with that way
             string n = button.Name.Replace('e', '-');
             n = n.Remove(0, 1);
 
@@ -814,14 +785,13 @@ namespace RodizioSmartRestuarant
                 {
                     if (orders[i][0].OrderNumber == n)
                     {
-                        SendSMS(orders[i][0].PhoneNumber, n.Remove(0, 11));
+                        SendCancelSMS(orders[i][0].PhoneNumber, n.Remove(0, 11));
 
                         await firebaseDataContext.CancelOrder(orders[i]);
                     }
                 }
             }
         }
-
         private async void Collection_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -841,6 +811,7 @@ namespace RodizioSmartRestuarant
                         item.User = LocalStorage.Instance.user.FullName();
                     }
 
+                    // REFACTOR: This logic has been used before, please extract it and make it a usable method, go to line 818 for other occurence
                     string branchId = "";
                     string fullPath = "";
 
@@ -860,12 +831,6 @@ namespace RodizioSmartRestuarant
                 }
             }
         }
-
-        async void SendSMS(string phoneNumber, string orderNumber)
-        {
-            await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);
-        }
-
         private void View_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -885,12 +850,6 @@ namespace RodizioSmartRestuarant
                 button.Content = "View";
             }
         }
-
-        void UpdateOrderCount()
-        {
-            activeOrdersCount.Text = orderViewer.Children.Count + " - Active Orders";
-        }
-
         private void Payment_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -905,7 +864,6 @@ namespace RodizioSmartRestuarant
                 }
             }
         }
-        int block = 0;
         private void Search_Click(object sender, RoutedEventArgs e)
         {
             if (block == 0)
@@ -917,6 +875,27 @@ namespace RodizioSmartRestuarant
                 block = 1;
             }
         }
+        private void Cashier_Report_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.Open(new CashierReport());
+        private void Logout_Click(object sender, RoutedEventArgs e)=> WindowManager.Instance.CloseAllAndOpen(new Login());
+        private void Statuses_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.Open(new OrderStatus(orders));
+        private async void Menu_Click(object sender, RoutedEventArgs e)
+        {
+            if (!await FirebaseDataContext.Instance.connectionChecker.CheckConnection())
+            {
+                ShowWarning("You need to be online or on the server computer to access the menu page.");
+                return;
+            }
+
+            WindowManager.Instance.Open(new MenuEditor());
+        }
+        private void NewOrder_Click(object sender, RoutedEventArgs e)=> WindowManager.Instance.Open(new OrderSource());
+        private void Settings_Click(object sender, RoutedEventArgs e)=> WindowManager.Instance.Open(new Settings());
+
+        #endregion
+        #region Search Logic
+
+        // @Yewo: What does this block variable perform?
+        int block = 0;
 
         private void Search(string query)
         {
@@ -940,12 +919,7 @@ namespace RodizioSmartRestuarant
 
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
-
-        private void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            Refresh();
-        }
-
+        private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
         private void Refresh()
         {
             orders.Clear();
@@ -955,7 +929,6 @@ namespace RodizioSmartRestuarant
 
             Search(searchBox.Text);
         }
-
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
             if (showingResults)
@@ -975,50 +948,77 @@ namespace RodizioSmartRestuarant
             }
         }
 
-        private void Cashier_Report_Click(object sender, RoutedEventArgs e)
-        {
-            WindowManager.Instance.Open(new CashierReport());
-        }
+        #endregion
 
-        private void Logout_Click(object sender, RoutedEventArgs e)
+        // TODO: Rethink this method nigga
+        // @Yewo: What does this method even aim to do
+        UIChangeSource GetUIChangeSource(List<List<OrderItem>> Orders)
         {
-            WindowManager.Instance.CloseAllAndOpen(new Login());
-        }
 
-        private void Statuses_Click(object sender, RoutedEventArgs e)
-        {
-            WindowManager.Instance.Open(new OrderStatus(orders));
-        }
+            List<string> orderNumbers = GetCurrentOrderNumbers();
 
-        private async void Menu_Click(object sender, RoutedEventArgs e)
-        {
-            if (!await FirebaseDataContext.Instance.connectionChecker.CheckConnection())
+            if (orderNumbers.Count == 0 || ContainsOnlyCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
+
+            // @Yewo: Why is this variable even made, when there is no logic that changes the Orders in this scope
+            List<List<OrderItem>> Updatedorders = Orders;//Updated Order List
+
+            // Gets orders that haven't been collected or markedForDeletion
+            List<List<OrderItem>> _orders = Updatedorders.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
+
+            //the 'orders' mentioned here are the global orders stored locally  in the POS object
+            var updatedOrders = GetOrderNumbers_4Digit(_orders);
+            var currentOrders = GetOrderNumbers_4Digit(orders);
+
+            //If updatedOrders contains some offline made orders then UIChangeSource Was Not Online Change
+            //Offline Orders Alway Start with a zero so if the list of updated order numbers
+            //contains a zero in it then updated orders is inclusive of offline orders
+            // @Yewo: Why are we checking if there are offline orders yet ignoring deletion if there aren't any?
+            if (updatedOrders.Where(uO => uO[0] == '0').Count() > 0)
             {
-                ShowWarning("You need to be online or on the server computer to access the menu page.");
-                return;
+                //Basically checks if the updatedOrders have deleted any orders and has the global orders reflect that change
+                foreach (var orderNum in currentOrders)
+                {
+                    if (!updatedOrders.Contains(orderNum))
+                        return UIChangeSource.Deletion;
+                }
             }
 
-            WindowManager.Instance.Open(new MenuEditor());
+            // @Yewo: What is the line supposed to even do cause the one below it appears to try and do the same thing.
+            if (_orders.Count < orders.Count) return UIChangeSource.Addition;//UIChangeSource.Deletion; //if new list has less items than current list deletion occurred
+
+            // Gets the number of new orders
+            int count = _orders.Where(o => !orderNumbers.Contains(o[0].OrderNumber) && !o[0].Collected && !o[0].MarkedForDeletion).Count();
+
+            if (count > 0) return UIChangeSource.Addition;
+
+            return UIChangeSource.Edit;
         }
 
-        private void NewOrder_Click(object sender, RoutedEventArgs e)
+        // @Yewo: Not sure what this method does
+        public async void OnTransaction(string orderNumber, List<OrderItem> order)
         {
-            WindowManager.Instance.Open(new OrderSource());
+            ActivityIndicator.AddSpinner(spinner);
+
+            string n = orderNumber;
+
+
+            // @Yewo: Why not have the if statement outside in wraping over this foreach loop?
+            //  if (TCPServer.Instance != null)
+            foreach (var item in order)
+            {
+                string branchId = BranchSettings.Instance.branchId;
+                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
+
+                // REFACTOR: Why do we have to check for each item in the order?
+                if (TCPServer.Instance != null)
+                    await firebaseDataContext.StoreData(fullPath, item);
+            }
+
+            if (TCPServer.Instance == null)
+                await firebaseDataContext.StoreData("Order/", order);
         }
 
-        private void Settings_Click(object sender, RoutedEventArgs e)
-        {
-            WindowManager.Instance.Open(new Settings());
-        }
+        async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);
 
-        void ShowWarning(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
     }
 }

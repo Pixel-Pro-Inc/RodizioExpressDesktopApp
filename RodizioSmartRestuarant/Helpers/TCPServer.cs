@@ -17,10 +17,12 @@ namespace RodizioSmartRestuarant.Helpers
     public class TCPServer : OfflineDataHelpers        
     {
         public static TCPServer Instance { get; set; }
+        //This is the server method that will give us all our server properties?
         public SimpleTcpServer server = null;
         public List<string> networkIps = new List<string>();
         public string lastRequestSource;
         public bool localDataInUse = false;
+        // TRACK: I need definitions to what this is
         public List<IDictionary<string, byte[]>> requestPool = new List<IDictionary<string, byte[]>>();
 
         public string CreateServer()
@@ -33,6 +35,7 @@ namespace RodizioSmartRestuarant.Helpers
             server.Events.DataReceived += Events_DataReceived;
             server.Events.ClientConnected += Events_ClientConnected;
 
+            // TRACK: Abel will figure this out later
             DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
@@ -41,8 +44,15 @@ namespace RodizioSmartRestuarant.Helpers
             StartServer();
 
             return ip;
-        }       
+        }
 
+        // I'm assuming this method was extracted so that you can have more things happen later on
+        public void StartServer()
+        {
+            server.Start();
+        }
+
+        #region Server Events
         private void Events_ClientConnected(object sender, ConnectionEventArgs e)
         {
             if (!networkIps.Contains(e.IpPort))
@@ -55,13 +65,17 @@ namespace RodizioSmartRestuarant.Helpers
         string lastIpPort = "";
         private async void Events_DataReceived(object sender, DataReceivedEventArgs e)
         {
+            // TRACK: Tell me why we have two variables (response and recieved data, when we could have just had one?
             var response = Encoding.UTF8.GetString(e.Data);
 
             //Introduced retries to reduce crashes
+            // REFACTOR: Here we need to consider how to rethink the retries logic, there is probably a better way of approaching this
+            // but like don't ask me cause what in the 
             string receivedData = response;
 
             for (int i = 0; i < numRetries; i++)
             {
+                // TRACK: I don't understand what this does
                 if (!receivingPacket || receivedData[0] != '[')
                 {
                     receivingPacket = true;
@@ -77,6 +91,17 @@ namespace RodizioSmartRestuarant.Helpers
                 await Task.Delay(delayMiliSeconds);
             }
         }
+
+        // REFACTOR: This amougst others are have the same name and similar purpose, we have to consider having overloads of a single method (that takes advantage of 'base' syntax)
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            DataReceived_Action();
+            TryProcessRequest();
+        }
+
+        #endregion
+
+        #region Data movement processing
         private string receivedData = "";
         bool startCounting = false;
         int elapsedTime = 0;
@@ -86,12 +111,6 @@ namespace RodizioSmartRestuarant.Helpers
             elapsedTime = 0;
 
             receivedData += data;
-        }
-
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            DataReceived_Action();
-            TryProcessRequest();
         }
 
         private void DataReceived_Action()
@@ -115,14 +134,75 @@ namespace RodizioSmartRestuarant.Helpers
                     receivedData = "";
                     receivingPacket = false;
                     return;
-                }                
+                }
 
+                // REFACTOR: What happens if the keyValuePairs returns null, we saw similar problems with the OrderItem problem
                 requestPool.Add(keyValuePairs);
 
                 receivedData = "";
                 receivingPacket = false;
             }
         }
+
+
+        public void SendData(string ipPort, List<object> data, string fullPath)
+        {
+            //Convert JObject and JArray to serializable types
+            int count = 0;
+
+            List<object> converted = new List<object>();
+
+            foreach (var item in data)
+            {
+                if (item.GetType() == typeof(JObject))
+                {
+                    if (fullPath == "Account")
+                    {
+                        var obj = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
+                        converted.Add(obj.AsDictionary());
+                        continue;
+                    }
+
+                    var o = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
+                    converted.Add(o.AsDictionary());
+                }
+
+                if (item.GetType() == typeof(JArray))
+                {
+                    var oj = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+
+                    List<object> list = new List<object>();
+                    for (int i = 0; i < oj.Count; i++)
+                    {
+                        list.Add(oj[i].AsDictionary());
+                    }
+
+                    converted.Add(list);
+                }
+
+                count++;
+            }
+
+            if (converted.Count == data.Count)
+                data = converted;
+
+            if (server.IsListening)
+                if (data != null)
+                {
+                    Byte[] response = data.ToByteArray<List<object>>(lastRequestSource);
+
+                    string data_Base64 = "";
+
+                    if (lastRequestSource == "!MOBILE")
+                        data_Base64 = "[" + Convert.ToBase64String(response);
+
+                    if (lastRequestSource == "MOBILE")
+                        data_Base64 = Convert.ToBase64String(response);
+
+                    server.Send(ipPort, data_Base64);
+                }
+        }
+        #endregion
 
         private void TryProcessRequest()
         {
@@ -139,14 +219,9 @@ namespace RodizioSmartRestuarant.Helpers
                 }
             }
         }
-
-        public void StartServer()
-        {
-            server.Start();
-        }
-
         public async void ProcessResponse(RequestObject request, string ipPort)
         {
+            // TRACK: Do you think its over kill to have a check on the request.requestType if null?
             switch (request.requestType)
             {
                 case RequestObject.requestMethod.Get:
@@ -156,7 +231,8 @@ namespace RodizioSmartRestuarant.Helpers
                 case RequestObject.requestMethod.Store:
                     if(lastRequestSource == "MOBILE")
                     {
-                        //Handles data from mobile
+                        // TRACK: Handles data from mobile.
+                        // REFACTOR: I believe you want work done here Yewo, but I'm not sure how to begin
                         var obj = request.data;
 
                         request.data = JsonConvert.DeserializeObject<OrderItem>(obj.ToString());
@@ -177,65 +253,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             requestPool.RemoveAt(0);
         }
-
-        public void SendData(string ipPort, List<object> data, string fullPath)
-        {
-            //Convert JObject and JArray to serializable types
-            int count = 0;
-
-            List<object> converted = new List<object>();
-
-            foreach (var item in data)
-            {
-                if(item.GetType() == typeof(JObject))
-                {
-                    if(fullPath == "Account")
-                    {
-                        var obj = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
-                        converted.Add(obj.AsDictionary());
-                        continue;
-                    }
-
-                    var o = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
-                    converted.Add(o.AsDictionary());
-                }
-
-                if(item.GetType() == typeof(JArray))
-                {
-                    var oj = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
-
-                    List<object> list = new List<object>();
-                    for (int i = 0; i < oj.Count; i++)
-                    {
-                        list.Add(oj[i].AsDictionary());
-                    }
-
-                    converted.Add(list);
-                }
-
-                count++;
-            }
-
-            if (converted.Count == data.Count)
-                data = converted;
-
-            if(server.IsListening)
-                if(data != null)
-                {
-                    Byte[] response = data.ToByteArray<List<object>>(lastRequestSource);
-
-                    string data_Base64 = "";
-
-                    if (lastRequestSource == "!MOBILE")
-                        data_Base64 = "[" + Convert.ToBase64String(response);
-
-                    if (lastRequestSource == "MOBILE")
-                        data_Base64 = Convert.ToBase64String(response);
-
-                    server.Send(ipPort, data_Base64);
-                }
-        }
-
         public async void UpdateAllNetworkDevicesUI()
         {
             //while (localDataInUse)
@@ -252,5 +269,6 @@ namespace RodizioSmartRestuarant.Helpers
                 server.Send(ipPort, data);
             }            
         }
+
     }
 }

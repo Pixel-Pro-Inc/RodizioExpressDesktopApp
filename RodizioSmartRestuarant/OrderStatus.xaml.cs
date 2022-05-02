@@ -43,6 +43,7 @@ namespace RodizioSmartRestuarant
             Dispatcher.BeginInvoke(new Action(() => Logic(orders)));
         }
 
+        // REFACTOR: Find and remove the stack overflow it keeps firing
         public async void CallOutOrders(List<List<OrderItem>> orders)
         {
             foreach (var order in orders)
@@ -120,6 +121,7 @@ namespace RodizioSmartRestuarant
                 }
             }
 
+            // TODO: Get this working so that we can have the fancy shit going on again
             //CallOutOrders(orders);
         }
 

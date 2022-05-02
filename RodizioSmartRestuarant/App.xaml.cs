@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,6 +23,9 @@ namespace RodizioSmartRestuarant
         public static App Instance { get; set; }
         public bool isInitialSetup { get; set; }
         private static Mutex _mutex = null;
+        // we need this to send the SMS but I don't have time to configure a centralized httpClient ( if it is even needed)
+        private static readonly HttpClient client = new HttpClient();
+
         public App()
         {
             const string appName = "RodizioSmartRestuarant";
@@ -29,9 +33,10 @@ namespace RodizioSmartRestuarant
 
             _mutex = new Mutex(true, appName, out createdNew);
 
+            // @Yewo: I need further clarifaction on this one, 
             if (!createdNew)
             {
-                //App Instance Already Running
+                //App Instance Already Running //UPDATE: Does this mean that it shuts down the entire application or just that thread?
                 Application.Current.Shutdown();
                 return;
             }
@@ -49,6 +54,10 @@ namespace RodizioSmartRestuarant
 
             string fileName = "error_log.txt";
 
+            // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works
+            // SendErrorlogSMS(e.ExceptionObject.ToString());
+
+            // if the file doesn't exists
             if(!File.Exists(folder + "/" + fileName))
             {
                 Directory.CreateDirectory(folder);
@@ -60,33 +69,17 @@ namespace RodizioSmartRestuarant
             File.SetAttributes(folder + "/" + fileName, FileAttributes.Normal);
 
             File.WriteAllText(folder + "/" + fileName, System.DateTime.Now.ToString() + "_" + e.ExceptionObject.ToString());
+
+
         }
+        async void SendErrorlogSMS(string errorlog)=> await client.PostAsync("https://rodizioexpress.com/api/sms/send/errorlogging/" + errorlog, null);
 
         public void Config_StartUp()
         {
             new StartUp(this);
         }
 
-        public void ShowKeyboard()
-        {
-            Dispatcher.BeginInvoke(new Action(() => Logic()));
-        }
-
-        public void ShutdownApp()
-        {
-            Dispatcher.BeginInvoke(new Action(() => CloseApp()));
-        }
-
-        void Logic()
-        {
-            Process process = Process.Start(new ProcessStartInfo(
-            ((Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\osk.exe"))));
-        }
-
-        void CloseApp()
-        {
-            Application.Current.Shutdown();
-        }
+        public void ShowKeyboard()=> Dispatcher.BeginInvoke(new Action(() => Logic()));
         static void ShowWarning(string msg)
         {
             string messageBoxText = msg;
@@ -96,5 +89,16 @@ namespace RodizioSmartRestuarant
 
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
+        public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
+        void CloseApp() => Application.Current.Shutdown();
+
+        // REFACTOR: Please name this more appropriatly
+        // @Yewo: look up
+        void Logic()
+        {
+            Process process = Process.Start(new ProcessStartInfo(
+            ((Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\osk.exe"))));
+        }
+
     }
 }

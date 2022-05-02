@@ -228,6 +228,7 @@ namespace RodizioSmartRestuarant
         }
 
         //OverLoads for promotion desired. Update the xaml if we are including it and use these 
+        // NOTE: logic for promotions and discounts
         public void ApplyDiscount(string promoCode) => total *= 1 + Waiver.GetpromoPercent(promoCode);
         public void ApplyDiscount(double amount) => total -= LocalStorage.Instance.user.FullName() == _order[0].User ? (float)amount : 0; //the zero needs to be replaced with error message
         public void RemoveDiscount(string promoCode) => total /= 1 + Waiver.GetpromoPercent(promoCode);

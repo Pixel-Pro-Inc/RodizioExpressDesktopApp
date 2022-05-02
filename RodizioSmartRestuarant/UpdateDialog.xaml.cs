@@ -31,6 +31,7 @@ namespace RodizioSmartRestuarant
         {
             await Task.Delay(5000);
             //Added GC to make sure updateManager Is Disposed to avoid Mutex Leaks
+            // TRACK: Okay here you need to explain what is going on over here
             try
             {
                 using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
