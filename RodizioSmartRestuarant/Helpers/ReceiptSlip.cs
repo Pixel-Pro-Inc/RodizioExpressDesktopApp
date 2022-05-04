@@ -32,28 +32,8 @@ namespace RodizioSmartRestuarant.Helpers
                 amtReceived = amountReceived;
                 changeAmt = Change;
             }
-            public void Print(string printername)
-            {
-                string printerName = printername == "printername"? null: printername;
+            #region View
 
-                PdfDocument pdfDoc = new PdfDocument();
-
-                PdfPage pdfPage = new PdfPage();
-                //
-                //pdfPage.Size = PdfSharp.PageSize.Undefined;
-                pdfPage.Width = 204;//2.83465 Xunit/Milimeter (2.83465 * 72)
-                pdfDoc.Pages.Add(pdfPage);
-
-                graphics = XGraphics.FromPdfPage(pdfPage);
-
-                FormatPage();
-
-                string printPath = new SerializedObjectManager().PrintReceiptPath(Enums.Directories.Print) + "/receipt.pdf";
-
-                pdfDoc.Save(printPath);
-
-                new PrintReceiptScaled().Print(printerName, printPath);
-            } //this is whats called when we print the receipt
             void DrawAtStart(string text, int Offset)
             {
                 int startX = 10;
@@ -67,7 +47,7 @@ namespace RodizioSmartRestuarant.Helpers
                 };
 
                 graphics.DrawString(text, minifont, new XSolidBrush(XColors.Black), xPoint);
-                            //new SolidBrush(Color.Black), startX + 5, startY + Offset);
+                //new SolidBrush(Color.Black), startX + 5, startY + Offset);
             }
             void InsertItem(string key, string value, int Offset)
             {
@@ -90,9 +70,9 @@ namespace RodizioSmartRestuarant.Helpers
                 graphics.DrawString(key, minifont, new XSolidBrush(XColors.Black), xPoint);
                 //new SolidBrush(Color.Black), startX + 5, startY + Offset);
 
-                graphics.DrawString(value, minifont, new XSolidBrush(XColors.Black), xPoint_1.X, xPoint_1.Y, XStringFormats.CenterRight); 
+                graphics.DrawString(value, minifont, new XSolidBrush(XColors.Black), xPoint_1.X, xPoint_1.Y, XStringFormats.CenterRight);
                 //graphics.DrawString(value, minifont, new XSolidBrush(XColors.Black), xPoint_1);
-                            //new SolidBrush(Color.Black), startX + 130, startY + Offset);
+                //new SolidBrush(Color.Black), startX + 130, startY + Offset);
             }
             void InsertHeaderStyleItem(string key, string value, int Offset)
             {
@@ -141,7 +121,7 @@ namespace RodizioSmartRestuarant.Helpers
                     Y = startY + Offset
                 };
                 graphics.DrawString(text, font, new XSolidBrush(XColors.Black), xPoint);
-                         //new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
+                //new SolidBrush(Color.Black), startX + xOffset, startY + Offset);
             }
             private void FormatPage()
             {
@@ -302,6 +282,33 @@ namespace RodizioSmartRestuarant.Helpers
 
                 graphics.DrawImage(_xImage, 30, Offset + 10, 120 * scaleFactor, 120 * scaleFactor);
             }
+
+            #endregion
+
+            //this is whats called when we print the receipt
+            public void Print(string printername)
+            {
+                string printerName = printername == "printername"? null: printername;
+
+                PdfDocument pdfDoc = new PdfDocument();
+
+                PdfPage pdfPage = new PdfPage();
+                //
+                //pdfPage.Size = PdfSharp.PageSize.Undefined;
+                pdfPage.Width = 204;//2.83465 Xunit/Milimeter (2.83465 * 72)
+                pdfDoc.Pages.Add(pdfPage);
+
+                graphics = XGraphics.FromPdfPage(pdfPage);
+
+                FormatPage();
+
+                string printPath = new SerializedObjectManager().PrintReceiptPath(Enums.Directories.Print) + "/receipt.pdf";
+
+                pdfDoc.Save(printPath);
+
+                new PrintReceiptScaled().Print(printerName, printPath);
+            } 
+          
         }
     }
 }

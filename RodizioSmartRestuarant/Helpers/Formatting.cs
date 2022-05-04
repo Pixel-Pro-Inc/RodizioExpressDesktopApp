@@ -9,11 +9,7 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public static class Formatting
     {
-        public static string FormatAmountString(float amount) // format 1,000,000.00
-        {
-            return String.Format("{0:n}", amount);
-        }
-
+        public static string FormatAmountString(float amount)=> String.Format("{0:n}", amount); // format 1,000,000.00
         public static string FormatListToString(List<string> strings)
         {
             string data = "";
@@ -31,7 +27,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             return data;
         }
-
         public static List<List<OrderItem>> ChronologicalOrderList(List<List<OrderItem>> orderItems)
         {
             List<List<OrderItem>> temp = new List<List<OrderItem>>();

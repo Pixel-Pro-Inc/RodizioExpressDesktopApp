@@ -67,6 +67,12 @@ namespace RodizioSmartRestuarant
 
         protected override void OnClosed(EventArgs e)
         {
+            // TODO: There is a a bug in the Recieve payments window
+            /*
+             When you are in the receiving payment window after hitting confirm collection, 
+            and you remove the window without setting the cash or the method of transaction, the order does not come back, 
+            we could lose vital information about the transaction itself
+            */
             base.OnClosed(e);
             IsClosed = true;
         }

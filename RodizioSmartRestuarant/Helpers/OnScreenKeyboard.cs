@@ -34,12 +34,7 @@ namespace RodizioSmartRestuarant.Helpers
                 }
             }
         }
-
-        private static void Element_IsKeyboardFocusedChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            CheckKeyboard();
-        }
-
+        private static void Element_IsKeyboardFocusedChanged(object sender, DependencyPropertyChangedEventArgs e) => CheckKeyboard();
         public static void CheckKeyboard()
         {
             List<string> keyboards = new List<string>();
@@ -61,9 +56,9 @@ namespace RodizioSmartRestuarant.Helpers
 
             app.ShowKeyboard();                        
         }
-
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
+            // NOTE: The yield keyword basically returns one element at a time, instead of the whole Enumerable but in the end I assume it will be returned as such
             if (depObj == null)
                 yield return null;
 
@@ -78,5 +73,6 @@ namespace RodizioSmartRestuarant.Helpers
                     yield return childOfChild;
             }
         }
+
     }
 }

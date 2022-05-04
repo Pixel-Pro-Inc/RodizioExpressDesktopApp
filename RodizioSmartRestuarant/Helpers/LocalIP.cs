@@ -51,9 +51,9 @@ namespace RodizioSmartRestuarant.Helpers
         public static string GetLocalIPv4()
         {
             List<NetworkInterfaceObject> networkInterfaceObjects = (GetMachineIPv4s().Where(n => n._type == GetPrefferedNetworkInterfaceType()).ToList());
+            // @Yewo: Why do you only return the first instance of the networkInterface
             return networkInterfaceObjects.Count > 0 ? networkInterfaceObjects[0].IPAddress: "1.0.0.0";
         }
-
         public static NetworkInterfaceType GetPrefferedNetworkInterfaceType()
         {
             List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.NetworkInterface));
@@ -61,7 +61,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             return networkInterfaceType;
         }
-
         public static bool GetIsPrefferedTCPServer()
         {
             List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.TCPServer));
@@ -69,7 +68,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             return isPrefferedTCPServer;
         }
-
         public static string GetStoredTCPServerIpPort()
         {
             List<object> data = (List<object>)(new SerializedObjectManager().RetrieveData(Directories.TCPServerIP));
@@ -77,12 +75,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             return TCPServerIpPort;
         }
-
-        public static void SetStoredTCPServerIpPort(string ipPort)
-        {
-            new SerializedObjectManager().SaveOverwriteData(ipPort, Directories.TCPServerIP);
-        }
-
+        public static void SetStoredTCPServerIpPort(string ipPort) => new SerializedObjectManager().SaveOverwriteData(ipPort, Directories.TCPServerIP);
         public static string GetBaseIP() 
         {
             string ip = GetLocalIPv4();
@@ -114,7 +107,6 @@ namespace RodizioSmartRestuarant.Helpers
         private static int ttl = 5;
 
         public static List<string> ipsOnNetwork = new List<string>();
-
         public static List<string> ScanNetwork()
         {
             string baseIP = GetBaseIP();//"192.168.1."
@@ -130,6 +122,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             foreach (Ping p in pingers)
             {
+                // @Yewo: Why is it necessary to lock the addition of the int instances?
                 lock (@lock)
                 {
                     instances += 1;
@@ -138,7 +131,7 @@ namespace RodizioSmartRestuarant.Helpers
                 p.SendAsync(string.Concat(baseIP, cnt.ToString()), timeOut, data, po);
                 cnt += 1;
             }
-
+            // NOTE: Ping is reduced in the PingCompleted() event
             while (instances > 0)
             {
                 Task.Delay(1000);
@@ -148,7 +141,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             return ipsOnNetwork;
         }
-
         public static void Ping_completed(object s, PingCompletedEventArgs e)
         {
             lock (@lock)
@@ -159,7 +151,6 @@ namespace RodizioSmartRestuarant.Helpers
             if (e.Reply.Status == IPStatus.Success)
                 ipsOnNetwork.Add(e.Reply.Address.ToString());
         }
-
         private static void CreatePingers(int cnt)
         {
             for (int i = 1; i <= cnt; i++)
@@ -169,7 +160,6 @@ namespace RodizioSmartRestuarant.Helpers
                 pingers.Add(p);
             }
         }
-
         private static void DestroyPingers()
         {
             foreach (Ping p in pingers)
@@ -181,5 +171,6 @@ namespace RodizioSmartRestuarant.Helpers
             pingers.Clear();
 
         }
+
     }
 }

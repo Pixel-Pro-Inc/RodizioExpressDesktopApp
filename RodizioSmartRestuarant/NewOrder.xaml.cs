@@ -49,6 +49,11 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
 
+        // TODO: New order bug
+        /*
+         Say you want to remove an order placed, there is no functionality to remove it, you just have to start the order all afresh
+
+         */
         async void UpdateMenuView()
         {
             ActivityIndicator.AddSpinner(spinner);

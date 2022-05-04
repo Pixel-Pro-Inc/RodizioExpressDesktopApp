@@ -61,6 +61,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             objects.Add(serializedData);
 
+            // REFACTOR: Why have this variable declared when we can just use objects as it is?
             var data = objects;
 
             for (int i = 1; i <= NumberOfRetries; ++i)
@@ -82,6 +83,9 @@ namespace RodizioSmartRestuarant.Helpers
                 }
                 catch (IOException e) when (i <= NumberOfRetries)
                 {
+                    // REFACTOR: I sure it would be wise to also add this to the error log if we can, cause logging any errors we can get our hands on can give us a better
+                    //Description of what is going on. Of course looking at App.xaml.cs, there isn't an obvious way of going about it, so it shouldn't be a huge priority
+                    // @Yewo: Look up from here
                     Thread.Sleep(DelayOnRetry);
                 }
             }
@@ -89,6 +93,7 @@ namespace RodizioSmartRestuarant.Helpers
             if (TCPServer.Instance != null)
                 TCPServer.Instance.localDataInUse = false;
         }
+        // REFACTOR: This is too similiar to previous block, consider override or using base method and injecting a function or extract logic entirely
         public void SaveOverwriteData(object serializedData, Directories dir)
         {
             List<object> objects = new List<object>();
