@@ -47,6 +47,8 @@ namespace RodizioSmartRestuarant
 
         async void NextPage()
         {
+            // REFACTOR: I have seen this logic before, consider extracting. But given how I didn't see it too often we might not really need to do so. But consider it,
+            //for the obvious benefits
             bool update = false;
             try
             {
@@ -94,7 +96,7 @@ namespace RodizioSmartRestuarant
                 new Helpers.Settings();
                 WindowManager.Instance.CloseAndOpen(this, new GettingReady());
             }   
-
+            // @Yewo: Why wasn't this line in the other block ( line 86)
             if (FirstTime())
                 WindowManager.Instance.CloseAndOpen(this, new Setup());
         }

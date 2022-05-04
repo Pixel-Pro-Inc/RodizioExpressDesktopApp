@@ -26,6 +26,7 @@ namespace RodizioSmartRestuarant.Helpers
 
         public void CloseAllExcept(Window target)
         {
+            // REFACTOR: We need to extract this code cause it is used alot in this cs file
             for (int i = 0; i < openWindows.Count; i++)
             {
                 if (openWindows[i] != target)
@@ -147,6 +148,10 @@ namespace RodizioSmartRestuarant.Helpers
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
+        // REFACTOR: There is prolly some syntax we can find out that can do a better job than a million if statements.
+        // We can prolly extract the method and have it use generic types and set the generic parameter to be within 'Window' or something 
+        // more specific we want so we don't have to do this every time a new window is generated and also, well we don't have to maintain a million
+        // if statements
         void UpdateList()
         {
             int k = 0;
@@ -402,11 +407,13 @@ namespace RodizioSmartRestuarant.Helpers
 
                 foreach (var item in result)
                 {
+                    // We don't need to declare this variable but I'll just leave it
                     List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
 
                     temp.Add(data);
                 }
 
+                // @Yewo: Why the need to delete orders from the database?
                 foreach (var item in temp)
                 {
                     await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB

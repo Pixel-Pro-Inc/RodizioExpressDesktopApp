@@ -78,6 +78,7 @@ namespace RodizioSmartRestuarant
             if (username != null && password != null)
                 if (username != "" && password != "")
                 {
+                    // Why create this variable ?
                     var u = await GetUsers();
 
                     List<AppUser> users = u;
@@ -172,6 +173,7 @@ namespace RodizioSmartRestuarant
 
         async Task<List<AppUser>> GetUsers()
         {
+            // REFACTOR: From line 177 to line 186 I have seen this code often enough times that I want to extract it
             var result = await fireBaseDataContext.GetData_Online("Account");
 
             List<AppUser> users = new List<AppUser>();

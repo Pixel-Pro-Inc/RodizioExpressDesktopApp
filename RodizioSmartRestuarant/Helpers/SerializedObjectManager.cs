@@ -143,7 +143,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             //Covert IDictionary to OrderItem
             List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
-
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
             {
                 offlineOrders.Add(new List<OrderItem>());
@@ -164,6 +163,7 @@ namespace RodizioSmartRestuarant.Helpers
                 index++;
             }
 
+            // @Yewo: I don't see what this is supposed to do
             offlineOrders.RemoveAt(index);
 
             //Convert OrderItem to IDictionary for storage
@@ -182,6 +182,7 @@ namespace RodizioSmartRestuarant.Helpers
             //Save with data overwrite
             SaveOverwriteData(data, Directories.Order);
         }
+        // REFACTOR: This is too similiar to previous block, consider override or using base method and injecting a function or extract logic entirely
         public async void EditOrderData(OrderItem serializedData, Directories dir)
         {
             //Retrieve locally stored data

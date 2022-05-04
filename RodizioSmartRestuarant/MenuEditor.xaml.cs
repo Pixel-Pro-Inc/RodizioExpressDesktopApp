@@ -37,6 +37,7 @@ namespace RodizioSmartRestuarant
             UpdateMenuView();
         }
 
+        // REFACTOR: Consider putting this in a base window class that we make of our own
         public bool IsClosed { get; private set; }
 
         protected override void OnClosed(EventArgs e)
@@ -179,10 +180,7 @@ namespace RodizioSmartRestuarant
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
-        private void Refresh_Click(object sender, RoutedEventArgs e)
-        {
-            Refresh();
-        }
+        private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
 
         private void Refresh()
         {

@@ -44,8 +44,8 @@ namespace RodizioSmartRestuarant
             cashierName.Text = "Cashier: " + LocalStorage.Instance.user.FullName();
 
             //Get Orders
-            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
 
+            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
             //Offline include completed orders
             orderItems = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 

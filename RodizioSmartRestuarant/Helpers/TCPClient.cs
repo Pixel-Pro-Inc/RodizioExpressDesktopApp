@@ -37,8 +37,10 @@ namespace RodizioSmartRestuarant.Helpers
                     ;
                 }
             }
-            
 
+            // @Yewo: What is the difference between this block and the previous block, they do pretty much the same thing from what I see
+            // with the expection of the ' LocalIP.SetStoredTCPServerIpPort(baseIP + i + ":2000");' line in line 62, so why the if statement?
+            // REFACTOR: consider extracting the duplicate logic here 
             for (int i = 1; i < 255; i++)
             {
                 client = new SimpleTcpClient(baseIP + i + ":2000");
@@ -119,7 +121,7 @@ namespace RodizioSmartRestuarant.Helpers
                     if (requestMethod != RequestObject.requestMethod.Get)
                         return new List<object>();
 
-                    //await response
+                    //await response is changed in DataReceived_Action static method
                     awaitresponse = null; // Set the state as undetermined
 
                     while (awaitresponse == null)
