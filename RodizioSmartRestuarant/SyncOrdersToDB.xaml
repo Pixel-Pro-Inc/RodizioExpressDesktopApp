@@ -45,5 +45,30 @@
                    HorizontalContentAlignment="Center">Storing all data from today you can leave this running...</Label>
             </StackPanel>
         </StackPanel>
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
     </Grid>
+    
 </Window>

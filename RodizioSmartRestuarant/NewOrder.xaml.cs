@@ -761,7 +761,7 @@ namespace RodizioSmartRestuarant
                 }
             }
 
-            //Offline Made Orders will always start with 0 to avoid them matching an order made online
+            // NOTE: Offline Made Orders will always start with 0 to avoid them matching an order made online
             string candidateNumber = (new Random().Next(1, 1000)).ToString("0000");
 
             //Check Against Other Order Numbers For The Day
@@ -875,6 +875,7 @@ namespace RodizioSmartRestuarant
             }
         }
 
+        // @Yewo: What does block do, not sure whats happening here
         int block1 = 0;
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {

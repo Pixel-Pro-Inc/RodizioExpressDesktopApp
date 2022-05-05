@@ -596,7 +596,8 @@ namespace RodizioSmartRestuarant.Data
                 GetDataChanging("Order/" + BranchSettings.Instance.branchId);
         }
 
-        public bool syncing = false;
+        // UPDATE: I changed the bool to be private, its not used any where else and is relativly important so I don't want to expose it all willinilly
+        private bool syncing = false;
 
         //Apply offline changes to db
         void SyncData()

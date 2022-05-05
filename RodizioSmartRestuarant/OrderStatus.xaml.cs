@@ -38,6 +38,7 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
 
+        // This is called also in windowManager so that you don't have to update this window with an event defined here
         public void UpdateScreen(List<List<OrderItem>> orders)
         {
             Dispatcher.BeginInvoke(new Action(() => Logic(orders)));
@@ -48,6 +49,7 @@ namespace RodizioSmartRestuarant
         {
             foreach (var order in orders)
             {
+                // @Yewo: What does this do, wait, kana you won't understand the question. What does this aim to do?
                 if (order.Where(o => o.Fufilled).Count() != order.Count)
                     continue;
 
@@ -86,10 +88,7 @@ namespace RodizioSmartRestuarant
             return calledOutOrders;
         }
 
-        void saveCalledOutOrders(List<string> orderNumbers)
-        {
-            new SerializedObjectManager().SaveData(orderNumbers, Directories.CalledOutOrders);
-        }
+        void saveCalledOutOrders(List<string> orderNumbers) => new SerializedObjectManager().SaveData(orderNumbers, Directories.CalledOutOrders);
 
         public void Logic(List<List<OrderItem>> orders)
         {
@@ -150,5 +149,6 @@ namespace RodizioSmartRestuarant
 
             WindowState = WindowState.Maximized;
         }
+
     }
 }

@@ -33,6 +33,14 @@ namespace RodizioSmartRestuarant
         async void SyncData()
         {
             await Task.Delay(5000);
+            // @Yewo  what you think? In case the connection is not there we can avoid the lost of data when we implement the deleting option... 
+            // Note: This is just an idea, it is by no means a real solution but we can discuss no problem
+            //ActivityIndicator.AddSpinner(spinner);
+            //while (!await (new ConnectionChecker().CheckConnection()))
+            //{
+            //    ActivityIndicator.StartTimer();
+            //}
+            //ActivityIndicator.RemoveSpinner(spinner);
 
             //If you are the server and internet is available sync data
             if (LocalStorage.Instance.networkIdentity.isServer && (await (new ConnectionChecker()).CheckConnection()))
