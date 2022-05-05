@@ -60,7 +60,7 @@ namespace RodizioSmartRestuarant
             totalPriceView.Text = "Total : " + Formatting.FormatAmountString(total);
 
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
         public bool IsClosed { get; private set; }

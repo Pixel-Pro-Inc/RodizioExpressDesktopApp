@@ -144,7 +144,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             var response = Encoding.UTF8.GetString(e.Data);
 
-            //Update UI after network change
+            //Updates UI after network change
             if (response.Contains("REFRESH"))
             {
                 //Testing to see if it stopped receiving Refresh Signal Because it was processing request

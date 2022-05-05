@@ -75,7 +75,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             for (int i = 0; i < numRetries; i++)
             {
-                // TRACK: I don't understand what this does
+                // TRACK: @Yewo I don't understand what this does
                 if (!receivingPacket || receivedData[0] != '[')
                 {
                     receivingPacket = true;

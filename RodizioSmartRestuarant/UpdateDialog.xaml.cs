@@ -30,8 +30,8 @@ namespace RodizioSmartRestuarant
         public async void StartUpdate()
         {
             await Task.Delay(5000);
-            //Added GC to make sure updateManager Is Disposed to avoid Mutex Leaks
-            // TRACK: Okay here you need to explain what is going on over here
+            // TRACK: Added GC to make sure updateManager Is Disposed to avoid Mutex Leaks
+            // @Yewo: Okay here you need to explain how Mutex leaks occur and how that is a bad thing
             try
             {
                 using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))

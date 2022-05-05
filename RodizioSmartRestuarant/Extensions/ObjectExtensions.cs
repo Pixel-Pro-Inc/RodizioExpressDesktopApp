@@ -32,7 +32,8 @@ namespace RodizioSmartRestuarant.Extensions
             return someObject;
         }
 
-        // TRACK: Yewo Where did you steal this code and what problem did it aim to solve, why do we need dictionaries for our types essentially Yewo
+        // TRACK: @Yewo Where did you steal this code and what problem did it aim to solve,
+        // : why do we need dictionaries for our types essentially Yewo
         public static IDictionary<string, object> AsDictionary(this object source, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
         {
               return source.GetType().GetProperties(bindingAttr).ToDictionary

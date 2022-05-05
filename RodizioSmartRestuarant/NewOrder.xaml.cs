@@ -82,7 +82,7 @@ namespace RodizioSmartRestuarant
                     menuView.Children.Add(GetPanel(items[i]));
             }
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             ActivityIndicator.RemoveSpinner(spinner);
@@ -97,7 +97,7 @@ namespace RodizioSmartRestuarant
                 menuView.Children.Add(GetPanel(items[i]));
             }
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
 
@@ -268,7 +268,7 @@ namespace RodizioSmartRestuarant
             
             stackPanel.Children.Add(button);
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             if (!menuItem.Availability)
@@ -335,7 +335,7 @@ namespace RodizioSmartRestuarant
                 orderView.Children.Add(GetStackPanel(orders[i], i));
             }
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             UpdateTotal();
@@ -457,7 +457,7 @@ namespace RodizioSmartRestuarant
 
             orderPropertiesStackPanel.Children.Add(label_3);
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             mainStackPanel.Children.Add(stackPanel);

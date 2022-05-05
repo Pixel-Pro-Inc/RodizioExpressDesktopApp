@@ -52,7 +52,8 @@ namespace RodizioSmartRestuarant
             string version = "";
             try
             {
-                // TRACK: Try explaining what this does 
+                // TRACK: @Yewo Try explaining what this does. Like if you want you can send the tutorial,
+                // I don't need the explaination, I want to simply catch up, maybe I can use this later as well
                 using (var manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
                 {
                     version = manager.CurrentlyInstalledVersion().ToString();
@@ -110,7 +111,7 @@ namespace RodizioSmartRestuarant
             }
 
             //Delete Downloaded Orders From DB To Avoid Re-Downloading
-            // TRACK: I want to know how and why the Re-downloading takes place
+            // TRACK: @Yewo I want to know how and why the Re-downloading takes place
             foreach (var item in temp)
             {
                 await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
@@ -385,15 +386,15 @@ namespace RodizioSmartRestuarant
 
                 ActivityIndicator.RemoveSpinner(spinner);
 
-                //Update with size settings
+                //Updates with size settings
                 RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
                 UpdateOrderCount();
 
-                //Update Locally Stored Data
+                //Updates Locally Stored Data
                 //We use the variable orders since it has been updated to include all the latest information by the code above
                 firebaseDataContext.ResetLocalData(orders);
-                //Update Offline Client With Server Data
+                //Updates Offline Client With Server Data
             });
         }
 
