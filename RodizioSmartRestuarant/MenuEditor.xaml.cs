@@ -73,7 +73,7 @@ namespace RodizioSmartRestuarant
                 menuView.Children.Add(GetPanel(items[i]));
             }
 
-            //Update with size settings
+            //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             ActivityIndicator.RemoveSpinner(spinner);
