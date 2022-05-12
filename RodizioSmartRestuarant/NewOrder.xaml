@@ -140,13 +140,28 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <TextBlock FontWeight="DemiBold" FontSize="25">Order</TextBlock>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                    <TextBlock>Enter the customer's phone number</TextBlock>
-                    <TextBox TextChanged="phoneNumber_TextChanged" Name="phoneNumber" Width="200"></TextBox>
+                    <StackPanel Name="phoneNumberEntry">
+                        <TextBlock>Enter the customer's phone number</TextBlock>
+                        <TextBox TextChanged="phoneNumber_TextChanged" Name="phoneNumber" Width="200"></TextBox>
+                    </StackPanel>
                     <Label Name="orderPrepTime">Order will be ready in: </Label>
+                    <CheckBox Width="200"
+                              IsChecked="True"
+                              Checked="CheckBox_Checked"
+                              Unchecked="CheckBox_Unchecked"
+                              Name="checkbox">
+                        <TextBlock TextWrapping="Wrap"
+                                   FontWeight="Bold">
+                            Do you want to receive an sms when the order is ready?
+                        </TextBlock>
+                    </CheckBox>
                 </StackPanel>
                 <StackPanel Margin="5,0,0,0" VerticalAlignment="Center">
-                    <Label FontWeight="DemiBold">Total</Label>
-                    <Label Name="total" FontWeight="DemiBold">0.00</Label>
+                    <Label FontWeight="DemiBold"
+                           FontSize="30">Total</Label>
+                    <Label Name="total" 
+                           FontWeight="DemiBold"
+                           FontSize="20">.00</Label>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

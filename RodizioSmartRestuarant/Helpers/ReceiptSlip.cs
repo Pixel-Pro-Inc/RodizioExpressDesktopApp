@@ -38,7 +38,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 int startX = 10;
                 int startY = 5;
-                Font minifont = new Font("Arial", 5 * scaleFactor, GraphicsUnit.World);
+                Font minifont = new Font("Arial", 5 * scaleFactor * 1.3f, GraphicsUnit.World);
 
                 XPoint xPoint = new XPoint()
                 {
@@ -51,7 +51,7 @@ namespace RodizioSmartRestuarant.Helpers
             }
             void InsertItem(string key, string value, int Offset)
             {
-                Font minifont = new Font("Arial", 5 * scaleFactor, GraphicsUnit.World);
+                Font minifont = new Font("Arial", 5 * scaleFactor * 1.3f, GraphicsUnit.World);
                 int startX = 10;
                 int startY = 5;
 
@@ -78,7 +78,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 int startX = 10;
                 int startY = 5;
-                Font itemfont = new Font("Arial", 6 * scaleFactor, FontStyle.Bold, GraphicsUnit.World);
+                Font itemfont = new Font("Arial", 6 * scaleFactor * 1.3f, FontStyle.Bold, GraphicsUnit.World);
 
                 XPoint xPoint = new XPoint()
                 {
@@ -125,7 +125,7 @@ namespace RodizioSmartRestuarant.Helpers
             }
             private void FormatPage()
             {
-                Font minifont = new Font("Arial", 5 * scaleFactor, FontStyle.Regular, GraphicsUnit.World);
+                Font _minifont = new Font("Arial", 5 * scaleFactor * 1.3f, FontStyle.Regular, GraphicsUnit.World);
                 Font mediumfont = new Font("Arial", 10 * scaleFactor, FontStyle.Regular, GraphicsUnit.World);
                 Font largefont = new Font("Arial", 12 * scaleFactor, FontStyle.Regular, GraphicsUnit.World);
 
@@ -156,8 +156,11 @@ namespace RodizioSmartRestuarant.Helpers
 
                 if (!String.Equals(order[0].PhoneNumber, "N/A"))
                 {
-                    Offset = Offset + mediuminc + 5;
-                    DrawAtStart("Phone # : " + order[0].PhoneNumber, Offset);
+                    if (!string.IsNullOrEmpty(order[0].PhoneNumber))
+                    {
+                        Offset = Offset + mediuminc + 5;
+                        DrawAtStart("Phone # : " + order[0].PhoneNumber, Offset);
+                    }                    
                 }
 
 
@@ -208,7 +211,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 Offset = Offset + largeinc;
                 String address = shop.Location;
-                DrawSimpleString("Address: " + address, minifont, Offset, 15);
+                DrawSimpleString("Address: " + address, _minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
 
@@ -223,7 +226,7 @@ namespace RodizioSmartRestuarant.Helpers
                         number += " / " + item;
                 }
 
-                DrawSimpleString(number, minifont, Offset, 35);
+                DrawSimpleString(number, _minifont, Offset, 35);
 
                 Offset = Offset + 17;
                 underLine = "-------- TAX INVOICE ---------";
@@ -231,11 +234,11 @@ namespace RodizioSmartRestuarant.Helpers
 
                 Offset = Offset + smallinc;
                 String vatNumber = "Vat Vendor No: BW00003654253";
-                DrawSimpleString(vatNumber, minifont, Offset, 5);
+                DrawSimpleString(vatNumber, _minifont, Offset, 5);
 
                 Offset = Offset + smallinc;
                 String vatRate = "Vat Rate: 14.00%";
-                DrawSimpleString(vatRate, minifont, Offset, 5);
+                DrawSimpleString(vatRate, _minifont, Offset, 5);
 
                 Offset = Offset + smallinc;
                 InsertHeaderStyleItem("Exclusive: ", Formatting.FormatAmountString(total / 1.14f), Offset);
@@ -260,11 +263,11 @@ namespace RodizioSmartRestuarant.Helpers
 
                 Offset = Offset + largeinc;
                 string Cashier = "Cashier: " + LocalStorage.Instance.user.FullName();
-                DrawSimpleString(Cashier, minifont, Offset, 15);
+                DrawSimpleString(Cashier, _minifont, Offset, 15);
 
                 Offset = Offset + largeinc;
                 string DrawnBy = "Software Developed by Pixel Pro";
-                DrawSimpleString(DrawnBy, minifont, Offset, 15);
+                DrawSimpleString(DrawnBy, _minifont, Offset, 15);
 
                 Offset = Offset + 17;
                 underLine = "----- SCAN TO ORDER -----";

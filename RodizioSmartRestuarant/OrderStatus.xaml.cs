@@ -50,13 +50,21 @@ namespace RodizioSmartRestuarant
             foreach (var order in orders)
             {
                 // @Yewo: What does this do, wait, kana you won't understand the question. What does this aim to do?
+                // @Abel: Since orders are fufilled one orderItem at a time on the tablets there are going to be situations
+                //where the complete order haas not been fufilled by parts of it has
+                //this line makes it so that we skip over orders which have not been fully fufilled
+
                 if (order.Where(o => o.Fufilled).Count() != order.Count)
                     continue;
 
-                if (getCalledOutOrders().Contains(order[0].OrderNumber))
+                //We retrieve a serialized list of orders we had called out earlier
+                var calledOutOrders = getCalledOutOrders();
+
+                //If we had called out the current order earlier we skip over the order
+                if (calledOutOrders.Contains(order[0].OrderNumber))
                     continue;
 
-                var calledOutOrders = getCalledOutOrders();
+                //If we had not called out the current order earlier we add it to the list of called out orders
                 calledOutOrders.Add(order[0].OrderNumber);
 
                 saveCalledOutOrders(calledOutOrders);
@@ -88,7 +96,7 @@ namespace RodizioSmartRestuarant
             return calledOutOrders;
         }
 
-        void saveCalledOutOrders(List<string> orderNumbers) => new SerializedObjectManager().SaveData(orderNumbers, Directories.CalledOutOrders);
+        void saveCalledOutOrders(List<string> orderNumbers) => new SerializedObjectManager().SaveOverwriteData(orderNumbers, Directories.CalledOutOrders);
 
         public void Logic(List<List<OrderItem>> orders)
         {
@@ -121,7 +129,7 @@ namespace RodizioSmartRestuarant
             }
 
             // TODO: Get this working so that we can have the fancy shit going on again
-            //CallOutOrders(orders);
+            CallOutOrders(orders);
         }
 
         Label GetLabel(List<OrderItem> order)

@@ -30,11 +30,16 @@ namespace RodizioSmartRestuarant
         string lastSelectedFlavour = "None";
         string lastSelectedMeatTemp = "Well Done";
         string lastSelectedSauce = "Lemon & Garlic";
+
+        bool optForSMS = true;
         public NewOrder(string source)
         {
             InitializeComponent();
 
             _source = source;
+
+            if (_source.ToLower() != "walkin")
+                checkbox.Visibility = Visibility.Collapsed;
 
             firebaseDataContext = FirebaseDataContext.Instance;
 
@@ -340,6 +345,7 @@ namespace RodizioSmartRestuarant
 
             UpdateTotal();
             UpdateOrderPrepTime(orders);
+            CheckChanged();
         }
 
         StackPanel GetStackPanel(OrderItem orderItem, int index)
@@ -481,15 +487,7 @@ namespace RodizioSmartRestuarant
 
                     UpdateOrderView();
 
-                    if (phoneNumber.Text != null && phoneNumber.Text != "")
-                        if (phoneNumber.Text.Length == 8 && orders.Count > 0)
-                        {
-                            confirmButton.Visibility = Visibility.Visible;
-
-                            return;
-                        }
-
-                    confirmButton.Visibility = Visibility.Collapsed;
+                    CheckChanged();
 
                     return;
                 }
@@ -627,15 +625,7 @@ namespace RodizioSmartRestuarant
                 }
             }
 
-            if (phoneNumber.Text != null && phoneNumber.Text != "")
-                if (phoneNumber.Text.Length == 8 && orders.Count > 0)
-                {
-                    confirmButton.Visibility = Visibility.Visible;
-
-                    return;
-                }
-
-            confirmButton.Visibility = Visibility.Collapsed;
+            CheckChanged();
         }
 
         async void ConfirmOrder(List<OrderItem> orderItems)
@@ -657,7 +647,11 @@ namespace RodizioSmartRestuarant
 
                 orderItem.OrderDateTime = DateTime.UtcNow;
 
-                orderItem.PhoneNumber = phoneNumber.Text;
+                if (optForSMS)
+                    orderItem.PhoneNumber = phoneNumber.Text;
+
+                if (!optForSMS)
+                    orderItem.PhoneNumber = "";
 
                 orderItem.Id = i;
 
@@ -899,7 +893,44 @@ namespace RodizioSmartRestuarant
 
         private void phoneNumber_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (phoneNumber.Text != null && phoneNumber.Text != "")
+            CheckChanged();
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            optForSMS = true;
+
+            CheckChanged();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            optForSMS = false;
+
+            CheckChanged();
+        }
+
+        private void CheckChanged()
+        {
+            if (confirmButton == null)
+                return;
+
+            if (!optForSMS)
+            {
+                phoneNumberEntry.Visibility = Visibility.Collapsed;
+
+                if (orders.Count > 0)
+                {
+                    confirmButton.Visibility = Visibility.Visible;                    
+
+                    return;
+                }
+            }
+
+            if (optForSMS)
+                phoneNumberEntry.Visibility = Visibility.Visible;
+
+            if (!string.IsNullOrEmpty(phoneNumber.Text))
                 if (phoneNumber.Text.Length == 8 && orders.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;
@@ -908,7 +939,6 @@ namespace RodizioSmartRestuarant
                 }
 
             confirmButton.Visibility = Visibility.Collapsed;
-
         }
     }
 }
