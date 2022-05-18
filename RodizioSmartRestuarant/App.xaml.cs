@@ -33,10 +33,10 @@ namespace RodizioSmartRestuarant
 
             _mutex = new Mutex(true, appName, out createdNew);
 
-            // @Yewo: I need further clarifaction on this one, 
+
             if (!createdNew)
             {
-                //App Instance Already Running //UPDATE: Does this mean that it shuts down the entire application or just that thread?
+                //App Instance Already Running 
                 Application.Current.Shutdown();
                 return;
             }
@@ -54,8 +54,8 @@ namespace RodizioSmartRestuarant
 
             string fileName = "error_log.txt";
 
-            // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works
-            // SendErrorlogSMS(e.ExceptionObject.ToString());
+            // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works. It wasn't done in the API
+            //SendErrorlogSMS(e.ExceptionObject.ToString());
 
             // if the file doesn't exists
             if(!File.Exists(folder + "/" + fileName))
@@ -90,7 +90,28 @@ namespace RodizioSmartRestuarant
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
         public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
-        void CloseApp() => Application.Current.Shutdown();
+        // TODO: You should have it so that when ever the POS is closed it will pull up the login page. Then it should fire this method if closeApp is hit
+        void CloseApp()
+        {
+            // This makes sure that only when there are no windows but one, will it close the application. 
+            if (Application.Current.Windows.Count==1)
+            {
+                Application.Current.Shutdown();
+            }
+            //It should warn the user that they haven't closed the window and remove it. 
+            else
+            {
+                //Error Message
+                MessageBoxResult messageBoxResult = MessageBox.Show("Please close all the windows to close the application.", "Some windows are open", System.Windows.MessageBoxButton.OK);
+                if (messageBoxResult == MessageBoxResult.OK)
+                {
+                    WindowManager.Instance.CloseAllAndOpen(new Login());
+                }
+            }
+
+            // 
+
+        }
 
         // REFACTOR: Please name this more appropriatly
         // @Yewo: look up

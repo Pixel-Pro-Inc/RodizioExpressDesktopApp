@@ -56,6 +56,7 @@ namespace RodizioSmartRestuarant
                 // I don't need the explaination, I want to simply catch up, maybe I can use this later as well
                 using (var manager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
                 {
+                    // FIXME: An exception was thrown here, "Object reference not set to an instance of an object"
                     version = manager.CurrentlyInstalledVersion().ToString();
                 }
 
@@ -125,6 +126,9 @@ namespace RodizioSmartRestuarant
         {
             base.OnClosed(e);
             IsClosed = true;
+
+            // NOTE: This is so when ever you close this it will open login and you are forced to close the app the right way
+            WindowManager.Instance.CloseAllAndOpen(new Login());
         }
 
         #region Order logic
