@@ -877,7 +877,7 @@ namespace RodizioSmartRestuarant
             }
         }
         private void Cashier_Report_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.Open(new CashierReport());
-        private void Logout_Click(object sender, RoutedEventArgs e)=> WindowManager.Instance.CloseAllAndOpen(new Login());
+        private void Logout_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.CloseAllExceptAndOpen(new Login(), new OrderStatus());
         private void Statuses_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.Open(new OrderStatus(orders));
         private async void Menu_Click(object sender, RoutedEventArgs e)
         {

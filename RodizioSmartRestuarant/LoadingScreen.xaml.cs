@@ -50,6 +50,7 @@ namespace RodizioSmartRestuarant
             // REFACTOR: I have seen this logic before, consider extracting. But given how I didn't see it too often we might not really need to do so. But consider it,
             //for the obvious benefits
             bool update = false;
+            /*
             try
             {
                 //Check For Updates
@@ -80,6 +81,7 @@ namespace RodizioSmartRestuarant
             {
                 ;
             }
+            */
             
             //Some Exists Here Initiailiztion After Mutex Verification
 

@@ -213,7 +213,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 if(order[0].OrderNumber == serializedData.OrderNumber)
                 {
-                    order[serializedData.Id] = serializedData;
+                    order[serializedData.Id] = serializedData;//Do something to make sure that the data is only modified the first time 
                     break;
                 }
             }

@@ -37,6 +37,19 @@ namespace RodizioSmartRestuarant.Helpers
             UpdateList();
         }
 
+        public void CloseAllExceptAndOpen(Window newWindow, Window keepOpen)
+        {
+            for (int i = 0; i < openWindows.Count; i++)
+            {
+                if (openWindows[i].GetType() != keepOpen.GetType())
+                    openWindows[i].Close();                
+            }
+
+            newWindow.Show();
+
+            AddToOpenWindows(newWindow);
+        }
+
         public void CloseAllAndOpen(Window target)
         {
             if (!WindowAlreadyOpen(target))

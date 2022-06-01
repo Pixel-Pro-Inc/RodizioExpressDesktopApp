@@ -151,7 +151,24 @@ namespace RodizioSmartRestuarant.Helpers
                             {
                                 IDictionary<string, object> itm = oItem.AsDictionary();
 
-                                vals.Add(itm);
+                                bool skipItem = false;
+
+                                foreach (var _item in vals)
+                                {
+                                    object id = null;
+
+                                    if(_item.TryGetValue("Id", out id))
+                                    {
+                                        if((int)id == oItem.Id)
+                                        {
+                                            //Skip item
+                                            skipItem = true;
+                                        }
+                                    }
+                                }
+
+                                if (!skipItem)
+                                    vals.Add(itm);
                             }
 
                             //Server Interprets Info
@@ -249,17 +266,34 @@ namespace RodizioSmartRestuarant.Helpers
 
                             IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
 
-                            orderresult[index].Add(itm);
+                            bool skipItem = false;
 
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                            foreach (var _item in orderresult[index])
+                            {
+                                object id = null;
 
+                                if (_item.TryGetValue("Id", out id))
+                                {
+                                    if ((int)id == ((OrderItem)data).Id)
+                                    {
+                                        //Skip item
+                                        skipItem = true;
+                                    }
+                                }
+                            }
 
-                            LocalDataChange();
+                            if (!skipItem)
+                            {
+                                orderresult[index].Add(itm);
+
+                                OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+                                LocalDataChange();
+                            }
 
                             return;
                         }
 
-                        //This Block Causes Order 2593 To Duplicate Its Order Items Why?
                         if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
                             || ((OrderItem)data).Purchased != oldOrderItem.Purchased
                             || ((OrderItem)data).Collected != oldOrderItem.Collected
@@ -271,12 +305,30 @@ namespace RodizioSmartRestuarant.Helpers
 
                             IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
 
-                            orderresult[index].Add(itm);
+                            bool skipItem = false;
 
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                            foreach (var _item in orderresult[index])
+                            {
+                                object id = null;
 
+                                if (_item.TryGetValue("Id", out id))
+                                {
+                                    if ((int)id == ((OrderItem)data).Id)
+                                    {
+                                        //Skip item
+                                        skipItem = true;
+                                    }
+                                }
+                            }
 
-                            LocalDataChange();
+                            if (!skipItem)
+                            {
+                                orderresult[index].Add(itm);
+
+                                OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+
+                                LocalDataChange();
+                            }
 
                             return;
                         }
@@ -288,6 +340,8 @@ namespace RodizioSmartRestuarant.Helpers
                         return;
                     }
 
+                    //If Order Is New                    
+
                     List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
 
                     IDictionary<string, object> item = ((OrderItem)data).AsDictionary();
@@ -296,9 +350,13 @@ namespace RodizioSmartRestuarant.Helpers
 
                     orderresult.Add(values);
 
-                    OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                    if (orderNumbers.Contains(((OrderItem)data).OrderNumber))
+                    {
+                        OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
 
-                    LocalDataChange();
+                        LocalDataChange();
+                    }
+                    
                     break;
             }
         }

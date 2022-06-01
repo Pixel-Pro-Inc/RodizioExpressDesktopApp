@@ -284,6 +284,10 @@ namespace RodizioSmartRestuarant.Helpers
                 var _xImage = XImage.FromStream(_stream);
 
                 graphics.DrawImage(_xImage, 30, Offset + 10, 120 * scaleFactor, 120 * scaleFactor);
+
+                Offset = Offset + largeinc;
+                DrawnBy = "You can also order at rodizioexpress.com";
+                DrawSimpleString(DrawnBy, _minifont, Offset + 140, 15);
             }
 
             #endregion
