@@ -48,6 +48,7 @@ namespace RodizioSmartRestuarant
             Instance = this;
         }
 
+        // TODO: Put this in an ERRORloggger
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
