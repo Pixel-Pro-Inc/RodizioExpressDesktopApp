@@ -23,7 +23,7 @@ namespace RodizioSmartRestuarant
     public partial class NewOrder : Window
     {
         List<MenuItem> menuItems = new List<MenuItem>();
-        List<OrderItem> orders = new List<OrderItem>();
+        List<OrderItem> order = new List<OrderItem>();
         private FirebaseDataContext firebaseDataContext;
         private string _source;
 
@@ -333,18 +333,18 @@ namespace RodizioSmartRestuarant
         {
             orderView.Children.Clear();
 
-            for (int i = 0; i < orders.Count; i++)
+            for (int i = 0; i < order.Count; i++)
             {
-                orders[i].Id = i;
+                order[i].Id = i;
 
-                orderView.Children.Add(GetStackPanel(orders[i], i));
+                orderView.Children.Add(GetStackPanel(order[i], i));
             }
 
             //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             UpdateTotal();
-            UpdateOrderPrepTime(orders);
+            UpdateOrderPrepTime(order);
             CheckChanged();
         }
 
@@ -479,11 +479,11 @@ namespace RodizioSmartRestuarant
 
             int numId = Int32.Parse(id);
 
-            for (int i = 0; i < orders.Count; i++)
+            for (int i = 0; i < order.Count; i++)
             {
-                if (orders[i].Id == numId)
+                if (order[i].Id == numId)
                 {
-                    orders.RemoveAt(i);
+                    order.RemoveAt(i);
 
                     UpdateOrderView();
 
@@ -545,7 +545,7 @@ namespace RodizioSmartRestuarant
                         string price = ((TextBox)((StackPanel)button.Parent).Children[2]).Text;
                         string weight = (float.Parse(price) * menuItems[i].Rate).ToString("f2") + " grams";
 
-                        orders.Add(new OrderItem()
+                        order.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menuItems[i].Description,
@@ -569,7 +569,7 @@ namespace RodizioSmartRestuarant
                     }
                     else if (menuItems[i].Category == "Meat" && menuItems[i].Price != "0.00")
                     {
-                        orders.Add(new OrderItem()
+                        order.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menuItems[i].Description,
@@ -593,7 +593,7 @@ namespace RodizioSmartRestuarant
                     }
                     else
                     {
-                        orders.Add(new OrderItem()
+                        order.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menuItems[i].Description,
@@ -796,9 +796,9 @@ namespace RodizioSmartRestuarant
         {
             float totalAmt = 0;
 
-            for (int i = 0; i < orders.Count; i++)
+            for (int i = 0; i < order.Count; i++)
             {
-                totalAmt += float.Parse(orders[i].Price);
+                totalAmt += float.Parse(order[i].Price);
             }
 
             total.Content = Formatting.FormatAmountString(totalAmt);
@@ -875,7 +875,7 @@ namespace RodizioSmartRestuarant
         {
             if(block1 == 0)
             {
-                ConfirmOrder(orders);
+                ConfirmOrder(order);
                 block1 = 1;
             }            
         }
@@ -919,7 +919,7 @@ namespace RodizioSmartRestuarant
             {
                 phoneNumberEntry.Visibility = Visibility.Collapsed;
 
-                if (orders.Count > 0)
+                if (order.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;                    
 
@@ -931,7 +931,7 @@ namespace RodizioSmartRestuarant
                 phoneNumberEntry.Visibility = Visibility.Visible;
 
             if (!string.IsNullOrEmpty(phoneNumber.Text))
-                if (phoneNumber.Text.Length == 8 && orders.Count > 0)
+                if (phoneNumber.Text.Length == 8 && order.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;
 
@@ -940,5 +940,6 @@ namespace RodizioSmartRestuarant
 
             confirmButton.Visibility = Visibility.Collapsed;
         }
+
     }
 }
