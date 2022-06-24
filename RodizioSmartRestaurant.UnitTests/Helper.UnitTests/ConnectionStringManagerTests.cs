@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RodizioSmartRestuarant.Helpers;
 using System;
+using System.Configuration;
 
 namespace RodizioSmartRestaurant.UnitTests
 {
@@ -11,34 +12,43 @@ namespace RodizioSmartRestaurant.UnitTests
     [TestClass]
     public class ConnectionStringManagerTests
     {
-        /// <summary>
-        /// Checks if the production basePath value can be obtained
-        /// </summary>
         [TestMethod]
-        public void GetConnectionString_BasepathProvidedCorrectValueReturned_databaseBasePath()
+        public void GetConnectionString_BasepathProvided_CorrectValueReturned()
         {
             // Arrange
-            string providerName= "FirebaseDataBaseSettings";
-            string variableName = "BasePath";
+            string variableName = "RodizioSmartRestuarant.Properties.Settings.BasePath";
 
             // Act
-            string result =ConnectionStringManager.GetConnectionString(providerName, variableName);
-
-            //Assert
-            Assert.AreEqual(result, "https://rodizoapp-default-rtdb.firebaseio.com/");
-
-        }
-
-        [TestMethod]
-        public void GetConnectionStrings_DisplaysAllTheConnectionStringsItCanFind()
-        {
-            //Arrange
-
-            //Act
-            string result=ConnectionStringManager.GetConnection();
+            string result =ConnectionStringManager.GetConnectionString(variableName);
 
             //Assert
             Assert.AreEqual("https://rodizoapp-default-rtdb.firebaseio.com/", result);
+
         }
+
+        [TestMethod]
+        public void GetConnectionStringSection_CorrectUserDefinedSectionComesFromTheSelectedConfigFile()
+        {
+            //Arrange
+            ConnectionStringsSection result;
+            string UserTag = "Rodizio";
+            bool containsdeveloperTag =false;
+
+            //Act
+            result =ConnectionStringManager.GetConnectionStringSection();
+
+            //Assert
+            // TODO: Put this in a guard Clause
+            foreach (ConnectionStringSettings conString in result.ConnectionStrings)
+            {
+                containsdeveloperTag  = conString.Name.Contains(UserTag);
+                if (containsdeveloperTag ) break;
+            }
+            //NOTE: We use the RodizioTag cause we know the system won't make it unless we do, and if it find the 
+            Assert.IsTrue(containsdeveloperTag );
+        }
+
+        
+
     }
 }

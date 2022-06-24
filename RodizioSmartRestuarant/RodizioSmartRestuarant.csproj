@@ -367,6 +367,7 @@
     <Compile Include="Helpers\ConnectionStringManager.cs" />
     <Compile Include="Helpers\Formatting.cs" />
     <Compile Include="Helpers\LocalIP.cs" />
+    <Compile Include="Exceptions\NoConnectionStringSectionFound.cs" />
     <Compile Include="Helpers\Notification.cs" />
     <Compile Include="Helpers\OfflineDataHelpers.cs" />
     <Compile Include="Helpers\OnScreenKeyboard.cs" />

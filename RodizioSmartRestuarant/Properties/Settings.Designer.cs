@@ -26,19 +26,20 @@ namespace RodizioSmartRestuarant.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("finnally")]
-        public string BasePath {
+        [global::System.Configuration.DefaultSettingValueAttribute("https://rodizoapp-default-rtdb.firebaseio.com/")]
+        public string FireBaseBasePath {
             get {
-                return ((string)(this["BasePath"]));
+                return ((string)(this["FireBaseBasePath"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ConnectionStrings really doesn\'t work")]
-        public string test {
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl")]
+        public string FirebaseAuth {
             get {
-                return ((string)(this["test"]));
+                return ((string)(this["FirebaseAuth"]));
             }
         }
     }

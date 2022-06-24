@@ -11,32 +11,82 @@ namespace RodizioSmartRestuarant.Helpers
     /// <summary>
     /// This is supposedd to be a class that will give in the application settings for both prod and dev environments, ( database and SMS api keys and such)s
     /// </summary>
-    // NOTE: For some weird reason, the App.config refuses to be programtically checked for values. I spent an entire day trying to figure it out but come up with nothing
-    [Obsolete]
     public static class ConnectionStringManager
     {
 
-        public static string ConnectionStrings { get; set; }
+        /// <summary>
+        /// This takes in the variable name we are looking for in the config file and returns the value
+        /// <para>
+        /// Retrieve a connection string by specifying the name.
+        /// </para>
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <returns> The setting value stored in the config file. Eg, the basepath of the firebaseDatabaseSettings </returns>
+        public static string GetConnectionString(string variableName)
+        {
+            // This is so the data is unencrypted
+            ToggleConectionStringConfigEncryption();
+
+            // Return null on failure.
+            string returnValue = null;
+
+            // FIXME: Change all the default paths to the path of the exe file that the user will be using
+            // Get the collection of connection strings.
+            ConnectionStringsSection  section= GetConnectionStringSection();
+
+            if (section == null) throw new NoConnectionStringSectionFound();
+            foreach (ConnectionStringSettings cs in section.ConnectionStrings)
+            {
+                //Checks if the connectionString exists
+                if (cs.Name == variableName)
+                {
+                    return returnValue = cs.ConnectionString;
+                }
+            }
+            // This is so the data is re encrypted
+            ToggleConectionStringConfigEncryption();
+
+            return returnValue;
+        }
 
         /// <summary>
-        /// This takes in the name of the application so that it can encrypt/unencrypt connectionstrings in its configuration file where the settings will be stored
+        /// This gets the connectionstring section in the config file of the exe found in <paramref name="path"/>. You can then search through it for what you are looking for
         /// </summary>
-        /// <param name="exeFile">This should be the application name, the default being the name RodizioSmartRestuarant</param>
-        private static void ToggleConfigEncryption(string exeFile= "C:/Users/cash/source/repos/Pixel-Pro-Inc/RodizioExpressDesktopApp/RodizioSmartRestuarant/bin/Debug/app.publish/RodizioSmartRestuarant.exe")
+        /// <param name="path"> Wher the application exe is stored</param>
+        /// <returns></returns>
+        public static ConnectionStringsSection GetConnectionStringSection(string path= "C:/Users/cash/source/repos/Pixel-Pro-Inc/RodizioExpressDesktopApp/RodizioSmartRestuarant/bin/Debug/RodizioSmartRestuarant.exe")
         {
-            //Takes the filename and removes the .config extension if it exists
-            string exeConfigName = exeFile.Replace(".config", "");
-            // Takes the executable file name without the
-            // .config extension.
+            // Manually finds the exe we need
+            System.Configuration.Configuration config = GetConfigfile(path);
+            if (config == null) throw new NullReferenceException("There isn't an exe in the path you defined or at least one with a usable config file");
+            return FindSection(config, "connectionStrings");
+        }
+        /// <summary>
+        /// An overload that takes in the config file to get the connectionString
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static ConnectionStringsSection GetConnectionStringSection(System.Configuration.Configuration config)
+        {
+            if (config == null) throw new NullReferenceException("You have to provide a nonNull configuration argument or at least one a usable config file");
+            return FindSection(config, "connectionStrings");
+        }
+
+        // NOTE: Apparently, .NET automatically decrypts the data for you so you don't have to decrypt or test the decryption of data, check description for more
+        // NOTE: This works the way its supposed to. I know this cause it moves between each conditional block one after another with each time it passes through it
+        /// <summary>
+        /// This encrypts/unencrypts the connectionstrings in its configuration file where the settings are be stored
+        /// 
+        /// <para>Apparently, .NET automatically decrypts the data for you so you don't have to decrypt or test the decryption of data, check the following link: <href>https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/connection-strings-and-configuration-files#encrypting-configuration-file-sections-using-protected-configuration</href> </para>
+        /// </summary>
+        private static void ToggleConectionStringConfigEncryption()
+        {
             try
             {
-                // REFACTOR: Consider just having configuration from system instead of opening from OpenExeConfiguration
-                System.Configuration.Configuration config = ConfigurationManager.
-                                OpenExeConfiguration(exeConfigName);
-                ConnectionStringsSection section = FindconnectionStringsSection(config);
+                System.Configuration.Configuration config = GetConfigfile();
+                // NOTE: We don't use the path overload method here cause we need to save the config details
+                ConnectionStringsSection section = GetConnectionStringSection(config);
 
-
-                // TESTING: We don't want the connections strings to be encrypted yet but it should be removed when done
                 if (section.SectionInformation.IsProtected)
                 {
                     // Remove encryption.
@@ -48,94 +98,33 @@ namespace RodizioSmartRestuarant.Helpers
                     section.SectionInformation.ProtectSection(
                         "DataProtectionConfigurationProvider");
                 }
-                // Save the current configuration.
+                // Save the current configuration. DO NOT REMOVE THIS LINE unless you are sure you can save the work someother way
                 config.Save();
-
-                Console.WriteLine("Protected={0}",
-                    section.SectionInformation.IsProtected);
             }
             catch (Exception ex)
             {
+                // REFACTOR: Add a logger here
                 Console.WriteLine(ex.Message);
             }
         }
-
-        // Open the configuration file and retrieve
-        // the connectionStrings section.
-        private static ConnectionStringsSection FindconnectionStringsSection(System.Configuration.Configuration config)
+        /// <summary>
+        /// Open the configuration file and retrieve
+        /// the specified section.
+        /// </summary>
+        /// <param name="config"> The Configuration file of the exe you are looking for</param>
+        /// <param name="sectionName"> eg appsettings or connectionStrings</param>
+        /// <returns></returns>
+        private static ConnectionStringsSection FindSection(System.Configuration.Configuration config, string sectionName)
         {
             ConnectionStringsSection section =
-                config.GetSection("connectionStrings")
+                config.GetSection(sectionName)
                 as ConnectionStringsSection;
             return section;
         }
-
-        /// <summary>
-        /// This takes in the variable name we are looking for in the config file and returns the value
-        /// <para>
-        /// Retrieve a connection string by specifying the providerName.
-        /// Assumes one connection string per provider in the config file.
-        /// </para>
-        /// </summary>
-        /// <param name="providerName"></param>
-        /// <param name="variableName"></param>
-        /// <returns> The setting value stored in the config file. Eg, the basepath of the firebaseDatabaseSettings </returns>
-        public static string GetConnectionString(string providerName, string variableName)
+        private static System.Configuration.Configuration GetConfigfile(string path= "C:/Users/cash/source/repos/Pixel-Pro-Inc/RodizioExpressDesktopApp/RodizioSmartRestuarant/bin/Debug/RodizioSmartRestuarant.exe")
         {
-            // This is so the data is unencrypted
-            ToggleConfigEncryption();
-
-            // Return null on failure.
-            string returnValue = null;
-
-            // Get the collection of connection strings.
-            ConnectionStringSettingsCollection settings =
-                ConfigurationManager.ConnectionStrings;
-
-            // Walk through the collection and return the first
-            // connection string matching the providerName.
-            if (settings != null)
-            {
-                foreach (ConnectionStringSettings cs in settings)
-                {
-                    if (cs.ProviderName == providerName&& cs.Name==variableName)
-                        returnValue = cs.ConnectionString;
-                    break;
-                }
-            }
-
-            // This is so the data is re encrypted
-            ToggleConfigEncryption();
-
-            return returnValue;
+            return ConfigurationManager.OpenExeConfiguration(path);
         }
 
-        public static string GetConnection(string variableName="BasePath")
-        {
-            string result = null;
-
-            System.Configuration.Configuration config = ConfigurationManager.
-                                OpenExeConfiguration("C:/Users/cash/source/repos/Pixel-Pro-Inc/RodizioExpressDesktopApp/RodizioSmartRestuarant/bin/Debug/RodizioSmartRestuarant.exe");
-            ConnectionStringsSection section = FindconnectionStringsSection(config);
-           
-            if (section != null)
-            {
-                foreach (ConnectionStringSettings cs in section.ConnectionStrings)
-                {
-                    //if (cs.Name == "BasePath")
-                    //{
-                    //    result = cs.ConnectionString;
-                    //    Console.WriteLine(result);
-                    //    Console.WriteLine(cs.ConnectionString);
-                    //}
-                    if (cs.Name == "RodizioSmartRestuarant.Properties.Settings.BasePath")
-                    {
-                        return result = "https://rodizoapp-default-rtdb.firebaseio.com/";
-                    }
-
-                }
-            }
-            return result;
-        }
     }
 }

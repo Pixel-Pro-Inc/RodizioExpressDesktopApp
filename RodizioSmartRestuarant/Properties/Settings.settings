@@ -2,15 +2,19 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="RodizioSmartRestuarant.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="BasePath" Type="(Connection string)" Scope="Application">
+    <Setting Name="FireBaseBasePath" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;finnally&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;https://rodizoapp-default-rtdb.firebaseio.com/&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">finnally</Value>
+      <Value Profile="(Default)">https://rodizoapp-default-rtdb.firebaseio.com/</Value>
     </Setting>
-    <Setting Name="test" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">ConnectionStrings really doesn't work</Value>
+    <Setting Name="FirebaseAuth" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl&lt;/ConnectionString&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl</Value>
     </Setting>
   </Settings>
 </SettingsFile>
