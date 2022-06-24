@@ -12,10 +12,11 @@ using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public class OfflineDataHelpers
+    public class OfflineDataService
     {
         #region Download
 
+        // REFACTOR: Too many similiar code
         protected async Task<List<object>> OfflineGetData(string fullPath)
         {
             Directories currentDirectory = GetDirectory(fullPath);

@@ -11,6 +11,9 @@ using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Helpers
 {
+    /// <summary>
+    /// This deals with the files and offline data in the system. I think you should refactor this the last after we have created a stable architeture
+    /// </summary>
     public class SerializedObjectManager
     {
         private const int NumberOfRetries = 6;
@@ -281,5 +284,6 @@ namespace RodizioSmartRestuarant.Helpers
 
             return load;
         }
+
     }
 }

@@ -14,6 +14,7 @@ using System.Windows.Media;
 using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 using RodizioSmartRestuarant.Data;
 using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
+using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant
 {
@@ -22,10 +23,11 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class NewOrder : Window
     {
-        List<MenuItem> menuItems = new List<MenuItem>();
+        Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
         List<OrderItem> order = new List<OrderItem>();
         private FirebaseDataContext firebaseDataContext;
         private string _source;
+        IMenuService _menuService;
 
         string lastSelectedFlavour = "None";
         string lastSelectedMeatTemp = "Well Done";
@@ -43,7 +45,7 @@ namespace RodizioSmartRestuarant
 
             firebaseDataContext = FirebaseDataContext.Instance;
 
-            UpdateMenuView();
+            UpdateMenuViewBasedonAvailability();
         }
 
         public bool IsClosed { get; private set; }
@@ -59,27 +61,16 @@ namespace RodizioSmartRestuarant
          Say you want to remove an order placed, there is no functionality to remove it, you just have to start the order all afresh
 
          */
-        async void UpdateMenuView()
+        // REFACTOR: In menuEditor we have nearly identical code save for the availability, we have to coalesce these somehow
+        async void UpdateMenuViewBasedonAvailability()
         {
             ActivityIndicator.AddSpinner(spinner);
 
             menuView.Children.Clear();
 
-            var result = await firebaseDataContext.GetData_Online("Menu/" + BranchSettings.Instance.branchId);
+            Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
 
-            List<MenuItem> items = new List<MenuItem>();
-
-            foreach (var item in result)
-            {
-                if (item != null)
-                {
-                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
-
-                    items.Add(menuItem);
-                }                
-            }
-
-            menuItems = items;
+            menu = items;
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -88,12 +79,12 @@ namespace RodizioSmartRestuarant
             }
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            Helpers.Settings.Instance.OnWindowCountChange();
 
             ActivityIndicator.RemoveSpinner(spinner);
         }
 
-        void UpdateMenuViewSearch(List<MenuItem> items)
+        void UpdateMenuViewSearch(Entities.Aggregates.Menu items)
         {
             menuView.Children.Clear();
 
@@ -312,9 +303,9 @@ namespace RodizioSmartRestuarant
 
                     int numId = Int32.Parse(id);
 
-                    for (int i = 0; i < menuItems.Count; i++)
+                    for (int i = 0; i < menu.Count; i++)
                     {
-                        if (menuItems[i].Id == numId)
+                        if (menu[i].Id == numId)
                         {
                             if (inputNum >= 1)
                             {
@@ -507,14 +498,14 @@ namespace RodizioSmartRestuarant
 
                     int numId = Int32.Parse(id);
 
-                    for (int i = 0; i < menuItems.Count; i++)
+                    for (int i = 0; i < menu.Count; i++)
                     {
-                        if (menuItems[i].Id == numId)
+                        if (menu[i].Id == numId)
                         {
-                            if(inputNum >= menuItems[i].MinimumPrice)
+                            if(inputNum >= menu[i].MinimumPrice)
                             {
                                 StackPanel stack = (StackPanel)textBox.Parent;
-                                ((Label)stack.Children[3]).Content = "Weight = " + menuItems[i].Rate * inputNum + " grams";
+                                ((Label)stack.Children[3]).Content = "Weight = " + menu[i].Rate * inputNum + " grams";
 
                                 ((Button)stack.Children[stack.Children.Count - 1]).Visibility = Visibility.Visible;
 
@@ -536,21 +527,21 @@ namespace RodizioSmartRestuarant
 
             int numId = Int32.Parse(id);
 
-            for (int i = 0; i < menuItems.Count; i++)
+            for (int i = 0; i < menu.Count; i++)
             {
-                if (menuItems[i].Id == numId)
+                if (menu[i].Id == numId)
                 {
-                    if(menuItems[i].Category == "Meat" && menuItems[i].Price == "0.00")
+                    if(menu[i].Category == "Meat" && menu[i].Price == "0.00")
                     {
                         string price = ((TextBox)((StackPanel)button.Parent).Children[2]).Text;
-                        string weight = (float.Parse(price) * menuItems[i].Rate).ToString("f2") + " grams";
+                        string weight = (float.Parse(price) * menu[i].Rate).ToString("f2") + " grams";
 
                         order.Add(new OrderItem()
                         {
                             Collected = false,
-                            Description = menuItems[i].Description,
+                            Description = menu[i].Description,
                             Fufilled = false,
-                            Name = menuItems[i].Name,
+                            Name = menu[i].Name,
                             Preparable = false,
                             Price = Formatting.FormatAmountString((float.Parse(price) * (float)lastQuantity)),
                             Purchased = false,
@@ -558,37 +549,37 @@ namespace RodizioSmartRestuarant
                             PaymentMethod = "",
                             Quantity = lastQuantity,
                             Reference = "till",
-                            Category = menuItems[i].Category,
+                            Category = menu[i].Category,
                             Weight = weight,
-                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            PrepTime = Int32.Parse(menu[i].prepTime),
                             Flavour = lastSelectedFlavour,
                             MeatTemperature = lastSelectedMeatTemp,
-                            Sauces = menuItems[i].SubCategory != "Platter"? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
-                            SubCategory = menuItems[i].SubCategory
+                            Sauces = menu[i].SubCategory != "Platter"? new List<string>() { lastSelectedSauce } : menu[i].Sauces,
+                            SubCategory = menu[i].SubCategory
                         });
                     }
-                    else if (menuItems[i].Category == "Meat" && menuItems[i].Price != "0.00")
+                    else if (menu[i].Category == "Meat" && menu[i].Price != "0.00")
                     {
                         order.Add(new OrderItem()
                         {
                             Collected = false,
-                            Description = menuItems[i].Description,
+                            Description = menu[i].Description,
                             Fufilled = false,
-                            Name = menuItems[i].Name,
+                            Name = menu[i].Name,
                             Preparable = false,
-                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
+                            Price = Formatting.FormatAmountString((float.Parse(menu[i].Price) * (float)lastQuantity)),
                             Purchased = false,
                             WaitingForPayment = true,
                             PaymentMethod = "",
                             Quantity = lastQuantity,
                             Reference = "till",
-                            Category = menuItems[i].Category,
-                            Weight = menuItems[i].Weight,
-                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            Category = menu[i].Category,
+                            Weight = menu[i].Weight,
+                            PrepTime = Int32.Parse(menu[i].prepTime),
                             Flavour = lastSelectedFlavour,
                             MeatTemperature = lastSelectedMeatTemp,
-                            Sauces = menuItems[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
-                            SubCategory = menuItems[i].SubCategory
+                            Sauces = menu[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menu[i].Sauces,
+                            SubCategory = menu[i].SubCategory
                         });
                     }
                     else
@@ -596,22 +587,22 @@ namespace RodizioSmartRestuarant
                         order.Add(new OrderItem()
                         {
                             Collected = false,
-                            Description = menuItems[i].Description,
+                            Description = menu[i].Description,
                             Fufilled = false,
-                            Name = menuItems[i].Name,
+                            Name = menu[i].Name,
                             Preparable = false,
-                            Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
+                            Price = Formatting.FormatAmountString((float.Parse(menu[i].Price) * (float)lastQuantity)),
                             PaymentMethod = "",
                             Purchased = false,
-                            Category = menuItems[i].Category,
+                            Category = menu[i].Category,
                             WaitingForPayment = true,
                             Quantity = lastQuantity,
                             Reference = "till",
-                            PrepTime = Int32.Parse(menuItems[i].prepTime),
+                            PrepTime = Int32.Parse(menu[i].prepTime),
                             Flavour = lastSelectedFlavour,
                             MeatTemperature = lastSelectedMeatTemp,
-                            Sauces = menuItems[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menuItems[i].Sauces,
-                            SubCategory = menuItems[i].SubCategory
+                            Sauces = menu[i].SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : menu[i].Sauces,
+                            SubCategory = menu[i].SubCategory
                         });
                     }
 
@@ -742,7 +733,7 @@ namespace RodizioSmartRestuarant
 
         public async Task<string> GetOrderNum(string branchId)
         {
-            var response = await firebaseDataContext.GetData("Order/" + branchId);
+            var response = await firebaseDataContext.GetOfflineData("Order/" + branchId);
             List<OrderItem> orders = new List<OrderItem>();
 
             foreach (var item in response)
@@ -823,7 +814,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            List<MenuItem> result = new SearchMenu().Search(query, menuItems);
+            Entities.Aggregates.Menu result = new SearchMenu().Search(query, menu);
 
             showingResults = true;
 
@@ -865,7 +856,7 @@ namespace RodizioSmartRestuarant
 
                 block = 0;
 
-                UpdateMenuView();
+                UpdateMenuViewBasedonAvailability();
             }
         }
 

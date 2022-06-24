@@ -14,7 +14,7 @@ using System.Windows.Threading;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public class TCPServer : OfflineDataHelpers        
+    public class TCPServer : OfflineDataService        
     {
         public static TCPServer Instance { get; set; }
         //This is the server method that will give us all our server properties?

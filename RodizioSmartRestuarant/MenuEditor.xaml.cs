@@ -17,6 +17,7 @@ using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Interfaces;
 using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 
 namespace RodizioSmartRestuarant
@@ -26,8 +27,10 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class MenuEditor : Window
     {
-        List<MenuItem> menuItems = new List<MenuItem>();
+        Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
         private FirebaseDataContext firebaseDataContext;
+        IMenuService _menuService;
+
         public MenuEditor()
         {
             InitializeComponent();
@@ -52,21 +55,9 @@ namespace RodizioSmartRestuarant
 
             menuView.Children.Clear();
 
-            var result = await firebaseDataContext.GetData_Online("Menu/" + BranchSettings.Instance.branchId);
+            Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
 
-            List<MenuItem> items = new List<MenuItem>();
-
-            foreach (var item in result)
-            {
-                if(item != null)
-                {
-                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
-
-                    items.Add(menuItem);
-                }                
-            }
-
-            menuItems = items;
+            menu = items;
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -79,7 +70,7 @@ namespace RodizioSmartRestuarant
             ActivityIndicator.RemoveSpinner(spinner);
         }
 
-        void UpdateMenuViewSearch(List<MenuItem> items)
+        void UpdateMenuViewSearch(Entities.Aggregates.Menu items)
         {
             menuView.Children.Clear();
 
@@ -126,17 +117,17 @@ namespace RodizioSmartRestuarant
 
             int numId = Int32.Parse(id);
 
-            for (int i = 0; i < menuItems.Count; i++)
+            for (int i = 0; i < menu.Count; i++)
             {
-                if(menuItems[i].Id == numId)
+                if(menu[i].Id == numId)
                 {
-                    menuItems[i].Availability = !menuItems[i].Availability;
+                    menu[i].Availability = !menu[i].Availability;
                     
                     //UpdateDatabase
                     string branchId = BranchSettings.Instance.branchId;
                     string fullPath = "Menu/" + branchId + "/" + numId;
 
-                    await firebaseDataContext.EditData_Online(fullPath, menuItems[i]);
+                    await firebaseDataContext.EditData_Online(fullPath, menu[i]);
 
                     UpdateMenuView();
                 }
@@ -162,7 +153,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            List<MenuItem> result = new SearchMenu().Search(query, menuItems);
+            Entities.Aggregates.Menu result = new SearchMenu().Search(query, menu);
 
             showingResults = true;            
 

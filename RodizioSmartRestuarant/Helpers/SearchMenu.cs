@@ -1,17 +1,12 @@
-﻿using RodizioSmartRestuarant.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant.Helpers
 {
     public class SearchMenu
     {
-        public List<MenuItem> Search(string query, List<MenuItem> menuItems)
+        public Menu Search(string query, Menu menuItems)
         {
-            List<MenuItem> list = new List<MenuItem>();
+            Menu list = new Menu();
 
             foreach (var item in menuItems)
             {

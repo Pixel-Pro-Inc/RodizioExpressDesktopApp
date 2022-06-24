@@ -822,11 +822,11 @@ namespace RodizioSmartRestuarant
                     foreach (var item in orders[i])
                     {
                         if (TCPServer.Instance != null)
-                            await firebaseDataContext.StoreData(fullPath, item);
+                            await firebaseDataContext.StoreDataOffline(fullPath, item);
                     }
 
                     if (TCPServer.Instance == null)
-                        await firebaseDataContext.StoreData("Order/", orders[i]);
+                        await firebaseDataContext.StoreDataOffline("Order/", orders[i]);
 
                     return;
                 }
@@ -1012,11 +1012,11 @@ namespace RodizioSmartRestuarant
 
                 // REFACTOR: Why do we have to check for each item in the order?
                 if (TCPServer.Instance != null)
-                    await firebaseDataContext.StoreData(fullPath, item);
+                    await firebaseDataContext.StoreDataOffline(fullPath, item);
             }
 
             if (TCPServer.Instance == null)
-                await firebaseDataContext.StoreData("Order/", order);
+                await firebaseDataContext.StoreDataOffline("Order/", order);
         }
 
         async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);

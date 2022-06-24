@@ -32,8 +32,12 @@ namespace RodizioSmartRestuarant.Extensions
             return someObject;
         }
 
-        // TRACK: @Yewo Where did you steal this code and what problem did it aim to solve,
-        // : why do we need dictionaries for our types essentially Yewo
+        /// <summary>
+        /// This gives <paramref name="source"/> a key and to itself so it can be inputed in a <see cref="IDictionary{TKey, TValue}"/>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="bindingAttr"></param>
+        /// <returns></returns>
         public static IDictionary<string, object> AsDictionary(this object source, BindingFlags bindingAttr = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
         {
               return source.GetType().GetProperties(bindingAttr).ToDictionary
