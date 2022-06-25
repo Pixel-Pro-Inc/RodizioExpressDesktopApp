@@ -50,7 +50,7 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
         {
             //Arrange
             string path = "Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber;
-            object data = new Order() { };
+            Order data = new Order() { };
             await FirebaseDataContext.Instance.StoreData(path, data);
 
             //Act
