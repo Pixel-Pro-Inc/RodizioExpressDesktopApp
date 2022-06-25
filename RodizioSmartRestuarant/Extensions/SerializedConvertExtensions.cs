@@ -20,12 +20,13 @@ namespace RodizioSmartRestuarant.Extensions
         public static List<T> FromSerializedToObjectArray<T>(this object source)
        where T : class, new()
         {
-            List<T> results = new List<T>();
+            List<T> result = new List<T>();
 
             // @Abel: This needs to be done
             // TODO: Put the change we need here
+            if (result.Count < 1) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
 
-            return results;
+            return result;
         }
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace RodizioSmartRestuarant.Extensions
 
             // @Abel: This needs to be done
             // TODO: Put the change we need here
+            if (result.Count < 1) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
 
             return result;
         }

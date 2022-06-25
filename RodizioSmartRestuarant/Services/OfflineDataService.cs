@@ -19,6 +19,7 @@ namespace RodizioSmartRestuarant.Helpers
     {
         #region Download
 
+        // @Abel: So now you need to look at the previous version and create tests, then push those tests here.
         public async Task<List<Entity>> GetOfflineData<Entity>(string fullPath) where Entity : BaseEntity, new()
         {
             Directories currentDirectory = GetDirectory(fullPath);
