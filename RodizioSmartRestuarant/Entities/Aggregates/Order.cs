@@ -47,6 +47,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
+        public AggregateProp<string> OrderNumber1 { get { return OrderNumber1; } set { value= this.First().OrderNumber; } } 
         private string _user
         {
             get { return _user == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _user; }
@@ -132,6 +133,11 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         {
             get { return _price; }
             private set { }
+        }
+
+        public AggregateProp<float> TotalPrice 
+        {
+            get { return TotalPrice; } set { TotalPrice = this.Sum(x=> float.Parse(x.Price)); } 
         }
 
         private int? _id
