@@ -135,9 +135,17 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
+        // If this passes, replace Price at the top to be this
         public AggregateProp<float> TotalPrice 
         {
-            get { return TotalPrice; } set { TotalPrice = this.Sum(x=> float.Parse(x.Price)); } 
+            get { return TotalPrice; } 
+            set
+            {
+                //checks if NOT all of them have a price, throws an exception
+                if (!this.All(x => x.Price != null)) throw new NullReferenceException("Some/All of the orders in here don't have a price");
+                // Sums all the prices together
+                TotalPrice = this.Sum(x=> float.Parse(x.Price));
+            } 
         }
 
         private int? _id

@@ -46,22 +46,27 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
 
         // All these are testing for is if it can successfully delete data in specified path
         [TestMethod]
-        public async void DeleteData_GivenPathString_ReturnsListObjects()
+        public async void DeleteData_GivenPathString_ReturnsWithNothing()
         {
             //Arrange
-            string path = "Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber;
-            Order data = new Order() { };
-            await FirebaseDataContext.Instance.StoreData(path, data);
+            string orderNumber = "TestNumber123";
+            //REFACTOR: Use the aggregateProp next time after the tests run
+            Order TestOrder = new Order()
+            {
+                new OrderItem() { OrderNumber=orderNumber }
+            };
+            string path = "Order/" + BranchSettings.Instance.branchId + "/" + TestOrder.OrderNumber;
+            await FirebaseDataContext.Instance.StoreData(path, TestOrder);
 
             //Act
             await FirebaseDataContext.Instance.DeleteData(path);
 
             //Assert
-            Assert.IsFalse(await FirebaseDataContext.Instance.GetData(path) == null);
+            Assert.IsTrue(await FirebaseDataContext.Instance.GetData(path) == null);
 
         }
         [TestMethod]
-        public async void DeleteData_GivenWrongString_ThrowsError()
+        public async void DeleteData_GivenWrongString_ReportWithNothing()
         {
             //Arrange
             string path = "WrongString";
