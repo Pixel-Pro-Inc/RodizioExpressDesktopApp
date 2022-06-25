@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RodizioSmartRestuarant.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,8 +45,10 @@ namespace RodizioSmartRestuarant.Extensions
             }
             catch (InvalidCastException inEx)
             {
+                // TODO: Test the exception handling so that it actually always throws the correct exception with the right messages
+                // @Abel: This one is kind important, but only after functionality is finished.
                 throw new FailedToConvertFromJson($" The Extension failed to convert {results[results.Count]} to {typeof(T)}" + "It might be cause it is expecting a JObject but we are " +
-                    "trying to cast it to a JArray, but really you should look a little deeper", inEx);
+                    "trying to cast it to a JArray, You should try using FromJsonToObject instead", inEx);
             }
 
             return results;
@@ -76,6 +79,11 @@ namespace RodizioSmartRestuarant.Extensions
             catch (InvalidCastException inEx)
             {
                 throw new FailedToConvertFromJson($" The Extension failed to convert {result} to {typeof(T)}", inEx);
+            }
+            catch (Exception ex)
+            {
+                throw new FailedToConvertFromJson($" The Extension failed to convert {result} to {typeof(T)}. This is most probably cause you gave it an aggregate instead of " +
+                    $"and entity. ", ex);
             }
 
             return result;

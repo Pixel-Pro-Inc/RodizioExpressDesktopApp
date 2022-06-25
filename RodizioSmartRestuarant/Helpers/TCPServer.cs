@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using RodizioSmartRestuarant.Entities;
 using System.Net.NetworkInformation;
 using System.Windows.Threading;
+using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant.Helpers
 {
@@ -169,7 +170,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 if (item.GetType() == typeof(JArray))
                 {
-                    var oj = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                    var oj = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
 
                     List<object> list = new List<object>();
                     for (int i = 0; i < oj.Count; i++)
@@ -243,7 +244,7 @@ namespace RodizioSmartRestuarant.Helpers
                     await OfflineStoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Delete:
-                    OfflineDeleteOrder((List<OrderItem>)request.data);
+                    OfflineDeleteOrder((Order)request.data);
                     break;
                 case RequestObject.requestMethod.UpdateLocalDataRequest:
                     var result_1 = await OfflineGetData(request.fullPath);

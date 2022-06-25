@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Extensions;
+using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public class OfflineDataService
+    public class OfflineDataService:IOfflineDataService
     {
         #region Download
 
@@ -133,13 +135,13 @@ namespace RodizioSmartRestuarant.Helpers
                 case Directories.Order:
                     var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
 
-                    //if data originated from a TCP client it will be a List<OrderItem>
-                    if (data is List<OrderItem>)
+                    //if data originated from a TCP client it will be a Order
+                    if (data is Order)
                     {
                         if (TCPServer.Instance == null)//Is Client
                         {
                             //Client Sends this to server
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, (List<OrderItem>)data);
+                            OfflineDataContext.StoreDataOverwrite(Directories.Order, (Order)data);
                             return;
                         }
 
@@ -148,7 +150,7 @@ namespace RodizioSmartRestuarant.Helpers
                             //First we convert to a List<IDictionary<string, object>>
                             List<IDictionary<string, object>> vals = new List<IDictionary<string, object>>();
 
-                            foreach (var oItem in (List<OrderItem>)data)
+                            foreach (var oItem in (Order)data)
                             {
                                 IDictionary<string, object> itm = oItem.AsDictionary();
 
@@ -178,7 +180,7 @@ namespace RodizioSmartRestuarant.Helpers
                             {
                                 //Editing Operation
                                 //OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
-                                foreach (var orderItem in (List<OrderItem>)data)
+                                foreach (var orderItem in (Order)data)
                                 {
                                     //Directly Call SerializedObjectManager To Avoid Extra LocalDataChangeCall
                                     new SerializedObjectManager().EditOrderData(orderItem, Directories.Order);
@@ -226,7 +228,7 @@ namespace RodizioSmartRestuarant.Helpers
                         OrderItem oldOrderItem = new OrderItem();
                         for (int i = 0; i < orderresult.Count; i++)
                         {
-                            var list = orderresult[i]; //List<OrderItem> as dictionary
+                            var list = orderresult[i]; //Order as dictionary
 
                             foreach (var itm in list)
                             {
@@ -307,7 +309,7 @@ namespace RodizioSmartRestuarant.Helpers
         #endregion
         #region Update
 
-        protected void OfflineDeleteOrder(List<OrderItem> order) => OfflineDataContext.DeleteOrder(Directories.Order, order);
+        protected void OfflineDeleteOrder(Order order) => OfflineDataContext.DeleteOrder(Directories.Order, order);
         protected void LocalDataChange()
         {
             WindowManager.Instance.UpdateAllOrderViews_Offline();
@@ -395,7 +397,7 @@ namespace RodizioSmartRestuarant.Helpers
 
             return orderNumbers;
         }
-        protected List<string> GetCurrentOrderNumbersModel(List<List<OrderItem>> orders)
+        protected List<string> GetCurrentOrderNumbersModel(List<Order> orders)
         {
             List<string> orderNumbers = new List<string>();
 

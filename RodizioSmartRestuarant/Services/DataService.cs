@@ -31,7 +31,6 @@ namespace RodizioSmartRestuarant.Services
 
         public DataService()
         {
-
             StartFunction();
         }
         async void StartFunction()
@@ -44,31 +43,20 @@ namespace RodizioSmartRestuarant.Services
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
             dispatcherTimer.Start();
 
-            // REFACTOR: This should be in firebaseService
-            var response = await GetData_Online("Branch");
+            List<Branch> branches = await _firebaseServices.GetData<Branch>("Branch");
 
-            for (int i = 0; i < response.Count; i++)
+            foreach (var branch in branches)
             {
-                var item = response[i];
-                if (item.GetType() == typeof(JObject))
-                {
-                    Branch branch = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
-                    if (branch.Id == BranchSettings.Instance.branchId)
-                        BranchSettings.Instance.branch = branch;
-                }
-                if (item.GetType() == typeof(Branch))//Local Storage
-                {
-                    if (((Branch)item).Id == BranchSettings.Instance.branchId)
-                        BranchSettings.Instance.branch = (Branch)item;
-                }
+                if (branch.Id == BranchSettings.Instance.branchId)
+                    BranchSettings.Instance.branch = branch;
             }
+            SetBranchId();
 
             await SetLastActive();
         }
-
         public void SetBranchId() => branchId = "/" + BranchSettings.Instance.branchId;
 
-        public async Task CancelOrder(List<OrderItem> orderItems)
+        public async Task CancelOrder(Order orderItems)
         {
             //Mark for deletion when back online
             foreach (var item in orderItems)
@@ -84,30 +72,25 @@ namespace RodizioSmartRestuarant.Services
             if (TCPServer.Instance == null)
                 await StoreDataOffline("Order/", orderItems);
         }
-        public async Task CancelOrder_Offline(string fullPath)
+        public async Task CancelOrder_Offline(string orderInvoice)
         {
             //Moves order to Cancelled directory // UPDATE: I changed the comment where the word said completed to Cancelled directory
             if (branchId != "/")
             {
-                string destination = "CancelledOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                var data = await GetData_Online(fullPath);
+                string destination = "CancelledOrders" + branchId + "/" + orderInvoice.Substring(14, 15);
+                List<Order> Orders = await _firebaseServices.GetDataArray<Order,OrderItem>(orderInvoice);
 
-                List<object> result = new List<object>();
-
-                for (int i = 0; i < data.Count; i++)
+                foreach (var order in Orders)
                 {
-                    OrderItem item = JsonConvert.DeserializeObject<OrderItem>(((JObject)data[i]).ToString());
-                    item.User = LocalStorage.Instance.user.FullName();
-
-                    result.Add(JToken.FromObject(item));
+                    order[0].User = LocalStorage.Instance.user.FullName();
                 }
 
-                await StoreData_Online(destination, result);
+                await StoreData_Online(destination, Orders);
 
-                await DeleteData(fullPath);
+                await DeleteData(orderInvoice);
             }
         }
-        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld)
+        bool OrderItemChanged(Order itemsNew, Order itemsOld)
         {
             string newItem = itemsNew[0].OrderNumber;
             string oldItem = itemsOld[0].OrderNumber;
@@ -155,60 +138,29 @@ namespace RodizioSmartRestuarant.Services
             if (branchId == "/" && syncing) return;
             //Clear hdd data
             new SerializedObjectManager().DeleteAllData();
-            //Store new data
+
+            // REFACTOR: Here is a good place caching can come in handy
+            //Collects new data
             #region Retrieve data
-            List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
+            List<Order> onlineOrders = await _firebaseServices.GetDataArray<Order, OrderItem>("Order" + branchId);
+            List<Order> uncollectedOrders = new List<Order>();
 
-            List<object> list = await GetData("Order" + branchId);
-
-            foreach (var item in list)
+            foreach (var order in onlineOrders)
             {
-                List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
-
-                if (!data[0].Collected)
-                    onlineOrders.Add(data);
+                if (!order[0].Collected)
+                    uncollectedOrders.Add(order);
             }
 
-            Entities.Aggregates.Menu onlineMenu = new Entities.Aggregates.Menu();
+            Menu onlineMenu = (Menu)await _firebaseServices.GetData<MenuItem>("Menu" + branchId);
 
-            list.Clear();
-            list = await GetData("Menu" + branchId);
+            List<AppUser> onlineUsers = await _firebaseServices.GetData<AppUser>("Account");
 
-            for (int i = 0; i < list.Count; i++)
+            List<Branch> onlineBranches = await _firebaseServices.GetData<Branch>("Branch");
+            Branch OurBranch = new Branch();
+            foreach (var b in onlineBranches)
             {
-                var item = list[i];
-
-                if (item != null)
-                {
-                    MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
-
-                    onlineMenu.Add(menuItem);
-                }
-            }
-
-            List<AppUser> onlineUsers = new List<AppUser>();
-
-            list.Clear();
-            list = await GetData("Account");
-
-            foreach (var item in list)
-            {
-                var u = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
-
-                onlineUsers.Add(u);
-            }
-
-            Branch onlineBranch = new Branch();
-
-            list.Clear();
-            list = await GetData("Branch");
-
-            foreach (var item in list)
-            {
-                var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
-
                 if (b.Id == BranchSettings.Instance.branchId)
-                    onlineBranch = b;
+                    OurBranch = b;
             }
             #endregion
 
@@ -246,18 +198,18 @@ namespace RodizioSmartRestuarant.Services
 
             new SerializedObjectManager().SaveData(values, Directories.Account);
 
-            new SerializedObjectManager().SaveData(onlineBranch.AsDictionary(), Directories.Branch);
+            new SerializedObjectManager().SaveData(onlineBranches.AsDictionary(), Directories.Branch);
 
         }
 
-        public async Task<List<object>> GetData_Online(string fullPath)
+        public async Task<List<T>> GetData<T>(string fullPath) where T: BaseEntity, new()
         {
             // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
             if (!await connectionChecker.CheckConnection()) return await OfflineGetData(fullPath);
 
             await SetLastActive();
 
-            return await _firebaseServices.GetData(fullPath);
+            return await _firebaseServices.GetData<T>(fullPath);
 
         }
 
@@ -275,11 +227,11 @@ namespace RodizioSmartRestuarant.Services
 
             offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
 
-            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+            List<Order> offlineOrders = new List<Order>();
 
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
             {
-                offlineOrders.Add(new List<OrderItem>());
+                offlineOrders.Add(new Order());
 
                 foreach (var itm in item)
                 {
@@ -297,7 +249,6 @@ namespace RodizioSmartRestuarant.Services
             await SetLastActive();
             _firebaseServices.DeleteData(fullPath);
         }
-        // TODO: Put in DataService
         // REFACTOR: This method is too similar to the one that has line 231 StoreData_Online(), consider using base method and overrides or simply extracting the logic
         public async Task EditData_Online(string fullPath, object data)
         {
@@ -307,7 +258,7 @@ namespace RodizioSmartRestuarant.Services
 
                 _firebaseServices.StoreData(fullPath, data);
 
-                // FIXME: It doesn't need to know what the data is we just need to pass in the aggregate version
+                // FIXME: The menu service needs to reference this, not firebase
                 if (fullPath.ToLower().Contains("menu"))
                     //await UpdateLocalStorage();
 
@@ -315,16 +266,16 @@ namespace RodizioSmartRestuarant.Services
             }
         }
 
-        public async void ResetLocalData(List<List<OrderItem>> orders)
+        public async void ResetLocalData(List<Order> orders)
         {
             //Makes sure only the server makes the syncing changes
             if (TCPServer.Instance == null)
                 return;
 
-            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+            List<Order> orderItems = new List<Order>();
 
             //Offline include completed orders
-            orderItems = (List<List<OrderItem>>)(await GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await GetOfflineOrdersCompletedInclusive());
 
             foreach (var item in orderItems)
             {
@@ -435,7 +386,7 @@ namespace RodizioSmartRestuarant.Services
         }
         public async Task StoreDataBaseLocally_InitialStartUp() => await UpdateOfflineData();
         //Including Completed
-        public async Task SyncDataEndOfDay(List<List<OrderItem>> orders)
+        public async Task SyncDataEndOfDay(List<Order> orders)
         {
             //Add new offline orders to database
             foreach (var order in orders)
@@ -506,9 +457,6 @@ namespace RodizioSmartRestuarant.Services
             lastStatus = status;
         }
 
-        // REFACTOR: This amougst others are have the same name and similar purpose, we have to consider having overloads of a single method (that takes advantage of 'base' syntax)
-        // It also makes sense that this and others like it be put in a interface
-
         float elapsedTime = 0;
         bool startCounting = false;
 
@@ -546,7 +494,7 @@ namespace RodizioSmartRestuarant.Services
             startedSyncing = true;
         }
 
-        void DataReceived()
+        public void DataReceived()
         {
             startCounting = true;
             elapsedTime = 0;

@@ -18,9 +18,7 @@ namespace API.Services
             _firebaseDataContext = new FirebaseDataContext();
         }
 
-        public async void StoreData(string path, object thing)=> await _firebaseDataContext.StoreDataOnline(path, thing);
-
-        // FIXME: There are two Delete data, the one this one is refering to should be in firebaeService
+        public async void StoreData(string path, object thing)=> await _firebaseDataContext.StoreData(path, thing);
         public async void DeleteData(string fullpath) => await _firebaseDataContext.DeleteData(fullpath);
         public async Task<List<T>> GetData<T>(string path) where T : class, new()
         {

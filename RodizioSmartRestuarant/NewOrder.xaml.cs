@@ -15,6 +15,7 @@ using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 using RodizioSmartRestuarant.Data;
 using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
 using RodizioSmartRestuarant.Interfaces;
+using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -24,10 +25,11 @@ namespace RodizioSmartRestuarant
     public partial class NewOrder : Window
     {
         Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
-        List<OrderItem> order = new List<OrderItem>();
+        Order orders = new Order();
         private FirebaseDataContext firebaseDataContext;
         private string _source;
         IMenuService _menuService;
+        IFirebaseServices _firebaseServices;
 
         string lastSelectedFlavour = "None";
         string lastSelectedMeatTemp = "Well Done";
@@ -56,6 +58,7 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
 
+        // @Abel: You need to make an OrderService
         // TODO: New order bug
         /*
          Say you want to remove an order placed, there is no functionality to remove it, you just have to start the order all afresh
@@ -324,18 +327,18 @@ namespace RodizioSmartRestuarant
         {
             orderView.Children.Clear();
 
-            for (int i = 0; i < order.Count; i++)
+            for (int i = 0; i < orders.Count; i++)
             {
-                order[i].Id = i;
+                orders[i].Id = i;
 
-                orderView.Children.Add(GetStackPanel(order[i], i));
+                orderView.Children.Add(GetStackPanel(orders[i], i));
             }
 
             //Updates with size settings
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
 
             UpdateTotal();
-            UpdateOrderPrepTime(order);
+            UpdateOrderPrepTime(orders);
             CheckChanged();
         }
 
@@ -470,11 +473,11 @@ namespace RodizioSmartRestuarant
 
             int numId = Int32.Parse(id);
 
-            for (int i = 0; i < order.Count; i++)
+            for (int i = 0; i < orders.Count; i++)
             {
-                if (order[i].Id == numId)
+                if (orders[i].Id == numId)
                 {
-                    order.RemoveAt(i);
+                    orders.RemoveAt(i);
 
                     UpdateOrderView();
 
@@ -536,7 +539,7 @@ namespace RodizioSmartRestuarant
                         string price = ((TextBox)((StackPanel)button.Parent).Children[2]).Text;
                         string weight = (float.Parse(price) * menu[i].Rate).ToString("f2") + " grams";
 
-                        order.Add(new OrderItem()
+                        orders.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menu[i].Description,
@@ -560,7 +563,7 @@ namespace RodizioSmartRestuarant
                     }
                     else if (menu[i].Category == "Meat" && menu[i].Price != "0.00")
                     {
-                        order.Add(new OrderItem()
+                        orders.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menu[i].Description,
@@ -584,7 +587,7 @@ namespace RodizioSmartRestuarant
                     }
                     else
                     {
-                        order.Add(new OrderItem()
+                        orders.Add(new OrderItem()
                         {
                             Collected = false,
                             Description = menu[i].Description,
@@ -619,7 +622,7 @@ namespace RodizioSmartRestuarant
             CheckChanged();
         }
 
-        async void ConfirmOrder(List<OrderItem> orderItems)
+        async void ConfirmOrder(Order orderItems)
         {
             //Activity Indicator
             ActivityIndicator.AddSpinner(spinner);
@@ -681,9 +684,9 @@ namespace RodizioSmartRestuarant
             }            
         }
 
-        private void CreateUnpaidOrder(List<OrderItem> _order, POS _pOS)
+        private void CreateUnpaidOrder(Order _order, POS _pOS)
         {
-            List<OrderItem> orderItems = new List<OrderItem>();
+            Order orderItems = new Order();
             foreach (var item in _order)
             {
                 orderItems.Add(new OrderItem()
@@ -731,32 +734,28 @@ namespace RodizioSmartRestuarant
             WindowManager.Instance.Close(this);
         }
 
+        /// <summary>
+        ///  This is to get a candidate ordernumber that isn't used before
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <returns></returns>
         public async Task<string> GetOrderNum(string branchId)
         {
-            var response = await firebaseDataContext.GetOfflineData("Order/" + branchId);
-            List<OrderItem> orders = new List<OrderItem>();
+            List<Order> orders = await _firebaseServices.GetData<Order>("Order/" + branchId);
+            //Check Against Other Order Numbers For The Day
+            List<string> orderNums = new List<string>();
 
-            foreach (var item in response)
-            {
-                OrderItem[] data = JsonConvert.DeserializeObject<OrderItem[]>(((JArray)item).ToString());
-
-                for (int i = 0; i < data.Length; i++)
-                {
-                    orders.Add(data[i]);
-                }
-            }
 
             // NOTE: Offline Made Orders will always start with 0 to avoid them matching an order made online
             string candidateNumber = (new Random().Next(1, 1000)).ToString("0000");
 
-            //Check Against Other Order Numbers For The Day
-            List<string> orderNums = new List<string>();
-
+            
+            // TODO: Bring in the Order Factory from QR Cashless
             for (int i = 0; i < orders.Count; i++)
             {
                 //Only 4 digit numbers
 
-                string orderNum = orders[i].OrderNumber;
+                string orderNum = orders[i][0].OrderNumber;
 
                 int n = orderNum.IndexOf('_');
 
@@ -787,9 +786,9 @@ namespace RodizioSmartRestuarant
         {
             float totalAmt = 0;
 
-            for (int i = 0; i < order.Count; i++)
+            for (int i = 0; i < orders.Count; i++)
             {
-                totalAmt += float.Parse(order[i].Price);
+                totalAmt += float.Parse(orders[i].Price);
             }
 
             total.Content = Formatting.FormatAmountString(totalAmt);
@@ -866,11 +865,11 @@ namespace RodizioSmartRestuarant
         {
             if(block1 == 0)
             {
-                ConfirmOrder(order);
+                ConfirmOrder(orders);
                 block1 = 1;
             }            
         }
-        private void UpdateOrderPrepTime(List<OrderItem> orderItems)
+        private void UpdateOrderPrepTime(Order orderItems)
         {
             int orderTime = 0;
             foreach (var item in orderItems)
@@ -910,7 +909,7 @@ namespace RodizioSmartRestuarant
             {
                 phoneNumberEntry.Visibility = Visibility.Collapsed;
 
-                if (order.Count > 0)
+                if (orders.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;                    
 
@@ -922,7 +921,7 @@ namespace RodizioSmartRestuarant
                 phoneNumberEntry.Visibility = Visibility.Visible;
 
             if (!string.IsNullOrEmpty(phoneNumber.Text))
-                if (phoneNumber.Text.Length == 8 && order.Count > 0)
+                if (phoneNumber.Text.Length == 8 && orders.Count > 0)
                 {
                     confirmButton.Visibility = Visibility.Visible;
 

@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Runtime.Serialization;
 
-namespace RodizioSmartRestuarant.Helpers
+namespace RodizioSmartRestuarant.Exceptions
 {
     /// <summary>
     /// Thrown when the .exe file you provided does not have any connectionStrings section Note, it should already be set so most prolly happens when you have <see cref="ConfigurationManager.OpenExeConfiguration(string)"/> open the wrong file.

@@ -5,6 +5,7 @@ using static RodizioSmartRestuarant.Entities.Enums;
 using RodizioSmartRestuarant.Extensions;
 using System;
 using System.Threading.Tasks;
+using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant.Data
 {
@@ -57,7 +58,7 @@ namespace RodizioSmartRestuarant.Data
         }
 
         // REFACTOR: Similiar method to Storedata(), consider using base method, override or extract logic and inject functions into it
-        public async static void DeleteOrder(Directories path, List<OrderItem> data)
+        public async static void DeleteOrder(Directories path, Order data)
         {
             if (LocalStorage.Instance.networkIdentity.isServer)
             {

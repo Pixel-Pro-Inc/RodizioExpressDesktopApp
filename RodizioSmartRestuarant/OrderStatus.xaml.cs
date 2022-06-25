@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Speech.Synthesis;
 using static RodizioSmartRestuarant.Entities.Enums;
+using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -23,7 +24,7 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class OrderStatus : Window
     {
-        public OrderStatus(List<List<OrderItem>> orders)
+        public OrderStatus(List<Order> orders)
         {
             InitializeComponent();
 
@@ -39,13 +40,13 @@ namespace RodizioSmartRestuarant
         }
 
         // This is called also in windowManager so that you don't have to update this window with an event defined here
-        public void UpdateScreen(List<List<OrderItem>> orders)
+        public void UpdateScreen(List<Order> orders)
         {
             Dispatcher.BeginInvoke(new Action(() => Logic(orders)));
         }
 
         // REFACTOR: Find and remove the stack overflow it keeps firing
-        public async void CallOutOrders(List<List<OrderItem>> orders)
+        public async void CallOutOrders(List<Order> orders)
         {
             foreach (var order in orders)
             {
@@ -98,7 +99,7 @@ namespace RodizioSmartRestuarant
 
         void saveCalledOutOrders(List<string> orderNumbers) => new SerializedObjectManager().SaveOverwriteData(orderNumbers, Directories.CalledOutOrders);
 
-        public void Logic(List<List<OrderItem>> orders)
+        public void Logic(List<Order> orders)
         {
             ready.Children.Clear();
             inProgress.Children.Clear();
@@ -132,7 +133,7 @@ namespace RodizioSmartRestuarant
             CallOutOrders(orders);
         }
 
-        Label GetLabel(List<OrderItem> order)
+        Label GetLabel(Order order)
         {
             Label label = new Label()
             {

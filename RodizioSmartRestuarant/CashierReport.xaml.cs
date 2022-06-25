@@ -1,6 +1,7 @@
 ﻿using RdKitchenApp.Entities;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
@@ -45,15 +46,15 @@ namespace RodizioSmartRestuarant
 
             //Get Orders
 
-            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+            List<Order> orderItems = new List<Order>();
             //Offline include completed orders
-            orderItems = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 
             //Exclude Unpaid Orders
-            List<List<OrderItem>> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
+            List<Order> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
 
             //Cash Orders Summary
-            List<List<OrderItem>> cashOrders = new List<List<OrderItem>>();
+            List<Order> cashOrders = new List<Order>();
             cashOrders = GetRelevantOrders("cash", LocalStorage.Instance.user, orders);
 
             foreach (var order in cashOrders)
@@ -75,7 +76,7 @@ namespace RodizioSmartRestuarant
             cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
 
             //Card Orders Summary
-            List<List<OrderItem>> cardOrders = new List<List<OrderItem>>();
+            List<Order> cardOrders = new List<Order>();
             cardOrders = GetRelevantOrders("card", LocalStorage.Instance.user, orders);
 
             foreach (var order in cardOrders)
@@ -97,9 +98,9 @@ namespace RodizioSmartRestuarant
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
         }
 
-        List<List<OrderItem>> GetRelevantOrders(string paymentMethod, AppUser user, List<List<OrderItem>> allPaidOrders)
+        List<Order> GetRelevantOrders(string paymentMethod, AppUser user, List<Order> allPaidOrders)
         {
-            List<List<OrderItem>> relevantOrders = new List<List<OrderItem>>();
+            List<Order> relevantOrders = new List<Order>();
 
             if(paymentMethod.ToLower().Trim() == "cash")
             {
@@ -114,7 +115,7 @@ namespace RodizioSmartRestuarant
             return relevantOrders.Where(o => o[0].User.ToLower() == user.FullName().ToLower()).ToList();
         }
 
-        StackPanel GetOrderSummaryPanel(List<OrderItem> order)
+        StackPanel GetOrderSummaryPanel(Order order)
         {
             StackPanel stackPanel = new StackPanel()
             {

@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,9 @@ namespace RodizioSmartRestuarant.Helpers
 
             return data;
         }
-        public static List<List<OrderItem>> ChronologicalOrderList(List<List<OrderItem>> orderItems)
+        public static List<Order> ChronologicalOrderList(List<Order> orderItems)
         {
-            List<List<OrderItem>> temp = new List<List<OrderItem>>();
+            List<Order> temp = new List<Order>();
             List<DateTime> usedTimes = new List<DateTime>();
             DateTime lastTime = new DateTime();
 

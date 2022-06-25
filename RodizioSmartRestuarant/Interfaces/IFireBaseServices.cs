@@ -1,4 +1,6 @@
-﻿using RodizioSmartRestuarant.Entities.Aggregates;
+﻿using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +36,8 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <summary>
         /// This takes in the path of the node in the database and coughs up the a list of the type
         /// <typeparamref name="T"/>. <typeparamref name="T"/> is the object type you want to have a list of.
-        /// <para> NOTE: I didnt put type checking here cause there is data that doesn't inherit from <see cref="BaseEntity"/> that could be taken from the database, Like <see cref="Flavour"/></para>
+        /// <para> NOTE: I didnt put type checking here cause there is data that doesn't inherit from <see cref="BaseEntity"/> that could be taken from the database, Like <see cref="Flavour"/>.
+        /// This means that an error can be thrown if you try to pass in an aggregate. See <see cref="FailedToConvertFromJson"/> for more info.</para> 
         /// </summary>
         /// <typeparam name="T"> </typeparam>
         /// <param name="path"></param>

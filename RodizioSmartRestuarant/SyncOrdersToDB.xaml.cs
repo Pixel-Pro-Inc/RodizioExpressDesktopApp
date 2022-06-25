@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -45,10 +46,10 @@ namespace RodizioSmartRestuarant
             //If you are the server and internet is available sync data
             if (LocalStorage.Instance.networkIdentity.isServer && (await (new ConnectionChecker()).CheckConnection()))
             {
-                List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+                List<Order> orderItems = new List<Order>();
 
                 //Offline include completed orders
-                orderItems = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
+                orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 
                 FirebaseDataContext.Instance.startedSyncing = true;
 

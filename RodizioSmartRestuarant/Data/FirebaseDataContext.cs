@@ -29,7 +29,6 @@ namespace RodizioSmartRestuarant.Data
         
         string branchId = "";
 
-        // REFACTOR: Use environment variables here
         IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = ConnectionStringManager.GetConnectionString("FirebaseAuth"),
@@ -46,21 +45,15 @@ namespace RodizioSmartRestuarant.Data
             Instance = this;
         }
 
-        
 
-        #region Reform version
-
-
-        public async Task DeleteData(string fullPath)=> await client.DeleteAsync(fullPath);
+        public async Task DeleteData(string fullPath) => await client.DeleteAsync(fullPath);
         /// <summary>
         /// This sets data in the database using the <see cref="IFirebaseClient.SetAsync{T}(string, T)"/> method
         /// </summary>
         /// <param name="path"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task StoreDataOnline(string path, object data) => await client.SetAsync(path, data);
-
-        // TODO: Have all references of this use JsonConvert
+        public async Task StoreData(string path, object data) => await client.SetAsync(path, data);
         public async Task<List<object>> GetData(string path)
         {
             List<object> objects = new List<object>();
@@ -102,25 +95,17 @@ namespace RodizioSmartRestuarant.Data
         /// <returns></returns>
         public async Task EditData(string path, object data) => await client.UpdateAsync(path, data);
 
-        #endregion
-
         /// <summary>
         /// This is a method that checks if the data is that path has changed. Or At least I think thats what it does.
         /// <para> Its uses a <see cref="EventStreamResponse"/> taken from the client using <see cref="IFirebaseClient.OnAsync(string, FireSharp.EventStreaming.ValueAddedEventHandler, FireSharp.EventStreaming.ValueChangedEventHandler, FireSharp.EventStreaming.ValueRemovedEventHandler, object)"/> 
         ///. Its very weird, you would want to check out so just navigate to it</para>
         /// </summary>
         /// <param name="fullPath"></param>
-        public async void GetDataChanging(string fullPath)
+        public async void OnDataChanging(string fullPath)
         {
             EventStreamResponse response = await client.OnAsync(fullPath,
                     (sender, args, context) => {
                         _dataService.DataReceived();
-                    },
-                    (sender, args, context) => {
-                        ;//DataReceived();
-                    },
-                    (sender, args, context) => {
-                        ;//DataReceived();
                     });
         }
 

@@ -1,6 +1,7 @@
 ﻿using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,13 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class ReceivePayment : Window
     {
-        private List<OrderItem> _order;
+        private Order _order;
         public float total;
 
         string method;
 
         POS _pOS;
-        public ReceivePayment(List<OrderItem> order, POS pOS)
+        public ReceivePayment(Order order, POS pOS)
         {
             _order = order;
             _pOS = pOS;
@@ -77,7 +78,7 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
         //Creates Labels to be added to the xaml
-        List<Label> GetLabels(List<OrderItem> order, string _type)
+        List<Label> GetLabels(Order order, string _type)
         {
             List<Label> labels = new List<Label>();
 
@@ -143,7 +144,7 @@ namespace RodizioSmartRestuarant
                 float f = float.Parse(changeAmt.Content.ToString());
                 if (f >= 0)
                 {
-                    List<OrderItem> orderItems = new List<OrderItem>();
+                    Order orderItems = new Order();
                     foreach (var item in _order)
                     {
                         //Use a bloody mapper next time
@@ -222,7 +223,7 @@ namespace RodizioSmartRestuarant
             }
         }
         //This method prints a receipt
-        void PrintReceipt(List<OrderItem> orderItem, Branch branch)
+        void PrintReceipt(Order orderItem, Branch branch)
         {
             if(amountBox.Text != null && amountBox.Text != "")
             {

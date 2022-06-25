@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Entities.Aggregates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class SearchOrders
     {
-        public List<List<OrderItem>> Search(string query, List<List<OrderItem>> orders)
+        public List<Order> Search(string query, List<Order> orders)
         {
-            List<List<OrderItem>> list = new List<List<OrderItem>>();
+            List<Order> list = new List<Order>();
 
             foreach (var item in orders)
             {
@@ -22,7 +23,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 if (item[0].PhoneNumber == query || n == query)
                 {
-                    List<OrderItem> orderItems = new List<OrderItem>();
+                    Order orderItems = new Order();
 
                     orderItems.Add(item[0]);
 
