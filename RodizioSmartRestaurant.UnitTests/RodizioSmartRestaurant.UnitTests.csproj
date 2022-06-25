@@ -50,6 +50,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data.UnitTests\FirebaseDataContextTests.cs" />
     <Compile Include="Helper.UnitTests\ConnectionStringManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

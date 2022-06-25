@@ -54,6 +54,11 @@ namespace RodizioSmartRestuarant.Data
         /// <param name="data"></param>
         /// <returns></returns>
         public async Task StoreData(string path, object data) => await client.SetAsync(path, data);
+        /// <summary>
+        /// Gets data from database by using <see cref="IFirebaseClient.GetAsync(string)"/> and deserializes them using <see cref="JsonConvert.DeserializeObject{T}(string)"/>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns> <see cref="List{Object}"/></returns>
         public async Task<List<object>> GetData(string path)
         {
             List<object> objects = new List<object>();
