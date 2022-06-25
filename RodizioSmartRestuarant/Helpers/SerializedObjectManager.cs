@@ -261,7 +261,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 try
                 {
-                    // Do stuff with file
+                    // if data exists, get it
                     if (File.Exists(savePath(dir) + "/data.txt"))
                     {
                         var binaryFormatter = new BinaryFormatter();

@@ -23,6 +23,7 @@ namespace RodizioSmartRestuarant.Services
     {
         public ConnectionChecker connectionChecker = new ConnectionChecker();
         IFirebaseServices _firebaseServices;
+        IOfflineDataService _offlineDataServices;
         public bool startedSyncing = false;
         // UPDATE: I changed the bool to be private, its not used any where else and is relativly important so I don't want to expose it all willinilly
         private bool syncing = false;
@@ -205,7 +206,7 @@ namespace RodizioSmartRestuarant.Services
         public async Task<List<T>> GetData<T>(string fullPath) where T: BaseEntity, new()
         {
             // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
-            if (!await connectionChecker.CheckConnection()) return await OfflineGetData(fullPath);
+            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineData<T>(fullPath);
 
             await SetLastActive();
 
@@ -213,8 +214,8 @@ namespace RodizioSmartRestuarant.Services
 
         }
 
-        public async Task StoreDataOffline(string fullPath, object data) => await OfflineStoreData(fullPath, data);
-        public async Task<List<object>> GetOfflineData(string fullPath) => await OfflineGetData(fullPath);
+        public async Task StoreDataOffline(string fullPath, object data) => await _offlineDataServices.OfflineStoreData(fullPath, data);
+       
 
         public async Task<object> GetOfflineOrdersCompletedInclusive()
         {
@@ -356,7 +357,7 @@ namespace RodizioSmartRestuarant.Services
         }
         public async Task StoreData_Online(string fullPath, object data)
         {
-            if (!await connectionChecker.CheckConnection()) await OfflineStoreData(fullPath, data);
+            if (!await connectionChecker.CheckConnection()) await _offlineDataServices.OfflineStoreData(fullPath, data);
             await SetLastActive();
 
             _firebaseServices.StoreData(fullPath, data);
@@ -438,7 +439,7 @@ namespace RodizioSmartRestuarant.Services
             }
 
             if (LocalStorage.Instance.networkIdentity.isServer)
-                 GetDataChanging("Order/" + BranchSettings.Instance.branchId);
+                OnDataChanging("Order/" + BranchSettings.Instance.branchId);
         }
         public bool connected = false;
         bool lastStatus = false;
@@ -506,7 +507,7 @@ namespace RodizioSmartRestuarant.Services
             if (branchId != "/")
             {
                 string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                await StoreData_Online(destination, await GetOfflineData(fullPath));
+                await StoreData_Online(destination, _offlineDataServices.GetOfflineData<T>(fullPath));
 
                 await DeleteData(fullPath);
             }

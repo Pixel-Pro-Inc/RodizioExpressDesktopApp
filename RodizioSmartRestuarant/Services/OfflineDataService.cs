@@ -2,6 +2,7 @@
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Exceptions;
 using RodizioSmartRestuarant.Extensions;
 using RodizioSmartRestuarant.Interfaces;
 using System;
@@ -18,75 +19,26 @@ namespace RodizioSmartRestuarant.Helpers
     {
         #region Download
 
-        // REFACTOR: Too many similiar code
-        protected async Task<List<object>> OfflineGetData(string fullPath)
+        public async Task<List<Entity>> GetOfflineData<Entity>(string fullPath) where Entity : BaseEntity, new()
         {
             Directories currentDirectory = GetDirectory(fullPath);
 
             switch (currentDirectory)
             {
-                case Directories.Order:
-                    var orderresult = CovertListDictionaryOrders(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> orders = new List<object>();
-
-                    foreach (var item in orderresult)
-                    {
-                        orders.Add(new List<object>());
-
-                        foreach (var obj in item)
-                        {
-                            JObject valuePairs = (JObject)JToken.FromObject(obj.ToObject<OrderItem>());
-
-                            ((List<object>)orders[orders.Count - 1]).Add(valuePairs);
-                        }
-
-                        orders[orders.Count - 1] = (JArray)JToken.FromObject(orders[orders.Count - 1]);
-                    }
-
-                    return orders;
-
-                case Directories.Menu:
-
-                    var menuresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> menu = new List<object>();
-
-                    foreach (var item in menuresult)
-                    {
-                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<MenuItem>());
-                        menu.Add(keyValuePairs);
-                    }
-
-                    return menu;
 
                 case Directories.Account:
-                    var accountresult = CovertListDictionary(await OfflineDataContext.GetData(currentDirectory));
-
-                    List<object> accounts = new List<object>();
-
-                    foreach (var item in accountresult)
-                    {
-                        JObject keyValuePairs = (JObject)JToken.FromObject(item.ToObject<AppUser>());
-                        accounts.Add(keyValuePairs);
-                    }
-
-                    return accounts;
+                    List<Entity> AppUsers = await GetEntities<Entity>(currentDirectory);
+                    if (AppUsers == null)
+                        throw new FailedToConvertFromSerialized($"Tried to get the {typeof(List<Entity>)} stored locally and came back with nothing.", new NullReferenceException());
+                    return AppUsers;
 
                 case Directories.Branch:
-                    var branchresult = await OfflineDataContext.GetData(Directories.Branch);
 
-                    List<object> result = new List<object>();
+                    List<Entity> branchresult = await GetEntities<Entity>(currentDirectory);
 
-                    if (branchresult is IDictionary<string, object>)
+                    if (branchresult.Count == 0)
                     {
-                        result.Add(((IDictionary<string, object>)branchresult).ToObject<Branch>());
-                        return result;
-                    }
-
-                    if (((List<object>)branchresult).Count == 0)
-                    {
-                        //Error Message
+                        // This is if the application is acting as The TCPServer
                         if (TCPServer.Instance != null)
                         {
                             MessageBoxResult messageBoxResult = MessageBox.Show("You have to have had internet at least once before using this application.", "Startup Failure", System.Windows.MessageBoxButton.OK);
@@ -95,8 +47,7 @@ namespace RodizioSmartRestuarant.Helpers
                                 Application.Current.Shutdown();
                             }
                         }
-
-                        if (TCPServer.Instance == null)
+                        else
                         {
                             MessageBoxResult messageBoxResult = MessageBox.Show("We were unable to connect to the local server. Please make sure its on and connected to the LAN before restarting this application again.", "Connection Failure", System.Windows.MessageBoxButton.OK);
                             if (messageBoxResult == MessageBoxResult.OK)
@@ -104,26 +55,43 @@ namespace RodizioSmartRestuarant.Helpers
                                 Application.Current.Shutdown();
                             }
                         }
-
-                        result.Add(new Branch());
-
-                        return result;
+                        // UPDATE: I didn't think it would be wise just to have it given an empty branch so I changed it so that it throws an exception
+                        //branchresult.Add(new Entity());
+                        throw new FailedToConvertFromSerialized($"Tried to get the {typeof(List<Entity>)} stored locally and came back with nothing.", new NullReferenceException());
                     }
 
-                    var branch = (Branch)(((List<object>)branchresult)[0]);
-
-                    result.Add(branch);
-
-                    return result;
+                    return branchresult;
             }
 
             return null;
+        }
+        async Task<List<Entity>> GetEntities<Entity>(Directories currentDirectory) where Entity : BaseEntity, new()
+        {
+            object response = await OfflineDataContext.GetData(currentDirectory);
+            List<Entity> entity = response.FromSerializedToObject<Entity>();
+            return entity;
+        }
+        public async Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new()
+        {
+            Directories currentDirectory = GetDirectory(fullPath);
+            List<Aggregate> aggregates = await GetAggregates<Aggregate, Entity>(currentDirectory);
+            if (aggregates != null)
+                return aggregates;
+            // If nothing comes up
+            throw new FailedToConvertFromSerialized($"Tried to get the list of {typeof(Entity)}s stored locally and came back with nothing.", new NullReferenceException());
+
+        }
+        async Task<List<Aggregate>> GetAggregates<Aggregate, Entity>(Directories currentDirectory) where Aggregate : BaseAggregates<Entity>, new()
+        {
+            object response = await OfflineDataContext.GetData(currentDirectory);
+            List<Aggregate> aggregate = response.FromSerializedToObjectArray<Aggregate>();
+            return aggregate;
         }
 
         #endregion
         #region Store
 
-        protected async Task OfflineStoreData(string fullPath, object data)
+        public async Task OfflineStoreData(string fullPath, object data)
         {
             Directories currentDirectory = GetDirectory(fullPath);
 

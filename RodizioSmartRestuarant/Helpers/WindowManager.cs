@@ -447,6 +447,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             if (BranchSettings.Instance.branchId != null)
             {
+                // TODO: Replaces this with DataService
                 var result = await FirebaseDataContext.Instance.GetOfflineData("Order/" + BranchSettings.Instance.branchId);
 
                 List<Order> temp = new List<Order>();

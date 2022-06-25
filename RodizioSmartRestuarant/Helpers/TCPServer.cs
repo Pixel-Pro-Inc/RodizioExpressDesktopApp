@@ -15,7 +15,7 @@ using RodizioSmartRestuarant.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public class TCPServer : OfflineDataService        
+    public class TCPServer         
     {
         public static TCPServer Instance { get; set; }
         //This is the server method that will give us all our server properties?
@@ -23,6 +23,8 @@ namespace RodizioSmartRestuarant.Helpers
         public List<string> networkIps = new List<string>();
         public string lastRequestSource;
         public bool localDataInUse = false;
+
+
         // TRACK: I need definitions to what this is
         public List<IDictionary<string, byte[]>> requestPool = new List<IDictionary<string, byte[]>>();
 
@@ -225,8 +227,9 @@ namespace RodizioSmartRestuarant.Helpers
             // TRACK: Do you think its over kill to have a check on the request.requestType if null?
             switch (request.requestType)
             {
+                // FIXME: Here you should use DataService since it will give you data whether it is online or offline
                 case RequestObject.requestMethod.Get:
-                    var result = await OfflineGetData(request.fullPath);
+                    var result = await GetOfflineData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
@@ -247,7 +250,7 @@ namespace RodizioSmartRestuarant.Helpers
                     OfflineDeleteOrder((Order)request.data);
                     break;
                 case RequestObject.requestMethod.UpdateLocalDataRequest:
-                    var result_1 = await OfflineGetData(request.fullPath);
+                    var result_1 = await GetOfflineData(request.fullPath);
                     SendData(ipPort, result_1, request.fullPath);
                     break;
             }

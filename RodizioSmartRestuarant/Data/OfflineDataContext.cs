@@ -20,12 +20,13 @@ namespace RodizioSmartRestuarant.Data
             {
                 object data = (List<object>)new SerializedObjectManager().RetrieveData(path) != null ? ((List<object>)new SerializedObjectManager().RetrieveData(path))[0] : null;
 
-                if (data == null)
+                if (data == null) // NOTE: We make this into a list of objects cause in OfflineDataService there is alot of type checking that needs it that way even if its not immediate
                     return new List<object>();
 
                 return data;
             }
 
+            // I'm assuming so that it can wait for the server to finish another request it was processing
             while (TCPClient.processingRequest)
             {
                 await Task.Delay(25);

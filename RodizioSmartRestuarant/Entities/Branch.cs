@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RodizioSmartRestuarant.Entities
 {
     [Serializable]
-    public class Branch
+    public class Branch:BaseEntity
     {
         public string Id { get; set; }
         public string Name { get; set; }

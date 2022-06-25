@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RodizioSmartRestuarant.Entities
 {
-    public class restaurantEntity
+    public class restaurantEntity:BaseEntity
     {
         public string Restaurant { get; set; }
         public string Address { get; set; }

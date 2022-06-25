@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace RodizioSmartRestuarant.Entities
 {
     [Serializable]
-    public class AppUser
+    public class AppUser:BaseEntity
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

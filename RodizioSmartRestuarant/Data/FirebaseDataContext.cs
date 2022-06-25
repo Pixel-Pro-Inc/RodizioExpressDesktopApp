@@ -58,6 +58,7 @@ namespace RodizioSmartRestuarant.Data
         {
             List<object> objects = new List<object>();
 
+            // Collect data from database
             FirebaseResponse response = await client.GetAsync(path);
 
             dynamic data = JsonConvert.DeserializeObject<dynamic>(response.Body);

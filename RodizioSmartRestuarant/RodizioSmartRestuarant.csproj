@@ -363,10 +363,10 @@
     <Compile Include="Entities\NetworkIdentity.cs" />
     <Compile Include="Entities\NetworkInterfaceObject.cs" />
     <Compile Include="Entities\SettingsProperties.cs" />
-    <Compile Include="Exceptions\BaseException.cs" />
     <Compile Include="Exceptions\FailedToConvertFromJson.cs" />
     <Compile Include="Extensions\JsonConvertExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\SerializedConvertExtensions.cs" />
     <Compile Include="GettingReady.xaml.cs">
       <DependentUpon>GettingReady.xaml</DependentUpon>
     </Compile>
@@ -381,6 +381,7 @@
     <Compile Include="Interfaces\IDataService.cs" />
     <Compile Include="Interfaces\IOfflineDataService.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Exceptions\FailedToConvertFromSerialized.cs" />
     <Compile Include="Services\OfflineDataService.cs" />
     <Compile Include="Helpers\OnScreenKeyboard.cs" />
     <Compile Include="Helpers\PrintReceiptScaled.cs" />
