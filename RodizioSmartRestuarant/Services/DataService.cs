@@ -133,7 +133,7 @@ namespace RodizioSmartRestuarant.Services
         }
         // REFACTOR: Please, for the love of God , Fix this
         // FIXME: Its just so all over th eplace
-        async Task UpdateOfflineData()
+        public async Task UpdateOfflineData()
         {
             // if its syncing then it shouldn't updateOfflineData, it also shouldn't update when the, Okay this one I'm not sure, Yewo's convoluted code
             if (branchId == "/" && syncing) return;
@@ -164,6 +164,7 @@ namespace RodizioSmartRestuarant.Services
                     OurBranch = b;
             }
             #endregion
+            #region Saves data
 
             List<List<IDictionary<string, object>>> holder = new List<List<IDictionary<string, object>>>();
 
@@ -201,6 +202,10 @@ namespace RodizioSmartRestuarant.Services
 
             new SerializedObjectManager().SaveData(onlineBranches.AsDictionary(), Directories.Branch);
 
+
+            #endregion
+
+
         }
 
         public async Task<List<T>> GetData<T>(string fullPath) where T: BaseEntity, new()
@@ -216,17 +221,13 @@ namespace RodizioSmartRestuarant.Services
 
         public async Task StoreDataOffline(string fullPath, object data) => await _offlineDataServices.OfflineStoreData(fullPath, data);
        
-
+        // TODO: This method seems dumb. How is this different from getting normal orders, there can be one line we can change
         public async Task<object> GetOfflineOrdersCompletedInclusive()
         {
-            object offlineData = null;
+            object recievedData = await OfflineDataContext.GetData(Directories.Order);
 
             // REFACTOR: have type checking in the dataservice
-            if (await OfflineDataContext.GetData(Directories.Order) is List<List<IDictionary<string, object>>>)
-                offlineData = (List<List<IDictionary<string, object>>>)await OfflineDataContext.GetData(Directories.Order);
-
-
-            offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
+            object offlineData = recievedData is List<List<IDictionary<string, object>>> ?  recievedData: new List<List<IDictionary<string, object>>>();
 
             List<Order> offlineOrders = new List<Order>();
 
@@ -385,7 +386,6 @@ namespace RodizioSmartRestuarant.Services
 
             new SerializedObjectManager().SaveOverwriteData(values, Directories.Account);
         }
-        public async Task StoreDataBaseLocally_InitialStartUp() => await UpdateOfflineData();
         //Including Completed
         public async Task SyncDataEndOfDay(List<Order> orders)
         {
@@ -439,7 +439,7 @@ namespace RodizioSmartRestuarant.Services
             }
 
             if (LocalStorage.Instance.networkIdentity.isServer)
-                OnDataChanging("Order/" + BranchSettings.Instance.branchId);
+                _firebaseServices.OnDataChanging("Order/" + BranchSettings.Instance.branchId);
         }
         public bool connected = false;
         bool lastStatus = false;
@@ -507,7 +507,7 @@ namespace RodizioSmartRestuarant.Services
             if (branchId != "/")
             {
                 string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                await StoreData_Online(destination, _offlineDataServices.GetOfflineData<T>(fullPath));
+                await StoreData_Online(destination, _offlineDataServices.GetOfflineDataArray<Order, OrderItem>(fullPath));
 
                 await DeleteData(fullPath);
             }

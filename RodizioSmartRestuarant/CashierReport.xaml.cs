@@ -3,6 +3,7 @@ using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +26,17 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class CashierReport : Window
     {
+        public bool IsClosed { get; private set; }
+
+        IDataService _dataService;
+
         public CashierReport()
         {
             InitializeComponent();
 
             GenerateReport();
         }
-        public bool IsClosed { get; private set; }
+        
 
         protected override void OnClosed(EventArgs e)
         {
@@ -48,7 +53,7 @@ namespace RodizioSmartRestuarant
 
             List<Order> orderItems = new List<Order>();
             //Offline include completed orders
-            orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());
 
             //Exclude Unpaid Orders
             List<Order> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();

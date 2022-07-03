@@ -21,6 +21,9 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <param name="directory"></param>
         void UpdateLocalStorage<T>(BaseAggregates<T> Aggregate, Directories directory);
 
+        Task UpdateOfflineData();
+
+        Task StoreDataOffline(string fullPath, object data);
         /// <summary>
         /// This is to get data whether online or offline
         /// </summary>
@@ -28,10 +31,15 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns></returns>
         Task<List<T>> GetData<T>(string fullPath) where T : BaseEntity, new();
 
+        Task<object> GetOfflineOrdersCompletedInclusive();
+
         /// <summary>
         /// This really shouldn't be here. This method is patch work cause we haven't masters events just yet.
         /// <para> But from what I understand, this is to change data so that the tick counter can start afresh to check for updates</para>
         /// </summary>
         void DataReceived();
+
+        // TODO: Make a OrderService
+        Task CancelOrder(Order orderItems);
     }
 }

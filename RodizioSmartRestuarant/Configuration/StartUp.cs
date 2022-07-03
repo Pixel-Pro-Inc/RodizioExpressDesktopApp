@@ -1,5 +1,6 @@
 ﻿using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,8 @@ namespace RodizioSmartRestuarant.Configuration
     {
         private App _app;
         public static StartUp Instance { get; set; }
+
+        IDataService _dataService;
 
         public StartUp()
         {
@@ -52,7 +55,7 @@ namespace RodizioSmartRestuarant.Configuration
             BranchSettings.Instance.Init();
 
             if (app.isInitialSetup)
-                await FirebaseDataContext.Instance.StoreDataBaseLocally_InitialStartUp();
+                await _dataService.UpdateOfflineData();
 
             ActivityIndicator.StartTimer();
 

@@ -39,6 +39,7 @@ namespace API.Services
 
             return objects;
         }
+        public void OnDataChanging(string fullPath) => _firebaseDataContext.OnDataChanging(fullPath);
 
     }
 }

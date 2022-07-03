@@ -1,6 +1,7 @@
 ﻿using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Exceptions;
+using RodizioSmartRestuarant.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,14 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns></returns>
         /// <remarks> Within the method is logic that tries to change the response to a JArray. Note that you cant try the response for both JArray and JObject</remarks>
         Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new();
+        /// <summary>
+        /// This is a method that checks if the data is that path has changed. Or At least I think thats what it does.
+        /// <para> Its uses a <see cref="EventStreamResponse"/> taken from the client using <see cref="IFirebaseClient.OnAsync(string, FireSharp.EventStreaming.ValueAddedEventHandler, FireSharp.EventStreaming.ValueChangedEventHandler, FireSharp.EventStreaming.ValueRemovedEventHandler, object)"/> 
+        ///. Its very weird, you would want to check out so just navigate to it</para>
+        /// </summary>
+        /// <remarks> Check <see cref="FirebaseDataContext"/> for more info </remarks>
+        /// <param name="fullPath"></param>
+        void OnDataChanging(string fullPath);
 
     }
 

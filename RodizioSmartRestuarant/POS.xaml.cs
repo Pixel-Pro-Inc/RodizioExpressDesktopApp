@@ -5,6 +5,7 @@ using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Interfaces;
 using Squirrel;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ namespace RodizioSmartRestuarant
         private static readonly HttpClient client = new HttpClient();
         public List<Order> orders = new List<Order>();
         private FirebaseDataContext firebaseDataContext;
+        IDataService _dataService;
         private bool showingResults;
 
         public POS()
@@ -71,10 +73,10 @@ namespace RodizioSmartRestuarant
 
             //ActivityIndicator.AddSpinner(spinner);
             #region We try to prepare online and offline data before updating
-            var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
+            var resultOnline = await _dataService.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
             //Offline include completed orders
-            List<Order> tempOffline = (List<Order>)(await firebaseDataContext.GetOfflineOrdersCompletedInclusive());
+            List<Order> tempOffline = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());
 
             //Online orders 
             // TODO: Check to see if completed ones are included
@@ -394,7 +396,7 @@ namespace RodizioSmartRestuarant
 
                 //Updates Locally Stored Data
                 //We use the variable orders since it has been updated to include all the latest information by the code above
-                firebaseDataContext.ResetLocalData(orders);
+                _dataService.ResetLocalData(orders);
                 //Updates Offline Client With Server Data
             });
         }
@@ -789,7 +791,7 @@ namespace RodizioSmartRestuarant
                     {
                         SendCancelSMS(orders[i][0].PhoneNumber, n.Remove(0, 11));
 
-                        await firebaseDataContext.CancelOrder(orders[i]);
+                        await _dataService.CancelOrder(orders[i]);
                     }
                 }
             }
@@ -823,11 +825,11 @@ namespace RodizioSmartRestuarant
                     foreach (var item in orders[i])
                     {
                         if (TCPServer.Instance != null)
-                            await firebaseDataContext.StoreDataOffline(fullPath, item);
+                            await _dataService.StoreDataOffline(fullPath, item);
                     }
 
                     if (TCPServer.Instance == null)
-                        await firebaseDataContext.StoreDataOffline("Order/", orders[i]);
+                        await _dataService.StoreDataOffline("Order/", orders[i]);
 
                     return;
                 }
@@ -882,7 +884,7 @@ namespace RodizioSmartRestuarant
         private void Statuses_Click(object sender, RoutedEventArgs e) => WindowManager.Instance.Open(new OrderStatus(orders));
         private async void Menu_Click(object sender, RoutedEventArgs e)
         {
-            if (!await FirebaseDataContext.Instance.connectionChecker.CheckConnection())
+            if (!await new ConnectionChecker().CheckConnection())
             {
                 ShowWarning("You need to be online or on the server computer to access the menu page.");
                 return;
@@ -1013,11 +1015,11 @@ namespace RodizioSmartRestuarant
 
                 // REFACTOR: Why do we have to check for each item in the order?
                 if (TCPServer.Instance != null)
-                    await firebaseDataContext.StoreDataOffline(fullPath, item);
+                    await _dataService.StoreDataOffline(fullPath, item);
             }
 
             if (TCPServer.Instance == null)
-                await firebaseDataContext.StoreDataOffline("Order/", order);
+                await _dataService.StoreDataOffline("Order/", order);
         }
 
         async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);
