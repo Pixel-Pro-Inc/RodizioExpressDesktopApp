@@ -300,7 +300,9 @@ namespace RodizioSmartRestuarant.Helpers
                     {
                         OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
 
-                    LocalDataChange();
+                        LocalDataChange();
+                        break;
+                    }
                     break;
             }
         }

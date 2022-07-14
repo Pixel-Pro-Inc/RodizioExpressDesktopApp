@@ -228,7 +228,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 DrawSimpleString(number, _minifont, Offset, 35);
 
-                Offset = Offset + 17;
+                /*Offset = Offset + 17;
                 underLine = "-------- TAX INVOICE ---------";
                 DrawLine(underLine, largefont, Offset, 0);
 
@@ -248,6 +248,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 Offset = Offset + smallinc;
                 InsertHeaderStyleItem("Inclusive: ", Formatting.FormatAmountString(total), Offset);
+                */
 
                 Offset = Offset + 7;
                 underLine = "-------------------------------------";
