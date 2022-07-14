@@ -58,9 +58,17 @@
                     <Button Background="OrangeRed"
                         Foreground="White"
                         Width="60"
+                            Margin="0,10,0,10"
                         Height="30"
                             Click="Card_Click"
                         FontWeight="Bold">Card</Button>
+
+                    <Button Background="OrangeRed"
+                        Foreground="White"
+                        Width="60"
+                        Height="30"
+                            Click="Split_Click"
+                        FontWeight="Bold">Split</Button>
 
                     <Button Background="OrangeRed"
                             Foreground="White"
@@ -71,14 +79,35 @@
                             FontWeight="Bold">Finish</Button>
                 </StackPanel>
 
-                <StackPanel Margin="20,0,0,0">                    
-                    <Label FontSize="10"
+                <StackPanel Margin="20,0,0,0">
+                    <StackPanel Name="amountPanel">
+                        <Label FontSize="10"
                            FontWeight="DemiBold">
-                        Enter Amount
-                    </Label>
-                    <TextBox Name="amountBox"
+                            Enter Amount
+                        </Label>
+                        <TextBox Name="amountBox"
                              IsEnabled="False"
                              TextChanged="amountBox_TextChanged"></TextBox>
+                    </StackPanel>
+                    
+                    <StackPanel Visibility="Collapsed" Name="splitPayView">
+                        <StackPanel>
+                            <Label FontSize="10"
+                           FontWeight="DemiBold">
+                                Enter Cash Amount
+                            </Label>
+                            <TextBox Name="cashBox"
+                             TextChanged="splitBox_TextChanged"></TextBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <Label FontSize="10"
+                           FontWeight="DemiBold">
+                                Enter Card Amount
+                            </Label>
+                            <TextBox Name="cardBox"
+                             TextChanged="splitBox_TextChanged"></TextBox>
+                        </StackPanel>
+                    </StackPanel>
 
                     <TextBlock FontSize="30"
                            FontWeight="DemiBold">

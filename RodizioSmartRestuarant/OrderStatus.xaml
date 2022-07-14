@@ -49,5 +49,55 @@
 
         <Button Name="maxButton" Height="20" Width="100" Click="Maximize_Click">Maximize</Button>
 
+            <Border Grid.Row="0" Grid.ColumnSpan="2">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#292929" Offset=".9"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Grid.Row="1" Grid.ColumnSpan="2">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="Red" Offset=".9"></GradientStop>
+                        <GradientStop Color="#292929" Offset="-.5"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!--Menu Scroll Element-->
+            <StackPanel>
+                <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Name="menuScroller_1">
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Name="menuScroller_2">
+                </StackPanel>
+            </StackPanel>
+            
+            <!--Logo Panel-->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal">
+                <StackPanel Margin="20,0,0,10">
+                    <Image Source="Images/rodizio_express_logo.png"
+                       Width="250"
+                       Height="70"
+                       Margin="0,5,0,0"
+                       VerticalAlignment="Top"/>
+                    <TextBlock FontSize="15"
+                               FontWeight="Bold"
+                               Name="phoneNumberText"
+                               Foreground="White">Tel : </TextBlock>
+                    <TextBlock FontSize="15"
+                               FontWeight="Bold"
+                               Foreground="White">Website : rodizioexpress.com</TextBlock>
+                </StackPanel>              
+                
+            </StackPanel>
+        </Grid>
+
+        <Button Name="maxButton" Height="20" Width="100" Click="Maximize_Click">Maximize</Button>
     </Grid>
 </Window>

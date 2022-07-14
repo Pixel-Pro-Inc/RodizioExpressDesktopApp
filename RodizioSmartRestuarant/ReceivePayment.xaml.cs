@@ -180,8 +180,15 @@ namespace RodizioSmartRestuarant
                     {
                         item.WaitingForPayment = false;
                         item.Purchased = true;
-                        item.Preparable = true;
+                        item.Preparable = true;                        
                         item.PaymentMethod = method;
+
+                        if (method != "split")
+                            continue;
+
+                        item.SplitPayment = true;
+                        item.paymentMethods.Add("cash"); item.paymentMethods.Add("card");
+                        item.payments.Add((float.Parse(cashBox.Text)).ToString("f2")); item.payments.Add((float.Parse(cardBox.Text)).ToString("f2"));
                     }
 
                     _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
@@ -199,6 +206,8 @@ namespace RodizioSmartRestuarant
         {
             amountBox.Text = Formatting.FormatAmountString(total);
             method = "card";
+            amountPanel.Visibility = Visibility.Visible;
+            splitPayView.Visibility = Visibility.Collapsed;
 
             amountBox.IsEnabled = false;
         }
@@ -207,8 +216,19 @@ namespace RodizioSmartRestuarant
         {
             amountBox.Text = "";
             method = "cash";
+            amountPanel.Visibility = Visibility.Visible;
+            splitPayView.Visibility = Visibility.Collapsed;
 
             amountBox.IsEnabled = true;
+        }
+        //An option of whether the customer is using a cash
+        private void Split_Click(object sender, RoutedEventArgs e)
+        {
+            method = "split";
+            amountPanel.Visibility = Visibility.Collapsed;
+            splitPayView.Visibility = Visibility.Visible;
+
+            amountBox.IsEnabled = false;
         }
         //This event handler calculates and displays the change amount in real time
         private void amountBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -221,6 +241,20 @@ namespace RodizioSmartRestuarant
                 changeAmt.Content = change.ToString("f2");
             }
         }
+        private void splitBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            float tempCard = 0;
+            float tempCash = 0;
+            if (float.TryParse(cashBox.Text, out tempCash))
+            {
+                if (float.TryParse(cardBox.Text, out tempCard))
+                {
+                    float change = (tempCash + tempCard) - total;
+
+                    changeAmt.Content = change.ToString("f2");
+                }
+            }
+        }
         //This method prints a receipt
         void PrintReceipt(List<OrderItem> orderItem, Branch branch)
         {
@@ -230,6 +264,16 @@ namespace RodizioSmartRestuarant
                 float amount = float.Parse(amountBox.Text);
 
                 new ReceiptSlip.PrintJob(orderItem, branch, amount, change).Print(BranchSettings.Instance.printerName);
+            }
+            else
+            {
+                if(method == "split")
+                {
+                    float change = float.Parse(changeAmt.Content.ToString());
+                    float amount = float.Parse(cashBox.Text) + float.Parse(cardBox.Text);
+
+                    new ReceiptSlip.PrintJob(orderItem, branch, amount, change).Print(BranchSettings.Instance.printerName);
+                }
             }            
         }
 

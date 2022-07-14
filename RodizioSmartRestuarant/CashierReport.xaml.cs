@@ -38,6 +38,8 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
 
+        float cardTotal = 0;
+        float cashTotal = 0;
         async void GenerateReport()
         {
             //Name
@@ -62,8 +64,7 @@ namespace RodizioSmartRestuarant
             }
 
 
-            //Cash Orders Total
-            float cashTotal = 0;
+            //Cash Orders Total            
             foreach (var order in cashOrders)
             {
                 for (int i = 0; i < order.Count; i++)
@@ -84,8 +85,7 @@ namespace RodizioSmartRestuarant
             }
 
 
-            //Card Orders Total
-            float cardTotal = 0;
+            //Card Orders Total            
             foreach (var order in cardOrders)
             {
                 for (int i = 0; i < order.Count; i++)
@@ -95,26 +95,42 @@ namespace RodizioSmartRestuarant
             }
 
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
+
+            //Split Orders Summary
+            List<List<OrderItem>> splitOrders = new List<List<OrderItem>>();
+            splitOrders = GetRelevantOrders("split", LocalStorage.Instance.user, orders);
+
+            foreach (var order in splitOrders)
+            {
+                cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "card"));
+                cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "cash"));
+
+                cardTotal += float.Parse(order[0].payments[1]);
+                cashTotal += float.Parse(order[0].payments[0]);
+            }
+
+
+            //Split Orders Total
+            foreach (var order in cardOrders)
+            {
+                for (int i = 0; i < order.Count; i++)
+                {
+                    cardTotal += float.Parse(order[i].Price);
+                }
+            }
+
+            cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
+            cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
         }
 
         List<List<OrderItem>> GetRelevantOrders(string paymentMethod, AppUser user, List<List<OrderItem>> allPaidOrders)
         {
-            List<List<OrderItem>> relevantOrders = new List<List<OrderItem>>();
-
-            if(paymentMethod.ToLower().Trim() == "cash")
-            {
-                relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == "cash").ToList();
-            }
-
-            if (paymentMethod.ToLower().Trim() == "card")
-            {
-                relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == "card").ToList();
-            }
+            List<List<OrderItem>> relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == paymentMethod.ToLower().Trim()).ToList();
 
             return relevantOrders.Where(o => o[0].User.ToLower() == user.FullName().ToLower()).ToList();
         }
 
-        StackPanel GetOrderSummaryPanel(List<OrderItem> order)
+        StackPanel GetOrderSummaryPanel(List<OrderItem> order, string method = null)
         {
             StackPanel stackPanel = new StackPanel()
             {
@@ -130,21 +146,35 @@ namespace RodizioSmartRestuarant
                 Text = order[0].OrderNumber
             };
 
-            float totalPrice = 0;
-
-            foreach (var item in order)
+            if (!order[0].SplitPayment)
             {
-                totalPrice += float.Parse(item.Price);
+                float totalPrice = 0;
+
+                foreach (var item in order)
+                {
+                    totalPrice += float.Parse(item.Price);
+                }
+
+                TextBlock textBlock_1 = new TextBlock()
+                {
+                    FontSize = 15,
+                    Text = "BWP " + Formatting.FormatAmountString(totalPrice)
+                };
+
+                stackPanel.Children.Add(textBlock);
+                stackPanel.Children.Add(textBlock_1);
             }
-
-            TextBlock textBlock_1 = new TextBlock()
+            else
             {
-                FontSize = 15,
-                Text = "BWP " + Formatting.FormatAmountString(totalPrice)
-            };
+                TextBlock textBlock_1 = new TextBlock()
+                {
+                    FontSize = 15,
+                    Text = "BWP " + Formatting.FormatAmountString(method == "cash"? float.Parse(order[0].payments[0]) : float.Parse(order[0].payments[1]))
+                };
 
-            stackPanel.Children.Add(textBlock);
-            stackPanel.Children.Add(textBlock_1);
+                stackPanel.Children.Add(textBlock);
+                stackPanel.Children.Add(textBlock_1);
+            }
 
             return stackPanel;
         }

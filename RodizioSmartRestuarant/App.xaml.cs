@@ -1,5 +1,7 @@
 ﻿using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Helpers;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -52,7 +54,7 @@ namespace RodizioSmartRestuarant
         {
             string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
 
-            string fileName = "error_log.txt";
+            string fileName = $"error_log[{DateTime.Now.ToString()}].txt";
 
             // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works
             // SendErrorlogSMS(e.ExceptionObject.ToString());
@@ -70,7 +72,33 @@ namespace RodizioSmartRestuarant
 
             File.WriteAllText(folder + "/" + fileName, System.DateTime.Now.ToString() + "_" + e.ExceptionObject.ToString());
 
+            SendEmail(e);
+        }
 
+        async void SendEmail(UnhandledExceptionEventArgs e)
+        {
+            var apiKey = "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";
+
+            var client = new SendGridClient(apiKey);
+
+            string userCode = "Rodizio Express Error Logger";
+
+            var recipients = new List<string>() { "pixelprocompanyco@gmail.com",
+                "yewotheu123456789@gmail.com","apexmachine2@gmail.com"};
+
+            string _subject = "POS Terminal Error" + System.DateTime.Now.ToString();
+
+            foreach (var reciepient in recipients)
+            {
+                var from = new EmailAddress("corecommunications2022@gmail.com", userCode);
+                var subject = _subject;
+                var to = new EmailAddress(reciepient);
+                var plainTextContent = _subject;
+                var htmlContent = System.DateTime.Now.ToString() + "_" + e.ExceptionObject.ToString();
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+
+                await client.SendEmailAsync(msg).ConfigureAwait(false);
+            }
         }
         async void SendErrorlogSMS(string errorlog)=> await client.PostAsync("https://rodizioexpress.com/api/sms/send/errorlogging/" + errorlog, null);
 
