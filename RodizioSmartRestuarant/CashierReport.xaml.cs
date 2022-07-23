@@ -109,16 +109,6 @@ namespace RodizioSmartRestuarant
                 cashTotal += float.Parse(order[0].payments[0]);
             }
 
-
-            //Split Orders Total
-            foreach (var order in cardOrders)
-            {
-                for (int i = 0; i < order.Count; i++)
-                {
-                    cardTotal += float.Parse(order[i].Price);
-                }
-            }
-
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
             cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
         }
