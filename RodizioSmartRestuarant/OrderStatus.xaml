@@ -12,7 +12,7 @@
 
     <Grid>
         <!-- Order Statuses -->
-        <Grid Name="statusGrid" Visibility="Visible">
+        <Grid Name="statusGrid" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="100"/>
                 <RowDefinition/>
@@ -52,7 +52,7 @@
 
         </Grid>
         <!-- Menu Scroller-->
-        <Grid Name="menuGrid" Visibility="Collapsed">
+        <Grid Name="menuGrid">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="125"/>
