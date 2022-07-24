@@ -28,13 +28,28 @@ namespace RodizioSmartRestuarant.Interfaces
         /// </summary>
         void SetBranchId();
 
-        Task StoreDataOffline(string fullPath, object data);
+        Task StoreData(string fullPath, object data);
+
         /// <summary>
-        /// This is to get data whether online or offline. NOTE: As it stands it gets only single types, not Aggregate types
+        /// This is to get data whether online or offline. It gets only single types, not Aggregate types
+        /// </summary>
+        /// <typeparam name="Entity"></typeparam>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        Task<List<Entity>> GetData<Entity>(string fullPath) where Entity : BaseEntity, new();
+        /// <summary>
+        /// This is to get data whether online or offline.It gets only Aggregate types, not single types
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new();
+
+        /// <summary>
+        /// Removes the data from the database if there is connection and locally in the other case
         /// </summary>
         /// <param name="fullPath"></param>
         /// <returns></returns>
-        Task<List<T>> GetData<T>(string fullPath) where T : BaseEntity, new();
+        Task DeleteData(string fullPath);
 
         Task<object> GetOfflineOrdersCompletedInclusive();
 

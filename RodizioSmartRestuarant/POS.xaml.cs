@@ -73,23 +73,13 @@ namespace RodizioSmartRestuarant
 
             //ActivityIndicator.AddSpinner(spinner);
             #region We try to prepare online and offline data before updating
-            var resultOnline = await _dataService.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
             //Offline include completed orders
             List<Order> tempOffline = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());
 
             //Online orders 
             // TODO: Check to see if completed ones are included
-            List<Order> tempOnline = new List<Order>();
-
-            foreach (var item in resultOnline)
-            {
-                Order data = new Order();
-
-                data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
-
-                tempOnline.Add(data);
-            }
+            List<Order> tempOnline = await _dataService.GetDataArray<Order, OrderItem>("Order/" + BranchSettings.Instance.branchId);
 
             //Compare online orders with offline orders(Completed Order Inclusive)
 
@@ -825,11 +815,11 @@ namespace RodizioSmartRestuarant
                     foreach (var item in orders[i])
                     {
                         if (TCPServer.Instance != null)
-                            await _dataService.StoreDataOffline(fullPath, item);
+                            await _dataService.StoreData(fullPath, item);
                     }
 
                     if (TCPServer.Instance == null)
-                        await _dataService.StoreDataOffline("Order/", orders[i]);
+                        await _dataService.StoreData("Order/", orders[i]);
 
                     return;
                 }
@@ -1015,11 +1005,11 @@ namespace RodizioSmartRestuarant
 
                 // REFACTOR: Why do we have to check for each item in the order?
                 if (TCPServer.Instance != null)
-                    await _dataService.StoreDataOffline(fullPath, item);
+                    await _dataService.StoreData(fullPath, item);
             }
 
             if (TCPServer.Instance == null)
-                await _dataService.StoreDataOffline("Order/", order);
+                await _dataService.StoreData("Order/", order);
         }
 
         async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);

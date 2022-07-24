@@ -67,11 +67,11 @@ namespace RodizioSmartRestuarant.Services
                 string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
 
                 if (TCPServer.Instance != null)
-                    await StoreDataOffline(fullPath, item);//Remove from order view on all network devices
+                    await StoreData(fullPath, item);//Remove from order view on all network devices
             }
 
             if (TCPServer.Instance == null)
-                await StoreDataOffline("Order/", orderItems);
+                await StoreData("Order/", orderItems);
         }
         public async Task CancelOrder_Offline(string orderInvoice)
         {
@@ -86,7 +86,7 @@ namespace RodizioSmartRestuarant.Services
                     order[0].User = LocalStorage.Instance.user.FullName();
                 }
 
-                await StoreData_Online(destination, Orders);
+                await StoreData(destination, Orders);
 
                 await DeleteData(orderInvoice);
             }
@@ -108,12 +108,35 @@ namespace RodizioSmartRestuarant.Services
             return false;
         }
 
+        public async Task<List<Entity>> GetData<Entity>(string fullPath) where Entity : BaseEntity, new()
+        {
+            // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
+            // hence if false, it will fire offline
+            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineData<Entity>(fullPath);
+
+            await SetLastActive();
+
+            return await _firebaseServices.GetData<Entity>(fullPath);
+
+        }
+        public async Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new()
+        {
+            // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
+            // hence if false, it will fire offline
+            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineDataArray<Aggregate, Entity>(path);
+
+            await SetLastActive();
+
+            return await _firebaseServices.GetDataArray<Aggregate, Entity>(path);
+
+        }
         public void UpdateLocalStorage<T>(BaseAggregates<T> Aggregate, Directories directory)
         {
             if (BranchSettings.Instance.branchId == "/")
                 return;
 
             //Delete Local Menu
+            // @Yewo: I have no Idea why you do this, like why doe
             new SerializedObjectManager().DeleteData(Directories.Menu);
 
             List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
@@ -208,33 +231,6 @@ namespace RodizioSmartRestuarant.Services
 
         }
 
-        public async Task<List<T>> GetData<T>(string fullPath) where T: BaseEntity, new()
-        {
-            // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
-            // hence if false, it will fire offline
-            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineData<T>(fullPath);
-
-            await SetLastActive();
-
-            return await _firebaseServices.GetData<T>(fullPath);
-
-        }
-        public async Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new()
-        {
-            List<Aggregate> objects = new List<Aggregate>();
-
-            // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
-            // hence if false, it will fire offline
-            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineDataArray<Aggregate, Entity>(path);
-
-            await SetLastActive();
-
-            return await _firebaseServices.GetDataArray<Aggregate, Entity>(path);
-
-        }
-
-        public async Task StoreDataOffline(string fullPath, object data) => await _offlineDataServices.OfflineStoreData(fullPath, data);
-       
         // TODO: This method seems dumb. How is this different from getting normal orders, there can be one line we can change
         public async Task<object> GetOfflineOrdersCompletedInclusive()
         {
@@ -260,10 +256,15 @@ namespace RodizioSmartRestuarant.Services
 
         public async Task DeleteData(string fullPath)
         {
-            // REFACTOR: Consider throwing a noNetwork error here
-            if (!await connectionChecker.CheckConnection()) return;
-            await SetLastActive();
-            _firebaseServices.DeleteData(fullPath);
+
+            _offlineDataServices.OfflineDeleteData(fullPath);
+            // if there is connection
+            if (await connectionChecker.CheckConnection())
+            {
+                await SetLastActive();
+                _firebaseServices.DeleteData(fullPath);
+            }
+           
         }
         // REFACTOR: This method is too similar to the one that has line 231 StoreData_Online(), consider using base method and overrides or simply extracting the logic
         public async Task EditData_Online(string fullPath, object data)
@@ -370,12 +371,19 @@ namespace RodizioSmartRestuarant.Services
                 syncing = false;
             }
         }
-        public async Task StoreData_Online(string fullPath, object data)
+        public async Task StoreData(string fullPath, object data)
         {
-            if (!await connectionChecker.CheckConnection()) await _offlineDataServices.OfflineStoreData(fullPath, data);
-            await SetLastActive();
-
-            _firebaseServices.StoreData(fullPath, data);
+            await _offlineDataServices.OfflineStoreData(fullPath, data);
+            if (await connectionChecker.CheckConnection())
+            {
+                await SetLastActive();
+                _firebaseServices.StoreData(fullPath, data);
+            }
+            else
+            {
+                throw new NoNetworkException();
+            }
+           
 
             // TODO: Similar work
             //if (fullPath.ToLower().Contains("menu"))
@@ -386,7 +394,7 @@ namespace RodizioSmartRestuarant.Services
         {
             // If there is no connection there is no way it can sync so should return false
             if (!await connectionChecker.CheckConnection()) return false;
-            await StoreData_Online(fullPath, data);
+            await StoreData(fullPath, data);
             return true;
         }
 
@@ -512,7 +520,7 @@ namespace RodizioSmartRestuarant.Services
             if (branchId != "/")
             {
                 string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                await StoreData_Online(destination, _offlineDataServices.GetOfflineDataArray<Order, OrderItem>(fullPath));
+                await StoreData(destination, _offlineDataServices.GetOfflineDataArray<Order, OrderItem>(fullPath));
 
                 await DeleteData(fullPath);
             }

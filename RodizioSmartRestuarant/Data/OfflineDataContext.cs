@@ -87,25 +87,7 @@ namespace RodizioSmartRestuarant.Data
         }
 
         #endregion
-        #region Store
 
-        public async static void StoreData(Directories path, object data)
-        {
-            if (LocalStorage.Instance.networkIdentity.isServer)
-            {
-                new SerializedObjectManager().SaveData(data, path);
-                LocalDataChange();
-                return;
-            }
-
-            while (TCPClient.processingRequest)
-            {
-                await Task.Delay(25);
-            }
-
-            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
-        }
-        // REFACTOR: Above too similiar, consider base method, override or extract method
         public async static void StoreDataOverwrite(Directories path, object data)
         {
             if (LocalStorage.Instance.networkIdentity.isServer)
@@ -122,8 +104,6 @@ namespace RodizioSmartRestuarant.Data
 
             await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
         }
-
-        #endregion
 
     }
 }

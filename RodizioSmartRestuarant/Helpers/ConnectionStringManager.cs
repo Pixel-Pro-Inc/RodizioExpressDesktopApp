@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Configuration;
+using RodizioSmartRestuarant.Exceptions;
 
 namespace RodizioSmartRestuarant.Helpers
 {

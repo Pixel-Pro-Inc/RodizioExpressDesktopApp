@@ -382,6 +382,7 @@
     <Compile Include="Interfaces\IOfflineDataService.cs" />
     <Compile Include="Services\DataService.cs" />
     <Compile Include="Exceptions\FailedToConvertFromSerialized.cs" />
+    <Compile Include="Exceptions\NoNetwork.cs" />
     <Compile Include="Services\OfflineDataService.cs" />
     <Compile Include="Helpers\OnScreenKeyboard.cs" />
     <Compile Include="Helpers\PrintReceiptScaled.cs" />

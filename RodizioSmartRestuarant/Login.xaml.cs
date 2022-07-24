@@ -178,7 +178,7 @@ namespace RodizioSmartRestuarant
             List<AppUser> users = await _dataService.GetData<AppUser>("Account");
 
             // REFACTOR: Good place to put a null Guard
-            await _dataService.StoreDataOffline("Account/",users);
+            await _dataService.StoreData("Account/",users);
 
             return users;
         }

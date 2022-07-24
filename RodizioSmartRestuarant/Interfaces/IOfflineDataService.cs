@@ -36,5 +36,12 @@ namespace RodizioSmartRestuarant.Interfaces
         Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new();
         Task OfflineStoreData(string fullPath, object data);
 
+        /// <summary>
+        /// We don't have a method that called to delete data locally. When the need arises replace this with that
+        /// But this basically uses <see cref="OfflineDataContext.DeleteOrder(Directory, Order)"/>
+        /// </summary>
+        /// <param name="order"></param>
+        void OfflineDeleteOrder(Order order);
+        void OfflineDeleteData(string fullPath);
     }
 }

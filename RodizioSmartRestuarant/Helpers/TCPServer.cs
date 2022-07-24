@@ -12,6 +12,7 @@ using RodizioSmartRestuarant.Entities;
 using System.Net.NetworkInformation;
 using System.Windows.Threading;
 using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant.Helpers
 {
@@ -20,6 +21,10 @@ namespace RodizioSmartRestuarant.Helpers
         public static TCPServer Instance { get; set; }
         //This is the server method that will give us all our server properties?
         public SimpleTcpServer server = null;
+
+        IDataService _dataService;
+        IOfflineDataService _offlineDataService;
+
         public List<string> networkIps = new List<string>();
         public string lastRequestSource;
         public bool localDataInUse = false;
@@ -229,7 +234,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 // FIXME: Here you should use DataService since it will give you data whether it is online or offline
                 case RequestObject.requestMethod.Get:
-                    var result = await GetOfflineData(request.fullPath);
+                    var result = await _dataService.GetOfflineData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
@@ -241,16 +246,16 @@ namespace RodizioSmartRestuarant.Helpers
 
                         request.data = JsonConvert.DeserializeObject<OrderItem>(obj.ToString());
                     }
-                    await OfflineStoreData(request.fullPath, request.data);
+                    await _dataService.StoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Update:
-                    await OfflineStoreData(request.fullPath, request.data);
+                    await _dataService.StoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Delete:
-                    OfflineDeleteOrder((Order)request.data);
+                    _offlineDataService.OfflineDeleteOrder((Order)request.data);
                     break;
                 case RequestObject.requestMethod.UpdateLocalDataRequest:
-                    var result_1 = await GetOfflineData(request.fullPath);
+                    var result_1 = await _offlineDataService.GetOfflineData(request.fullPath);
                     SendData(ipPort, result_1, request.fullPath);
                     break;
             }

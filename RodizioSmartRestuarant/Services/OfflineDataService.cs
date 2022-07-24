@@ -295,7 +295,11 @@ namespace RodizioSmartRestuarant.Helpers
         #endregion
         #region Update
 
-        protected void OfflineDeleteOrder(Order order) => OfflineDataContext.DeleteOrder(Directories.Order, order);
+        public void OfflineDeleteOrder(Order order) => OfflineDataContext.DeleteOrder(Directories.Order, order);
+        public void OfflineDeleteData(string fullPath)
+        {
+            throw new NotImplementedException("Youre lazy, you should put logic so that it deletes based only on the path provided");
+        }
         protected void LocalDataChange()
         {
             WindowManager.Instance.UpdateAllOrderViews_Offline();
