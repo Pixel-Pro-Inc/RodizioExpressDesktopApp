@@ -49,15 +49,10 @@ namespace RodizioSmartRestuarant.Helpers
                     File.Delete(savePath(paths[i]) + "/data.txt");
             }           
         }
-        public void DeleteData()
+        public void DeleteData(Directories dir)
         {
-            if (File.Exists(savePath(Directories.Order) + "/data.txt"))
-                File.Delete(savePath(Directories.Order) + "/data.txt");
-        }
-        public void DeleteMenu()
-        {
-            if (File.Exists(savePath(Directories.Menu) + "/data.txt"))
-                File.Delete(savePath(Directories.Menu) + "/data.txt");
+            if (File.Exists(savePath(dir) + "/data.txt"))
+                File.Delete(savePath(dir) + "/data.txt");
         }
         public void SaveData(object serializedData, Directories dir)
         {

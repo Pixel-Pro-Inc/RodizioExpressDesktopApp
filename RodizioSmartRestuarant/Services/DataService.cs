@@ -114,7 +114,7 @@ namespace RodizioSmartRestuarant.Services
                 return;
 
             //Delete Local Menu
-            new SerializedObjectManager().DeleteMenu();
+            new SerializedObjectManager().DeleteData(Directories.Menu);
 
             List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
 
@@ -220,6 +220,7 @@ namespace RodizioSmartRestuarant.Services
 
         }
 
+
         public async Task StoreDataOffline(string fullPath, object data) => await _offlineDataServices.OfflineStoreData(fullPath, data);
        
         // TODO: This method seems dumb. How is this different from getting normal orders, there can be one line we can change
@@ -288,8 +289,8 @@ namespace RodizioSmartRestuarant.Services
                     orders.Add(item);
             }
 
-            //Clear hdd data
-            new SerializedObjectManager().DeleteData();
+            //Clear hdd data of orders
+            new SerializedObjectManager().DeleteData(Directories.Order);
 
             //Store data
             List<List<IDictionary<string, object>>> holder = new List<List<IDictionary<string, object>>>();

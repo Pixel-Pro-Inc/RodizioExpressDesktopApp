@@ -281,7 +281,7 @@ namespace RodizioSmartRestuarant.Helpers
                     {
                         throw new TypeLoadException("Something when wrong. The computer thinks that we want a list of AppUsers but can't identify the data as such");
                     }
-                        foreach (var person in (List<AppUser>)data)
+                    foreach (var person in (List<AppUser>)data)
                     {
                         Users.Add(person.AsDictionary());
                     }

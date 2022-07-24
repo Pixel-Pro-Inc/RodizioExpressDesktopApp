@@ -11,7 +11,7 @@ namespace RodizioSmartRestuarant.Interfaces
     /// <summary>
     /// This service handles all things offline. It primarily talks to <see cref="IDataService"/> and I don't expect it to be used anywhere else
     /// </summary>
-    interface IOfflineDataService:IBaseService
+    public interface IOfflineDataService:IBaseService
     {
         /// <summary>
         /// This will take the <typeparamref name="Entity"/> type you are looking for, and give you a <see cref="List{Entity}"/>s
