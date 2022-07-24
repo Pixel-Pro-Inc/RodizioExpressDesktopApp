@@ -219,7 +219,19 @@ namespace RodizioSmartRestuarant.Services
             return await _firebaseServices.GetData<T>(fullPath);
 
         }
+        public async Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new()
+        {
+            List<Aggregate> objects = new List<Aggregate>();
 
+            // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
+            // hence if false, it will fire offline
+            if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineDataArray<Aggregate, Entity>(path);
+
+            await SetLastActive();
+
+            return await _firebaseServices.GetDataArray<Aggregate, Entity>(path);
+
+        }
 
         public async Task StoreDataOffline(string fullPath, object data) => await _offlineDataServices.OfflineStoreData(fullPath, data);
        
