@@ -211,6 +211,7 @@ namespace RodizioSmartRestuarant.Services
         public async Task<List<T>> GetData<T>(string fullPath) where T: BaseEntity, new()
         {
             // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
+            // hence if false, it will fire offline
             if (!await connectionChecker.CheckConnection()) return await _offlineDataServices.GetOfflineData<T>(fullPath);
 
             await SetLastActive();
@@ -375,17 +376,7 @@ namespace RodizioSmartRestuarant.Services
             await StoreData_Online(fullPath, data);
             return true;
         }
-        public void StoreUserDataLocally(List<AppUser> users)
-        {
-            List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
 
-            foreach (var item in users)
-            {
-                values.Add(item.AsDictionary());
-            }
-
-            new SerializedObjectManager().SaveOverwriteData(values, Directories.Account);
-        }
         //Including Completed
         public async Task SyncDataEndOfDay(List<Order> orders)
         {
@@ -451,6 +442,7 @@ namespace RodizioSmartRestuarant.Services
 
             if (connected && !lastStatus)
             {
+                // This line is useless since you do this already 5 lines down
                 lastStatus = status;
                 BackOnline();
             }

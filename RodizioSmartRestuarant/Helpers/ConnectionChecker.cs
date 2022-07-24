@@ -3,6 +3,7 @@ using FireSharp.Interfaces;
 using FireSharp.Response;
 using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
+using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace RodizioSmartRestuarant.Helpers
         };
 
         IFirebaseClient client;
+        IDataService _dataService;
         public int notifCount = 0;
         public async Task<bool> CheckConnection()
         {
@@ -38,7 +40,7 @@ namespace RodizioSmartRestuarant.Helpers
 
                 if (notifCount != 0)
                 {
-                    FirebaseDataContext.Instance.ToggleConnectionStatus(result);
+                    _dataService.ToggleConnectionStatus(result);
 
                     return result;
                 }                    
@@ -47,7 +49,7 @@ namespace RodizioSmartRestuarant.Helpers
                 new Notification("Connectivity", "You're offline. you can continue working offline but you'll miss out on new orders made by customers. Get back online as soon as possible.");
             }
 
-            FirebaseDataContext.Instance.ToggleConnectionStatus(result);
+            _dataService.ToggleConnectionStatus(result);
             
             return result;
         }

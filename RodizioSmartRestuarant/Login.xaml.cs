@@ -19,6 +19,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant
 {
@@ -28,6 +29,7 @@ namespace RodizioSmartRestuarant
     public partial class Login : Window
     {
         private FirebaseDataContext fireBaseDataContext = FirebaseDataContext.Instance;
+        IDataService _dataService;
         public Login()
         {
             InitializeComponent();
@@ -173,19 +175,10 @@ namespace RodizioSmartRestuarant
 
         async Task<List<AppUser>> GetUsers()
         {
-            // REFACTOR: From line 177 to line 186 I have seen this code often enough times that I want to extract it
-            var result = await fireBaseDataContext.GetData_Online("Account");
+            List<AppUser> users = await _dataService.GetData<AppUser>("Account");
 
-            List<AppUser> users = new List<AppUser>();
-
-            foreach (var item in result)
-            {
-                var u = JsonConvert.DeserializeObject<AppUser>(((JObject)item).ToString());
-
-                users.Add(u);
-            }
-
-            FirebaseDataContext.Instance.StoreUserDataLocally(users);
+            // REFACTOR: Good place to put a null Guard
+            await _dataService.StoreDataOffline("Account/",users);
 
             return users;
         }

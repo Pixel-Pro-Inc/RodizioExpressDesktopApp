@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
+using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace RodizioSmartRestuarant.Configuration
     public class BranchSettings
     {
         public static BranchSettings Instance { get; set; }
+        IDataService _dataService { get; set; }
         public string branchId { get; set; }
         public string printerName { get; set; }
         public Branch branch { get; set; }
@@ -43,7 +45,7 @@ namespace RodizioSmartRestuarant.Configuration
                     printerName = pName;
 
                     FirebaseDataContext.Instance = new FirebaseDataContext();
-                    FirebaseDataContext.Instance.SetBranchId();
+                    _dataService.SetBranchId();
                 }
             }
         }

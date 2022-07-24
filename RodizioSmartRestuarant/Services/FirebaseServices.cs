@@ -34,7 +34,7 @@ namespace API.Services
             List<Aggregate> objects = new List<Aggregate>();
 
             var response = await _firebaseDataContext.GetData(path);
-            // Here you might get errors cause at some point it was refusing to take the correct overload
+            // NOTE: Here you might get errors cause at some point it was refusing to take the correct overload
             objects = response.FromJsonToObjectArray<Aggregate>();
 
             return objects;

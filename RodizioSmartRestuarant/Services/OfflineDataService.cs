@@ -272,6 +272,23 @@ namespace RodizioSmartRestuarant.Helpers
 
                     LocalDataChange();
                     break;
+                case Directories.Account:
+
+                    List<IDictionary<string, object>> Users = new List<IDictionary<string, object>>();
+
+                    // if it not an appUser then it 
+                    if (!(data is List<AppUser>))
+                    {
+                        throw new TypeLoadException("Something when wrong. The computer thinks that we want a list of AppUsers but can't identify the data as such");
+                    }
+                        foreach (var person in (List<AppUser>)data)
+                    {
+                        Users.Add(person.AsDictionary());
+                    }
+
+                    new SerializedObjectManager().SaveOverwriteData(Users, Directories.Account);
+
+                    break;
             }
         }
 

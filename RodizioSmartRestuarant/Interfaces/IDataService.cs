@@ -14,7 +14,7 @@ namespace RodizioSmartRestuarant.Interfaces
     public interface IDataService:IBaseService
     {
         /// <summary>
-        /// Takes an <paramref name="Aggregate"/> and stores the data in the locally and updates the changes using <see cref="OfflineDataContext.LocalDataChange()"/>
+        /// Takes an <paramref name="Aggregate"/> and stores the data locally and updates the changes using <see cref="OfflineDataContext.LocalDataChange()"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Aggregate"></param>
@@ -23,9 +23,14 @@ namespace RodizioSmartRestuarant.Interfaces
 
         Task UpdateOfflineData();
 
+        /// <summary>
+        /// This adds '/' and the static branch setting instance branch id. Note that there hasn't been a check if there is already a branch id set
+        /// </summary>
+        void SetBranchId();
+
         Task StoreDataOffline(string fullPath, object data);
         /// <summary>
-        /// This is to get data whether online or offline
+        /// This is to get data whether online or offline. NOTE: As it stands it gets only single types, not Aggregate types
         /// </summary>
         /// <param name="fullPath"></param>
         /// <returns></returns>
@@ -38,6 +43,12 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <para> But from what I understand, this is to change data so that the tick counter can start afresh to check for updates</para>
         /// </summary>
         void DataReceived();
+
+        /// <summary>
+        /// This basically gives the 'connected' bool the status you input and works accordingly if reconnected after offline status
+        /// </summary>
+        /// <param name="status"></param>
+        void ToggleConnectionStatus(bool status);
 
         // TODO: Make a OrderService
         Task CancelOrder(Order orderItems);
