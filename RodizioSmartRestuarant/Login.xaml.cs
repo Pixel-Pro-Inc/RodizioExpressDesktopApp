@@ -175,7 +175,7 @@ namespace RodizioSmartRestuarant
 
         async Task<List<AppUser>> GetUsers()
         {
-            List<AppUser> users = await _dataService.GetData<AppUser>("Account");
+            List<AppUser> users =(List<AppUser>) await _dataService.GetData("Account");
 
             // REFACTOR: Good place to put a null Guard
             await _dataService.StoreData("Account/",users);

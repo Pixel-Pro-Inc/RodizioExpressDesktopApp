@@ -4,11 +4,13 @@ using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Exceptions;
 using RodizioSmartRestuarant.Extensions;
 using RodizioSmartRestuarant.Helpers;
 using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using static RodizioSmartRestuarant.Entities.Enums;
@@ -108,7 +110,50 @@ namespace RodizioSmartRestuarant.Services
             return false;
         }
 
-        public async Task<List<Entity>> GetData<Entity>(string fullPath) where Entity : BaseEntity, new()
+        public async Task<object> GetData(string fullPath)
+        {
+            Directories dir = GetDirectory(fullPath);
+            switch (dir)
+            {
+                case Directories.Order:
+                    return await GetDataArray<Order, OrderItem>("Order/" + BranchSettings.Instance.branchId);
+                case Directories.Menu:
+                    return await GetDataArray<Menu, MenuItem>("Menu/" + BranchSettings.Instance.branchId);
+                case Directories.Account:
+                    return await GetEntity<AppUser>("Account");
+                case Directories.Branch: 
+                    return await GetEntity<Branch>("Branch");
+                case Directories.BranchId:
+                    List<string> branchids = new List<string>();
+                    List<Branch> branches= await GetEntity<Branch>("Branch");
+                    foreach (var branch in branches)
+                    {
+                        branchids.Add(branch.Id);
+                    }
+                    return branchids;
+                case Directories.PrinterName:
+                    break;
+                case Directories.Settings:
+                    break;
+                case Directories.NetworkInterface:
+                    break;
+                case Directories.Print:
+                    break;
+                case Directories.TCPServer:
+                    break;
+                case Directories.TCPServerIP:
+                    break;
+                case Directories.Error:
+                    break;
+                case Directories.CalledOutOrders:
+                    break;
+                default:
+                    break;
+            }
+            throw new InCorrectDirectory("It either failed to get the correct directory from correct string provided or given the wrong directory. See exception for more info");
+
+        }
+        public async Task<List<Entity>> GetEntity<Entity>(string fullPath) where Entity : BaseEntity, new()
         {
             // If connection to online data or the online data itself doesn't come this just releases the offlineObjects
             // hence if false, it will fire offline
@@ -130,7 +175,8 @@ namespace RodizioSmartRestuarant.Services
             return await _firebaseServices.GetDataArray<Aggregate, Entity>(path);
 
         }
-        public void UpdateLocalStorage<T>(BaseAggregates<T> Aggregate, Directories directory)
+
+        public void UpdateLocalStorage<Entity>(BaseAggregates<Entity> Aggregate, Directories directory)
         {
             if (BranchSettings.Instance.branchId == "/")
                 return;
@@ -154,6 +200,7 @@ namespace RodizioSmartRestuarant.Services
 
             OfflineDataContext.LocalDataChange();
         }
+
         // REFACTOR: Please, for the love of God , Fix this
         // FIXME: Its just so all over th eplace
         public async Task UpdateOfflineData()
@@ -436,6 +483,24 @@ namespace RodizioSmartRestuarant.Services
             await UpdateOfflineData();
         }
 
+        Directories GetDirectory(string path)
+        {
+            string query = "";
+            foreach (char c in path)
+            {
+                if (c != '/')
+                    query += c;
+
+                if (c == '/')
+                    break;
+            }
+
+            var array = (Directories[])Directories.GetValues(typeof(Directories));
+
+            var result = array.Where(d => d.ToString().ToLower() == query.ToLower());
+
+            return result.ToList()[0];
+        }
         void BackOnline()
         {
             if (connectionChecker.notifCount != 0)

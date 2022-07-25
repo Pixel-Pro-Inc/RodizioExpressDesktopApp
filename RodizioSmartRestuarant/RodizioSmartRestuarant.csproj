@@ -383,6 +383,7 @@
     <Compile Include="Services\DataService.cs" />
     <Compile Include="Exceptions\FailedToConvertFromSerialized.cs" />
     <Compile Include="Exceptions\NoNetwork.cs" />
+    <Compile Include="Exceptions\InCorrectDirectory.cs" />
     <Compile Include="Services\OfflineDataService.cs" />
     <Compile Include="Helpers\OnScreenKeyboard.cs" />
     <Compile Include="Helpers\PrintReceiptScaled.cs" />

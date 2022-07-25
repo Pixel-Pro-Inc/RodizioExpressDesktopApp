@@ -36,7 +36,7 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <typeparam name="Entity"></typeparam>
         /// <param name="fullPath"></param>
         /// <returns></returns>
-        Task<List<Entity>> GetData<Entity>(string fullPath) where Entity : BaseEntity, new();
+        Task<List<Entity>> GetEntity<Entity>(string fullPath) where Entity : BaseEntity, new();
         /// <summary>
         /// This is to get data whether online or offline.It gets only Aggregate types, not single types
         /// </summary>
@@ -44,6 +44,13 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns></returns>
         Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new();
 
+        /// <summary>
+        /// This is a method that will be used when ever you need to get anything. Just pop in what ever the directory type you want as a string into <paramref name="fullPath"/> for example "Account" to get appusers. or "Branch" for branches.
+        /// <para> Note that it doesn't work for everything, eg  <see cref="NetworkIdentity"/>s are still not BaseEntities. so you might have trouble getting that info just as yet.</para>
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        Task<object> GetData(string fullPath);
         /// <summary>
         /// Removes the data from the database if there is connection and locally in the other case
         /// </summary>

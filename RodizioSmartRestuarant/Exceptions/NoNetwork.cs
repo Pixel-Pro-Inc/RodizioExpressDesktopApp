@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace RodizioSmartRestuarant.Services
+namespace RodizioSmartRestuarant.Exceptions
 {
-   
     [Serializable]
     internal class NoNetworkException : Exception
     {
         /// <summary>
-        /// The only reason I have this is cause I was lazy to put up proper logic prompt out that there is o network so you can't store online
+        /// The only reason I have this is cause I was lazy to put up proper logic prompt out that there is no network so you can't store online
         /// </summary>
         public NoNetworkException()
         {

@@ -234,7 +234,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 // FIXME: Here you should use DataService since it will give you data whether it is online or offline
                 case RequestObject.requestMethod.Get:
-                    var result = await _dataService.GetOfflineData(request.fullPath);
+                    var result = await _dataService.GetData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
