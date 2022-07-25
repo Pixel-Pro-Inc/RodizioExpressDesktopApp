@@ -21,9 +21,6 @@ namespace RodizioSmartRestuarant.Helpers
         public string fullPath { get; set; }        
         public requestMethod requestType { get; set; }
         public object data { get; set; }
-
-        // I made this cause DataService requires you to give a type parameter of the data you want
-        public Type dataType { get; set; }
     }
 }
 

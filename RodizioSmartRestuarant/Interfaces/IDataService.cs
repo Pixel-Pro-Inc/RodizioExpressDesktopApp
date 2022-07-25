@@ -8,8 +8,8 @@ using RodizioSmartRestuarant.Entities;
 namespace RodizioSmartRestuarant.Interfaces
 {
     /// <summary>
-    /// This will coordinate all the offline and online data so its seemless and used by all the services and components that should access it
-    /// <para> I don't really expect to fuse <see cref="IFirebaseServices"/> and <see cref="OfflineDataService"/> because them being by themselves makes sense</para>
+    /// This will coordinate all the offline and online data so its seemless and used by all the services and components that should access it. Its job is basically to feed what ever is asking of it the most relevant information available
+    /// <para> I don't really expect to fuse <see cref="IFirebaseServices"/> and <see cref="IOfflineDataService"/> because them being by themselves makes sense</para>
     /// </summary>
     public interface IDataService:IBaseService
     {
@@ -22,6 +22,7 @@ namespace RodizioSmartRestuarant.Interfaces
         void UpdateLocalStorage<T>(BaseAggregates<T> Aggregate, Directories directory);
 
         Task UpdateOfflineData();
+        void ResetLocalData(List<Order> orders);
 
         /// <summary>
         /// This adds '/' and the static branch setting instance branch id. Note that there hasn't been a check if there is already a branch id set
@@ -45,7 +46,8 @@ namespace RodizioSmartRestuarant.Interfaces
         Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new();
 
         /// <summary>
-        /// This is a method that will be used when ever you need to get anything. Just pop in what ever the directory type you want as a string into <paramref name="fullPath"/> for example "Account" to get appusers. or "Branch" for branches.
+        /// This is a method that will be used when ever you need to get anything. Just pop in what ever the directory type you want as a string into <paramref name="fullPath"/> for example "Account" to get appusers. or "Branch" for branches. You would 
+        /// typically simply put in the full path and the directory type is already included in what you are looking for
         /// <para> Note that it doesn't work for everything, eg  <see cref="NetworkIdentity"/>s are still not BaseEntities. so you might have trouble getting that info just as yet.</para>
         /// </summary>
         /// <param name="fullPath"></param>

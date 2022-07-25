@@ -5,6 +5,7 @@ using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Exceptions;
 using RodizioSmartRestuarant.Extensions;
 using RodizioSmartRestuarant.Interfaces;
+using RodizioSmartRestuarant.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ using static RodizioSmartRestuarant.Entities.Enums;
 
 namespace RodizioSmartRestuarant.Helpers
 {
-    public class OfflineDataService:IOfflineDataService
+    public class OfflineDataService: _BaseService, IOfflineDataService
     {
         #region Download
 
@@ -305,7 +306,7 @@ namespace RodizioSmartRestuarant.Helpers
             WindowManager.Instance.UpdateAllOrderViews_Offline();
             UpdateNetworkDevices();
         }
-        protected void UpdateNetworkDevices()
+        public void UpdateNetworkDevices()
         {
             if (TCPServer.Instance != null)
                 TCPServer.Instance.UpdateAllNetworkDevicesUI();

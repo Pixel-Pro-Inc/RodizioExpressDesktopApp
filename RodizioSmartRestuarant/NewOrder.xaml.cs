@@ -26,10 +26,9 @@ namespace RodizioSmartRestuarant
     {
         Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
         Order orders = new Order();
-        private FirebaseDataContext firebaseDataContext;
         private string _source;
         IMenuService _menuService;
-        IFirebaseServices _firebaseServices;
+        IDataService _dataService;
 
         string lastSelectedFlavour = "None";
         string lastSelectedMeatTemp = "Well Done";
@@ -44,8 +43,6 @@ namespace RodizioSmartRestuarant
 
             if (_source.ToLower() != "walkin")
                 checkbox.Visibility = Visibility.Collapsed;
-
-            firebaseDataContext = FirebaseDataContext.Instance;
 
             UpdateMenuViewBasedonAvailability();
         }
@@ -649,7 +646,7 @@ namespace RodizioSmartRestuarant
 
                 orderItem.Id = i;
 
-                //await firebaseDataContext.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
+                //await _dataService.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
             }            
 
             phoneNumber.Text = "";
@@ -741,7 +738,7 @@ namespace RodizioSmartRestuarant
         /// <returns></returns>
         public async Task<string> GetOrderNum(string branchId)
         {
-            List<Order> orders = await _firebaseServices.GetData<Order>("Order/" + branchId);
+            List<Order> orders = (List<Order>)await _dataService.GetData("Order/" + branchId);
             //Check Against Other Order Numbers For The Day
             List<string> orderNums = new List<string>();
 

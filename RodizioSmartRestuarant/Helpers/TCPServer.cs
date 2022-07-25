@@ -234,7 +234,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 // FIXME: Here you should use DataService since it will give you data whether it is online or offline
                 case RequestObject.requestMethod.Get:
-                    var result = await _dataService.GetData(request.fullPath);
+                    List<object> result =(List<object>) await _dataService.GetData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
@@ -255,14 +255,15 @@ namespace RodizioSmartRestuarant.Helpers
                     _offlineDataService.OfflineDeleteOrder((Order)request.data);
                     break;
                 case RequestObject.requestMethod.UpdateLocalDataRequest:
-                    var result_1 = await _offlineDataService.GetOfflineData(request.fullPath);
+                    // UPDATE: So I removed the offline thing here. I figured it was necessary but dataservice job is to feed the most relevant information be offline or online
+                    List<object> result_1 = (List<object>)await _dataService.GetData(request.fullPath);
                     SendData(ipPort, result_1, request.fullPath);
                     break;
             }
 
             requestPool.RemoveAt(0);
         }
-        public async void UpdateAllNetworkDevicesUI()
+        public void UpdateAllNetworkDevicesUI()
         {
             //while (localDataInUse)
             //{

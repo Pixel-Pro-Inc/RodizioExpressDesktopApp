@@ -49,9 +49,6 @@ namespace RodizioSmartRestuarant.Configuration
 
             BranchSettings.Instance = new BranchSettings();
 
-            if (FirebaseDataContext.Instance == null)
-                FirebaseDataContext.Instance = new FirebaseDataContext();
-
             BranchSettings.Instance.Init();
 
             if (app.isInitialSetup)

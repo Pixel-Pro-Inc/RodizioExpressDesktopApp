@@ -43,5 +43,7 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <param name="order"></param>
         void OfflineDeleteOrder(Order order);
         void OfflineDeleteData(string fullPath);
+
+        void UpdateNetworkDevices();
     }
 }

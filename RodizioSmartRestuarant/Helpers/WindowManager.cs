@@ -4,6 +4,7 @@ using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace RodizioSmartRestuarant.Helpers
     {
         // @Yewo: What made you think to do this, makking a window manager. Cause it feels, kinda unlike you *laughing emoji*
         public static WindowManager Instance { get; set; }
+        IDataService _dataService;
 
         public List<Window> openWindows = new List<Window>();
 
@@ -403,17 +405,7 @@ namespace RodizioSmartRestuarant.Helpers
                 if (!pOSOpen)
                     return;
 
-                var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);                                
-
-                List<Order> temp = new List<Order>();
-
-                foreach (var item in result)
-                {
-                    // We don't need to declare this variable but I'll just leave it
-                    Order data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
-
-                    temp.Add(data);
-                }
+                List<Order> temp = (List<Order>)await _dataService.GetData("Order/" + BranchSettings.Instance.branchId);
 
                 // @Yewo: Why the need to delete orders from the database?
                 foreach (var item in temp)
@@ -430,7 +422,7 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     List<Order> ordersUpdated = new List<Order>();
-                    ordersUpdated = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());                    
+                    ordersUpdated = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());                    
 
                     if (openWindows[i].GetType() == typeof(OrderStatus))
                     {
@@ -447,17 +439,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             if (BranchSettings.Instance.branchId != null)
             {
-                // TODO: Replaces this with DataService
-                var result = await FirebaseDataContext.Instance.GetOfflineData("Order/" + BranchSettings.Instance.branchId);
-
-                List<Order> temp = new List<Order>();
-
-                foreach (var item in result)
-                {
-                    Order data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
-
-                    temp.Add(data);
-                }
+                List<Order> temp = (List<Order>)await _dataService.GetData("Order/" + BranchSettings.Instance.branchId);
 
                 for (int i = 0; i < openWindows.Count; i++)
                 {

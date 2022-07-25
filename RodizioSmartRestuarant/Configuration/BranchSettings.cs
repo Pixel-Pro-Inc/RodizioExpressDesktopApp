@@ -44,7 +44,6 @@ namespace RodizioSmartRestuarant.Configuration
                     branchId = "rd" + bId;
                     printerName = pName;
 
-                    FirebaseDataContext.Instance = new FirebaseDataContext();
                     _dataService.SetBranchId();
                 }
             }

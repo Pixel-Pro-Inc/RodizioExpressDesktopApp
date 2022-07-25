@@ -28,7 +28,6 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class Login : Window
     {
-        private FirebaseDataContext fireBaseDataContext = FirebaseDataContext.Instance;
         IDataService _dataService;
         public Login()
         {

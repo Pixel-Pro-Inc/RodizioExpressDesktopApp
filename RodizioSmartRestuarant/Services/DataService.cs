@@ -116,16 +116,16 @@ namespace RodizioSmartRestuarant.Services
             switch (dir)
             {
                 case Directories.Order:
-                    return await GetDataArray<Order, OrderItem>("Order/" + BranchSettings.Instance.branchId);
+                    return await GetDataArray<Order, OrderItem>(fullPath);
                 case Directories.Menu:
-                    return await GetDataArray<Menu, MenuItem>("Menu/" + BranchSettings.Instance.branchId);
+                    return await GetDataArray<Menu, MenuItem>(fullPath);
                 case Directories.Account:
-                    return await GetEntity<AppUser>("Account");
+                    return await GetEntity<AppUser>(fullPath);
                 case Directories.Branch: 
-                    return await GetEntity<Branch>("Branch");
+                    return await GetEntity<Branch>(fullPath);
                 case Directories.BranchId:
                     List<string> branchids = new List<string>();
-                    List<Branch> branches= await GetEntity<Branch>("Branch");
+                    List<Branch> branches= await GetEntity<Branch>(fullPath);
                     foreach (var branch in branches)
                     {
                         branchids.Add(branch.Id);
@@ -313,7 +313,7 @@ namespace RodizioSmartRestuarant.Services
             }
            
         }
-        // REFACTOR: This method is too similar to the one that has line 231 StoreData_Online(), consider using base method and overrides or simply extracting the logic
+        [Obsolete]
         public async Task EditData_Online(string fullPath, object data)
         {
             if (await connectionChecker.CheckConnection())
@@ -322,11 +322,8 @@ namespace RodizioSmartRestuarant.Services
 
                 _firebaseServices.StoreData(fullPath, data);
 
-                // FIXME: The menu service needs to reference this, not firebase
                 if (fullPath.ToLower().Contains("menu"))
-                    //await UpdateLocalStorage();
-
-                    return;
+                    UpdateLocalStorage((Menu)data, Directories.Menu);
             }
         }
 
@@ -369,7 +366,7 @@ namespace RodizioSmartRestuarant.Services
             new SerializedObjectManager().SaveData(holder, Directories.Order);
 
             //We update only the network devices since this one has already all the uptodate view data            
-            OfflineDataContext.UpdateNetworkDevices();
+            _offlineDataServices.UpdateNetworkDevices();
 
             return;
         }
@@ -430,11 +427,9 @@ namespace RodizioSmartRestuarant.Services
             {
                 throw new NoNetworkException();
             }
-           
 
-            // TODO: Similar work
-            //if (fullPath.ToLower().Contains("menu"))
-            //await UpdateLocalMenu();
+            if (fullPath.ToLower().Contains("menu"))
+                UpdateLocalStorage((Menu)data, Directories.Menu);
 
         }
         public async Task<bool> StoreData_Online_EndOfDaySync(string fullPath, object data)

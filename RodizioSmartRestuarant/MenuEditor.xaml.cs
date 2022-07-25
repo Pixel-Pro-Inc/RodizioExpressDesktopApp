@@ -28,15 +28,12 @@ namespace RodizioSmartRestuarant
     public partial class MenuEditor : Window
     {
         Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
-        private FirebaseDataContext firebaseDataContext;
+        IDataService _dataService;
         IMenuService _menuService;
 
         public MenuEditor()
         {
             InitializeComponent();
-
-            firebaseDataContext = FirebaseDataContext.Instance;
-
             UpdateMenuView();
         }
 
@@ -127,7 +124,7 @@ namespace RodizioSmartRestuarant
                     string branchId = BranchSettings.Instance.branchId;
                     string fullPath = "Menu/" + branchId + "/" + numId;
 
-                    await firebaseDataContext.EditData_Online(fullPath, menu[i]);
+                    await _dataService.StoreData(fullPath, menu[i]);
 
                     UpdateMenuView();
                 }

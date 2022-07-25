@@ -35,16 +35,12 @@ namespace RodizioSmartRestuarant
     {
         private static readonly HttpClient client = new HttpClient();
         public List<Order> orders = new List<Order>();
-        private FirebaseDataContext firebaseDataContext;
         IDataService _dataService;
         private bool showingResults;
 
         public POS()
         {
             InitializeComponent();
-
-            // REFACTOR: Here is a place where the Infrastructure architeture can be used
-            firebaseDataContext = FirebaseDataContext.Instance;
 
             OnStart();
             
