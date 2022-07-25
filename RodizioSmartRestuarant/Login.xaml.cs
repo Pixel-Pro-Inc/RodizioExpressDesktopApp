@@ -216,7 +216,7 @@ namespace RodizioSmartRestuarant
 
         private void Close_Button_Click(object sender, RoutedEventArgs e)
         {
-            WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB());
+            WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB(_dataService));
         }
     }
 }

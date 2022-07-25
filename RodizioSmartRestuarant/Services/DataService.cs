@@ -26,7 +26,7 @@ namespace RodizioSmartRestuarant.Services
         public ConnectionChecker connectionChecker = new ConnectionChecker();
         IFirebaseServices _firebaseServices;
         IOfflineDataService _offlineDataServices;
-        public bool startedSyncing = false;
+        public bool startedSyncing { get; set; } = false;
         // UPDATE: I changed the bool to be private, its not used any where else and is relativly important so I don't want to expose it all willinilly
         private bool syncing = false;
 
@@ -563,7 +563,7 @@ namespace RodizioSmartRestuarant.Services
                 return;
 
             if (!startedSyncing)
-                WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB());
+                WindowManager.Instance.CloseAllAndOpen(new SyncOrdersToDB(this));
 
             startedSyncing = true;
         }

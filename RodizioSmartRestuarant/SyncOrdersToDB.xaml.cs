@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using RodizioSmartRestuarant.Helpers;
 using RodizioSmartRestuarant.Entities.Aggregates;
+using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant
 {
@@ -23,9 +24,11 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class SyncOrdersToDB : Window
     {
-        public SyncOrdersToDB()
+        IDataService _dataService;
+        public SyncOrdersToDB(IDataService dataService)
         {
             InitializeComponent();
+            _dataService = dataService;
 
             SyncData();
         }
@@ -49,11 +52,11 @@ namespace RodizioSmartRestuarant
                 List<Order> orderItems = new List<Order>();
 
                 //Offline include completed orders
-                orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
+                orderItems = (List<Order>)await _dataService.GetOfflineOrdersCompletedInclusive();
 
-                FirebaseDataContext.Instance.startedSyncing = true;
+                _dataService.startedSyncing = true;
 
-                await FirebaseDataContext.Instance.SyncDataEndOfDay(orderItems);
+                await _dataService.SyncDataEndOfDay(orderItems);
             }            
 
             App.Instance.ShutdownApp();

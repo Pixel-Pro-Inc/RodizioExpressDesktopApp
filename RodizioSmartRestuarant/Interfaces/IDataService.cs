@@ -13,6 +13,8 @@ namespace RodizioSmartRestuarant.Interfaces
     /// </summary>
     public interface IDataService:IBaseService
     {
+        bool startedSyncing { get; set; }
+
         /// <summary>
         /// Takes an <paramref name="Aggregate"/> and stores the data locally and updates the changes using <see cref="OfflineDataContext.LocalDataChange()"/>
         /// </summary>
@@ -73,6 +75,7 @@ namespace RodizioSmartRestuarant.Interfaces
         /// </summary>
         /// <param name="status"></param>
         void ToggleConnectionStatus(bool status);
+        Task SyncDataEndOfDay(List<Order> orders);
 
         // TODO: Make a OrderService
         Task CancelOrder(Order orderItems);
