@@ -1,5 +1,4 @@
-﻿using RodizioSmartRestuarant.Interfaces;
-using RodizioSmartRestuarant.Interfaces.BaseInterfaces;
+﻿using RodizioSmartRestuarant.Interfaces.BaseInterfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +55,10 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
                 }
             }
 
+            /// <summary>
+            /// It comes up as null, and thats where the problem comes from. It is supposed to be something long before it searches for the value
+            /// </summary>
+            /// <param name="property"></param>
             public static implicit operator TValueType(AggregateProp<TValueType> property)
             {
                 return property.Value;
