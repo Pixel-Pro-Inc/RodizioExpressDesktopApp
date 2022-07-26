@@ -110,29 +110,13 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         public float? Price
         {
             get { return _price; }
-            private set 
+            private set
             {
-                //checks if not all of them have a price, throws an exception
-                if (!this.All(x => x.Price != null)) throw new NullReferenceException("some/all of the orders in here don't have a price");
-                // sums all the prices together
-                _price = this.Sum(x => float.Parse(x.Price));
+                // This is to add the price of every orderItem in the Order using an Aggregate method
+                _price=this.Aggregate(0f, (_price, place2) => _price + float.Parse(place2.Price));
             }
         }
 
-        // If this passes, replace Price at the top to be this
-        // This didn't work cause there was two logics that was setting and getting. It works if its only one? So yeah you can throw away the generic property
-        //public AggregateProp<float> Totalprice
-        //{
-        //    set
-        //    {
-        //        //checks if not all of them have a price, throws an exception
-        //        if (!this.All(x => x.Price != null)) throw new NullReferenceException("some/all of the orders in here don't have a price");
-        //        // sums all the prices together
-        //        _price = this.Sum(x => float.Parse(x.Price));
-        //    }
-        //    get { return _price; }
-            
-        //}
 
         private int? _id
         {

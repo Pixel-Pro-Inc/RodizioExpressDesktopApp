@@ -26,7 +26,7 @@ namespace RodizioSmartRestaurant.UnitTests.Entities.UnitTests.Aggregates.UnitTes
 
             //Assert
             //Checks if the prices add to 15
-            //Assert.AreEqual(15f, TotalPrice);
+            Assert.AreEqual(15f, TotalPrice);
         }
 
 

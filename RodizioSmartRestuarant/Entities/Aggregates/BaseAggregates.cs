@@ -70,6 +70,5 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             }
         }
 
-
     }
 }
