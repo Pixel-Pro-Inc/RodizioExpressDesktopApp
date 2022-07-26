@@ -20,6 +20,7 @@ namespace RodizioSmartRestuarant.Helpers
         // @Yewo: What made you think to do this, makking a window manager. Cause it feels, kinda unlike you *laughing emoji*
         public static WindowManager Instance { get; set; }
         IDataService _dataService;
+        IOrderService _orderService;
 
         public List<Window> openWindows = new List<Window>();
 
@@ -422,7 +423,7 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     List<Order> ordersUpdated = new List<Order>();
-                    ordersUpdated = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());                    
+                    ordersUpdated = (List<Order>)await _orderService.GetOfflineOrdersCompletedInclusive();                    
 
                     if (openWindows[i].GetType() == typeof(OrderStatus))
                     {

@@ -15,6 +15,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
     {
 
         /// <summary>
+        /// This is obsolete cause it kept throwing errors. I think Syntax wise its not set up right. Fix those and then you can continue to use this
         /// This is a property that is built depending on the type (in this case <typeparamref name="TValueType"/>) that you give it. The value it has depends on the elements of the aggregates within it
         /// <para>For example, if you have price. It will give you the total of all the constituents. But remember that it will only do this for specific type. You can't have a collection of float and a single float processed differently
         /// NOTE: It inherits from <see cref="BaseAggregates{T}"/> so it can get the abilities of it. It won't be able to get the abilities and properties of the subclasses of it.</para>
@@ -22,6 +23,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         /// <para> This makes sure that you get the values from the <see cref="Entity.GetType()"/>s themselves and has checks  whether the aggregate is empty and on allowable types</para>
         /// </summary>
         /// <typeparam name="TValueType"></typeparam>
+        [Obsolete]
         public class AggregateProp<TValueType>: BaseAggregates<Entity>
         {
             private TValueType _value;

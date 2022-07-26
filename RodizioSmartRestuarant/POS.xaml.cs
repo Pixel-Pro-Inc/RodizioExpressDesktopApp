@@ -36,6 +36,7 @@ namespace RodizioSmartRestuarant
         private static readonly HttpClient client = new HttpClient();
         public List<Order> orders = new List<Order>();
         IDataService _dataService;
+        IOrderService _orderService;
         private bool showingResults;
 
         public POS()
@@ -71,7 +72,7 @@ namespace RodizioSmartRestuarant
             #region We try to prepare online and offline data before updating
 
             //Offline include completed orders
-            List<Order> tempOffline = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());
+            List<Order> tempOffline = (List<Order>)(await _orderService.GetOfflineOrdersCompletedInclusive());
 
             //Online orders 
             // TODO: Check to see if completed ones are included
@@ -777,7 +778,7 @@ namespace RodizioSmartRestuarant
                     {
                         SendCancelSMS(orders[i][0].PhoneNumber, n.Remove(0, 11));
 
-                        await _dataService.CancelOrder(orders[i]);
+                        await _orderService.MarkOrderForDeletion(orders[i]);
                     }
                 }
             }

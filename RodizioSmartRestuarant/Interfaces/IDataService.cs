@@ -62,8 +62,6 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns></returns>
         Task DeleteData(string fullPath);
 
-        Task<object> GetOfflineOrdersCompletedInclusive();
-
         /// <summary>
         /// This really shouldn't be here. This method is patch work cause we haven't masters events just yet.
         /// <para> But from what I understand, this is to change data so that the tick counter can start afresh to check for updates</para>
@@ -77,7 +75,6 @@ namespace RodizioSmartRestuarant.Interfaces
         void ToggleConnectionStatus(bool status);
         Task SyncDataEndOfDay(List<Order> orders);
 
-        // TODO: Make a OrderService
-        Task CancelOrder(Order orderItems);
+        
     }
 }

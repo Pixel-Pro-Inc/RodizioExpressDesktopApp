@@ -9,7 +9,7 @@ namespace RodizioSmartRestuarant.Exceptions
     /// It is most likely to be thrown in <see cref="ConnectionStringManager.GetConnectionString(string)"/>
     /// </summary>
     [Serializable]
-    internal class NoConnectionStringSectionFound : Exception
+    public class NoConnectionStringSectionFound : Exception
     {
         public NoConnectionStringSectionFound()
         {

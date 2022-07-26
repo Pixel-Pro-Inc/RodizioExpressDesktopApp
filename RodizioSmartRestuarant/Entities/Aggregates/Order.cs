@@ -26,17 +26,8 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
 
         // REFACTOR: Slowly but surely we will phase away the orderItems ability to have these following properties unless EXPLLICITLY needed for critical case
 
-        private string _orderNumber
-        {
-            get { return _orderNumber == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _orderNumber; }
-            set
-            {
-                if (this.Any())
-                {
-                    _orderNumber = this.First().OrderNumber;
-                }
-            }
-        }
+        private string _orderNumber { get; set; }
+
         /// <summary>
         /// This is the ordernumber gotten from the first element of <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
         /// <para> I also made it Immutable/ReadOnly</para>
@@ -47,7 +38,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
-        public AggregateProp<string> OrderNumber1 { get { return OrderNumber1; } set { value= this.First().OrderNumber; } } 
+       // public AggregateProp<string> OrderNumber1 { get { return _orderNumber; } set { _orderNumber = this.First().OrderNumber; } } 
         private string _user
         {
             get { return _user == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _user; }
@@ -111,20 +102,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
-        private float? _price
-        {
-            get { return _price == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _price; }
-            set
-            {
-                if (this.Any())
-                {
-                    foreach (OrderItem item in this)
-                    {
-                        _price = +float.Parse(item.Price);
-                    }
-                }
-            }
-        }
+        private float? _price { get; set; }
         /// <summary>
         /// This is the Price gotten from the adding all the prices of the <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
         /// <para> I also made it Immutable/ReadOnly</para>
@@ -136,17 +114,17 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         }
 
         // If this passes, replace Price at the top to be this
-        public AggregateProp<float> TotalPrice 
-        {
-            get { return TotalPrice; } 
-            set
-            {
-                //checks if NOT all of them have a price, throws an exception
-                if (!this.All(x => x.Price != null)) throw new NullReferenceException("Some/All of the orders in here don't have a price");
-                // Sums all the prices together
-                TotalPrice = this.Sum(x=> float.Parse(x.Price));
-            } 
-        }
+        //public AggregateProp<float> TotalPrice 
+        //{
+        //    get { return _price; } 
+        //    set
+        //    {
+        //        //checks if NOT all of them have a price, throws an exception
+        //        if (!this.All(x => x.Price != null)) throw new NullReferenceException("Some/All of the orders in here don't have a price");
+        //        // Sums all the prices together
+        //        _price = this.Sum(x=> float.Parse(x.Price));
+        //    } 
+        //}
 
         private int? _id
         {

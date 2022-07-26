@@ -380,6 +380,7 @@
     <Compile Include="Interfaces\BaseInterfaces\IBaseEntity.cs" />
     <Compile Include="Interfaces\IDataService.cs" />
     <Compile Include="Interfaces\IOfflineDataService.cs" />
+    <Compile Include="Interfaces\IOrderService.cs" />
     <Compile Include="Services\DataService.cs" />
     <Compile Include="Exceptions\FailedToConvertFromSerialized.cs" />
     <Compile Include="Exceptions\NoNetwork.cs" />
@@ -440,6 +441,7 @@
     </Compile>
     <Compile Include="Services\FirebaseServices.cs" />
     <Compile Include="Services\MenuService.cs" />
+    <Compile Include="Services\OrderService.cs" />
     <Compile Include="Services\_BaseService.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>

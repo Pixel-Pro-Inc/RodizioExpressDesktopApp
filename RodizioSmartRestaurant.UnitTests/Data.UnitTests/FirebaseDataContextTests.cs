@@ -11,6 +11,7 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
     [TestClass]
     public class FirebaseDataContextTests
     {
+        public FirebaseDataContext fbDataContext = new FirebaseDataContext();
         #region GetData tests
 
         // All these are testing for is if it can manage to get values from the database, not the validity of the data
@@ -19,9 +20,10 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
         {
             //Arrange
             string path = "Branch";
+            FirebaseDataContext fbContext = new FirebaseDataContext();
 
             //Act
-            List<object> objects = await FirebaseDataContext.Instance.GetData(path);
+            List<object> objects = await fbContext.GetData(path);
 
             //Assert
             Assert.IsFalse(objects == null);
@@ -34,7 +36,7 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
             string path = "WrongString";
 
             //Act
-            List<object> objects = await FirebaseDataContext.Instance.GetData(path);
+            List<object> objects = await fbDataContext.GetData(path);
 
             //Assert
             Assert.IsTrue(objects == null);
@@ -56,13 +58,13 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
                 new OrderItem() { OrderNumber=orderNumber }
             };
             string path = "Order/" + BranchSettings.Instance.branchId + "/" + TestOrder.OrderNumber;
-            await FirebaseDataContext.Instance.StoreData(path, TestOrder);
+            await fbDataContext.StoreData(path, TestOrder);
 
             //Act
-            await FirebaseDataContext.Instance.DeleteData(path);
+            await fbDataContext.DeleteData(path);
 
             //Assert
-            Assert.IsTrue(await FirebaseDataContext.Instance.GetData(path) == null);
+            Assert.IsTrue(await fbDataContext.GetData(path) == null);
 
         }
         [TestMethod]
@@ -72,10 +74,10 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
             string path = "WrongString";
 
             //Act
-            await FirebaseDataContext.Instance.DeleteData(path);
+            await fbDataContext.DeleteData(path);
 
             //Assert
-            Assert.IsTrue(await FirebaseDataContext.Instance.GetData(path) == null);
+            Assert.IsTrue(await fbDataContext.GetData(path) == null);
 
         }
         #endregion

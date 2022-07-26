@@ -25,6 +25,7 @@ namespace RodizioSmartRestuarant
     public partial class SyncOrdersToDB : Window
     {
         IDataService _dataService;
+        IOrderService _orderService;
         public SyncOrdersToDB(IDataService dataService)
         {
             InitializeComponent();
@@ -52,7 +53,7 @@ namespace RodizioSmartRestuarant
                 List<Order> orderItems = new List<Order>();
 
                 //Offline include completed orders
-                orderItems = (List<Order>)await _dataService.GetOfflineOrdersCompletedInclusive();
+                orderItems = (List<Order>)await _orderService.GetOfflineOrdersCompletedInclusive();
 
                 _dataService.startedSyncing = true;
 

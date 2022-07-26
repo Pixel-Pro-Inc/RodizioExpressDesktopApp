@@ -49,9 +49,8 @@ namespace RodizioSmartRestuarant.Helpers
 
             return returnValue;
         }
-
         /// <summary>
-        /// This gets the connectionstring section in the config file of the exe found in <paramref name="path"/>. You can then search through it for what you are looking for
+        /// This gets the connectionstring section in the config file of the exe found in the default <paramref name="path"/>. You can then search through the results for what you are looking for
         /// </summary>
         /// <param name="path"> Wher the application exe is stored</param>
         /// <returns></returns>

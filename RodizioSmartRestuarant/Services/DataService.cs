@@ -26,6 +26,7 @@ namespace RodizioSmartRestuarant.Services
         public ConnectionChecker connectionChecker = new ConnectionChecker();
         IFirebaseServices _firebaseServices;
         IOfflineDataService _offlineDataServices;
+        IOrderService _orderService;
         public bool startedSyncing { get; set; } = false;
         // UPDATE: I changed the bool to be private, its not used any where else and is relativly important so I don't want to expose it all willinilly
         private bool syncing = false;
@@ -58,57 +59,6 @@ namespace RodizioSmartRestuarant.Services
             await SetLastActive();
         }
         public void SetBranchId() => branchId = "/" + BranchSettings.Instance.branchId;
-
-        public async Task CancelOrder(Order orderItems)
-        {
-            //Mark for deletion when back online
-            foreach (var item in orderItems)
-            {
-                item.MarkedForDeletion = true;
-                string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
-
-                if (TCPServer.Instance != null)
-                    await StoreData(fullPath, item);//Remove from order view on all network devices
-            }
-
-            if (TCPServer.Instance == null)
-                await StoreData("Order/", orderItems);
-        }
-        public async Task CancelOrder_Offline(string orderInvoice)
-        {
-            //Moves order to Cancelled directory // UPDATE: I changed the comment where the word said completed to Cancelled directory
-            if (branchId != "/")
-            {
-                string destination = "CancelledOrders" + branchId + "/" + orderInvoice.Substring(14, 15);
-                List<Order> Orders = await _firebaseServices.GetDataArray<Order,OrderItem>(orderInvoice);
-
-                foreach (var order in Orders)
-                {
-                    order[0].User = LocalStorage.Instance.user.FullName();
-                }
-
-                await StoreData(destination, Orders);
-
-                await DeleteData(orderInvoice);
-            }
-        }
-        bool OrderItemChanged(Order itemsNew, Order itemsOld)
-        {
-            string newItem = itemsNew[0].OrderNumber;
-            string oldItem = itemsOld[0].OrderNumber;
-
-            if (itemsNew.Count == itemsOld.Count)
-                for (int i = 0; i < itemsNew.Count; i++)
-                {
-                    if (itemsNew[i].Fufilled != itemsOld[i].Fufilled
-                        || itemsNew[i].Purchased != itemsOld[i].Purchased
-                        || itemsNew[i].Collected != itemsOld[i].Collected)
-                        return true;
-                }
-
-            return false;
-        }
 
         public async Task<object> GetData(string fullPath)
         {
@@ -278,29 +228,7 @@ namespace RodizioSmartRestuarant.Services
 
         }
 
-        // TODO: This method seems dumb. How is this different from getting normal orders, there can be one line we can change
-        public async Task<object> GetOfflineOrdersCompletedInclusive()
-        {
-            object recievedData = await OfflineDataContext.GetData(Directories.Order);
-
-            // REFACTOR: have type checking in the dataservice
-            object offlineData = recievedData is List<List<IDictionary<string, object>>> ?  recievedData: new List<List<IDictionary<string, object>>>();
-
-            List<Order> offlineOrders = new List<Order>();
-
-            foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
-            {
-                offlineOrders.Add(new Order());
-
-                foreach (var itm in item)
-                {
-                    offlineOrders[offlineOrders.Count - 1].Add(itm.ToObject<OrderItem>());
-                }
-            }
-
-            return offlineOrders;
-        }
-
+        
         public async Task DeleteData(string fullPath)
         {
 
@@ -336,7 +264,7 @@ namespace RodizioSmartRestuarant.Services
             List<Order> orderItems = new List<Order>();
 
             //Offline include completed orders
-            orderItems = (List<Order>)(await GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await _orderService.GetOfflineOrdersCompletedInclusive());
 
             foreach (var item in orderItems)
             {
@@ -574,17 +502,6 @@ namespace RodizioSmartRestuarant.Services
             elapsedTime = 0;
         }
 
-        public async Task CompleteOrder(string fullPath)
-        {
-            //Moves order to completed directory
-            if (branchId != "/")
-            {
-                string destination = "CompletedOrders" + branchId + "/" + fullPath.Substring(14, 15);
-                await StoreData(destination, _offlineDataServices.GetOfflineDataArray<Order, OrderItem>(fullPath));
-
-                await DeleteData(fullPath);
-            }
-        }
 
 
     }

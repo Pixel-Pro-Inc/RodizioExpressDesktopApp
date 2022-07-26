@@ -29,6 +29,7 @@ namespace RodizioSmartRestuarant
         public bool IsClosed { get; private set; }
 
         IDataService _dataService;
+        IOrderService _orderService;
 
         public CashierReport()
         {
@@ -53,7 +54,7 @@ namespace RodizioSmartRestuarant
 
             List<Order> orderItems = new List<Order>();
             //Offline include completed orders
-            orderItems = (List<Order>)(await _dataService.GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)await _orderService.GetOfflineOrdersCompletedInclusive();
 
             //Exclude Unpaid Orders
             List<Order> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
