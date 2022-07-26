@@ -19,7 +19,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             string orderItems = null;
             foreach (var orderItem in this)
             {
-                orderItems = orderItem.Name + " IdentityFied with " + orderItem.Id.ToString() + "\n"+" Costing:"+Price.ToString();
+                orderItems = orderItem.Name + " Identified with " + orderItem.Id.ToString() + "\n"+" Costing:"+Price.ToString();
             }
             return orderItems;
         }
@@ -110,7 +110,8 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         public float? Price
         {
             get { return _price; }
-            private set
+            // You need to use net. 6.0 . v4 doesn't have this feature
+            private init
             {
                 // This is to add the price of every orderItem in the Order using an Aggregate method
                 _price=this.Aggregate(0f, (_price, place2) => _price + float.Parse(place2.Price));

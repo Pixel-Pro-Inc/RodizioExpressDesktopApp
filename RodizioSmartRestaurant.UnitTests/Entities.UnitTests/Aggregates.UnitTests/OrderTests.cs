@@ -12,7 +12,7 @@ namespace RodizioSmartRestaurant.UnitTests.Entities.UnitTests.Aggregates.UnitTes
         public void SetPriceofOrder_GiveitOrderItemsWithPrice_GivesTheSumofAllTheOrderItemsPrice()
         {
             //Arrange
-            float? TotalPrice;
+            float? TotalPrice=0f;
             Order TestOrder = new Order()
             {
                 new OrderItem() { Price="5"},
@@ -22,6 +22,7 @@ namespace RodizioSmartRestaurant.UnitTests.Entities.UnitTests.Aggregates.UnitTes
 
             //Act
             // FIXME: I think its having problems evaluating what the price is
+            // Aggregate works perfectly, but for some reason it goes to the getter first, instead of setting it to the default value
             TotalPrice = TestOrder.Price;
 
             //Assert
