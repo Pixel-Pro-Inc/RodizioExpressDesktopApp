@@ -110,10 +110,10 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
         public float? Price
         {
             get { return _price; }
-            // You need to use net. 6.0 . v4 doesn't have this feature
-            private init
+            // You need to use net. 6.0 . That way you can use the keyword init. You can only use it when you upgrade to vs 22
+            private set
             {
-                // This is to add the price of every orderItem in the Order using an Aggregate method
+                // This is to add the price of every orderItem in the Order using the Aggregate method
                 _price=this.Aggregate(0f, (_price, place2) => _price + float.Parse(place2.Price));
             }
         }

@@ -24,7 +24,7 @@ namespace RodizioSmartRestuarant.Extensions
 
             // @Abel: This needs to be done
             // TODO: Put the change we need here
-            if (result.Count < 1) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
+            if (result.Count < 3) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
 
             return result;
         }
@@ -42,7 +42,7 @@ namespace RodizioSmartRestuarant.Extensions
 
             // @Abel: This needs to be done
             // TODO: Put the change we need here
-            if (result.Count < 1) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
+            if (result.Count < 3) throw new NotImplementedException("The object hasn't been changed to the correct type yet. Put in the logic");
 
             return result;
         }

@@ -23,6 +23,8 @@ namespace RodizioSmartRestaurant.UnitTests.Entities.UnitTests.Aggregates.UnitTes
             //Act
             // FIXME: I think its having problems evaluating what the price is
             // Aggregate works perfectly, but for some reason it goes to the getter first, instead of setting it to the default value
+            // UPDATE:
+            // You need to use net. 6.0 . That way you can use the keyword init. You can only use it when you upgrade to vs 22
             TotalPrice = TestOrder.Price;
 
             //Assert
