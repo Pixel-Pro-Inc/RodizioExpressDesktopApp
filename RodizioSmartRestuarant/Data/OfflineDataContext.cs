@@ -14,6 +14,11 @@ namespace RodizioSmartRestuarant.Data
         //Data Stored of Order, Menu, User
         #region Download
 
+        /// <summary>
+        /// This gets data from the local hdd if the device is the server, else it sends a request to the server. The object is returned as an object, but really it should be a list of clients
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public async static Task<object> GetData(Directories path)
         {
             if (LocalStorage.Instance.networkIdentity.isServer)

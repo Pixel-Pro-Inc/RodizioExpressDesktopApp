@@ -82,6 +82,7 @@
     <Compile Include="Data.UnitTests\FirebaseDataContextTests.cs" />
     <Compile Include="Entities.UnitTests\Aggregates.UnitTests\OrderTests.cs" />
     <Compile Include="Extensions.UnitTests\JsonConvertExtensionTests.cs" />
+    <Compile Include="Extensions.UnitTests\SerializedConvertExtensionsTests.cs" />
     <Compile Include="Helper.UnitTests\ConnectionStringManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services.UnitTests\OfflineDataService.UnitTest.cs" />

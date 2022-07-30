@@ -45,7 +45,7 @@ namespace RodizioSmartRestuarant.Interfaces
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new();
+        Task<List<Aggregate>> GetDataArray<Aggregate, Entity>(string path) where Aggregate : BaseAggregates<Entity>, new() where Entity : BaseEntity, new();
 
         /// <summary>
         /// This is a method that will be used when ever you need to get anything. Just pop in what ever the directory type you want as a string into <paramref name="fullPath"/> for example "Account" to get appusers. or "Branch" for branches. You would 

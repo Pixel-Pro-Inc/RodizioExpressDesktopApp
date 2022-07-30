@@ -33,7 +33,7 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <typeparam name="Entity"></typeparam>
         /// <param name="fullPath"></param>
         /// <returns><see cref="List{Aggregate}"/></returns>
-        Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new();
+        Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new() where Entity : BaseEntity, new();
         Task OfflineStoreData(string fullPath, object data);
 
         /// <summary>

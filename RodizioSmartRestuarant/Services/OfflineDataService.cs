@@ -73,7 +73,7 @@ namespace RodizioSmartRestuarant.Helpers
             List<Entity> entity = response.FromSerializedToObject<Entity>();
             return entity;
         }
-        public async Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new()
+        public async Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new() where Entity : BaseEntity, new()
         {
             Directories currentDirectory = GetDirectory(fullPath);
             List<Aggregate> aggregates = await GetAggregates<Aggregate, Entity>(currentDirectory);
@@ -83,10 +83,10 @@ namespace RodizioSmartRestuarant.Helpers
             throw new FailedToConvertFromSerialized($"Tried to get the list of {typeof(Entity)}s stored locally and came back with nothing.", new NullReferenceException());
 
         }
-        async Task<List<Aggregate>> GetAggregates<Aggregate, Entity>(Directories currentDirectory) where Aggregate : BaseAggregates<Entity>, new()
+        async Task<List<Aggregate>> GetAggregates<Aggregate, Entity>(Directories currentDirectory) where Aggregate : BaseAggregates<Entity>, new() where Entity: BaseEntity, new()
         {
             object response = await OfflineDataContext.GetData(currentDirectory);
-            List<Aggregate> aggregate = response.FromSerializedToObjectArray<Aggregate>();
+            List<Aggregate> aggregate = response.FromSerializedToObjectArray<Aggregate, Entity>();
             return aggregate;
         }
 
