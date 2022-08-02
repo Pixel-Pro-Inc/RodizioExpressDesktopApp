@@ -86,6 +86,11 @@ namespace RodizioSmartRestuarant.Services
 
             return false;
         }
-       
+        // TODO: New order bug
+        /*
+         Say you want to remove an order placed, there is no functionality to remove it, you just have to start the order all afresh
+
+         */
+
     }
 }

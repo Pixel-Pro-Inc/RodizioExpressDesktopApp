@@ -55,12 +55,7 @@ namespace RodizioSmartRestuarant
             IsClosed = true;
         }
 
-        // @Abel: You need to make an OrderService
-        // TODO: New order bug
-        /*
-         Say you want to remove an order placed, there is no functionality to remove it, you just have to start the order all afresh
-
-         */
+       
         // REFACTOR: In menuEditor we have nearly identical code save for the availability, we have to coalesce these somehow
         async void UpdateMenuViewBasedonAvailability()
         {

@@ -51,10 +51,8 @@ namespace RodizioSmartRestuarant
             foreach (var order in orders)
             {
                 // @Yewo: What does this do, wait, kana you won't understand the question. What does this aim to do?
-                // @Abel: Since orders are fufilled one orderItem at a time on the tablets there are going to be situations
-                //where the complete order haas not been fufilled by parts of it has
-                //this line makes it so that we skip over orders which have not been fully fufilled
 
+                //this line makes it so that we skip over orders which have not been fully fufilled
                 if (order.Where(o => o.Fufilled).Count() != order.Count)
                     continue;
 

@@ -152,6 +152,19 @@ namespace RodizioSmartRestuarant.Helpers
 
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
+        /// <summary>
+        /// This is so when ever something goes wrong you can show the users something to change their behaviour. Just give in the <paramref name="message"/>
+        /// </summary>
+        /// <param name="message"></param>
+         public void ShowWarning(string message)
+        {
+            string messageBoxText = message;
+            string caption = "Warning";
+            MessageBoxButton button = MessageBoxButton.OK;
+            MessageBoxImage icon = MessageBoxImage.Warning;
+
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
 
         // REFACTOR: There is prolly some syntax we can find out that can do a better job than a million if statements.
         // We can prolly extract the method and have it use generic types and set the generic parameter to be within 'Window' or something 

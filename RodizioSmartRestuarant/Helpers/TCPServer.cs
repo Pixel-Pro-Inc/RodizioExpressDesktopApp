@@ -232,7 +232,6 @@ namespace RodizioSmartRestuarant.Helpers
             // TRACK: Do you think its over kill to have a check on the request.requestType if null?
             switch (request.requestType)
             {
-                // FIXME: Here you should use DataService since it will give you data whether it is online or offline
                 case RequestObject.requestMethod.Get:
                     List<object> result =(List<object>) await _dataService.GetData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);

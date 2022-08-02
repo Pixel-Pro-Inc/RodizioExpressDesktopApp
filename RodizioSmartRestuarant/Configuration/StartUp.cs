@@ -17,7 +17,7 @@ namespace RodizioSmartRestuarant.Configuration
 
         public StartUp()
         {
-            // TODO: Intended to allow initialization without networking to be called alone
+            // NOTE: Intended to allow initialization without networking to be called alone
         }
 
         public StartUp(App app)

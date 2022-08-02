@@ -18,15 +18,12 @@ using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant.Data
 {
-    // REFACTOR: consider changing Offlinedatahelpers
     /// <summary>
     ///  
     /// </summary>
-    public class FirebaseDataContext:OfflineDataService
+    public class FirebaseDataContext
     {
         public static FirebaseDataContext Instance { get; set; }
-
-        
         string branchId = "";
 
         IFirebaseConfig config = new FirebaseConfig
@@ -37,14 +34,11 @@ namespace RodizioSmartRestuarant.Data
         IFirebaseClient client;
         IDataService _dataService;
 
-        
-
         public FirebaseDataContext()
         {
             client = new FireSharp.FirebaseClient(config);
             Instance = this;
         }
-
 
         public async Task DeleteData(string fullPath) => await client.DeleteAsync(fullPath);
         /// <summary>

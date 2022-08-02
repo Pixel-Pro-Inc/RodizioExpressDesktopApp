@@ -1,6 +1,7 @@
 ﻿using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Exceptions;
+using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,6 +66,7 @@ namespace RodizioSmartRestuarant.Extensions
             }
             catch (InvalidCastException e)
             {
+                WindowManager.Instance.ShowWarning("Please put in the correct type of data.");
                 throw new FailedToConvertFromSerialized(" Yeah this isn't the object that you are able to go from Serialized to a data type", e);
             }
 
