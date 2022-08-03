@@ -24,6 +24,13 @@ namespace RodizioSmartRestuarant.Interfaces
         Task CancelOrder(string orderInvoice);
 
         Task<object> GetOfflineOrdersCompletedInclusive();
+        /// <summary>
+        /// This compares the <paramref name="querystring"/> to the orderNumber or phoneNumber of the order and returns a list of orders that have the same as <paramref name="querystring"/>
+        /// </summary>
+        /// <param name="querystring"></param>
+        /// <param name="orders"></param>
+        /// <returns></returns>
+        List<Order> SearchForQueryString(string querystring, List<Order> orders);
 
         /// <summary>
         /// This moves the order in the fullpath to the completed directory

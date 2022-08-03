@@ -150,7 +150,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            Entities.Aggregates.Menu result = new SearchMenu().Search(query, menu);
+            Entities.Aggregates.Menu result = _menuService.SearchForQueryString(query, menu);
 
             showingResults = true;            
 

@@ -32,7 +32,21 @@ namespace RodizioSmartRestuarant.Services
             _dataService.UpdateLocalStorage(menu, Directories.Menu);
             return menu;
         }
+        public Menu SearchForQueryString(string query, Menu menu)
+        {
+            Menu list = new Menu();
 
-       
+            foreach (var menuitem in menu)
+            {
+                if (menuitem.Name.ToLower().Contains(query.ToLower()) || menuitem.Category.ToLower().Contains(query.ToLower()))
+                {
+                    list.Add(menuitem);
+                }
+            }
+
+            return list;
+        }
+
+
     }
 }

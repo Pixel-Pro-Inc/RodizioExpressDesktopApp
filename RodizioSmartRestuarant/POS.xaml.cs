@@ -890,7 +890,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            List<Order> result = new SearchOrders().Search(query, orders);
+            List<Order> result =_orderService.SearchForQueryString(query, orders);
 
             showingResults = true;
 

@@ -395,8 +395,6 @@
     <Compile Include="Data\Waiver.cs" />
     <Compile Include="Entities\restaurantEntity.cs" />
     <Compile Include="Entities\Stock.cs" />
-    <Compile Include="Helpers\SearchMenu.cs" />
-    <Compile Include="Helpers\SearchOrders.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />
     <Compile Include="Helpers\ReceiptSlip.cs" />
     <Compile Include="App.xaml.cs">

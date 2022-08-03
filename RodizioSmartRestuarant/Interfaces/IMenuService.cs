@@ -18,5 +18,13 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns></returns>
         Task<Menu> GetOnlineMenu(string path);
 
+        /// <summary>
+        /// Checks if the Menu inputed has the query string as its category or name. Nothing actually advanced
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        Menu SearchForQueryString(string query, Menu menu);
+
     }
 }

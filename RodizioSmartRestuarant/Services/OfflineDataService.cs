@@ -70,7 +70,17 @@ namespace RodizioSmartRestuarant.Helpers
         async Task<List<Entity>> GetEntities<Entity>(Directories currentDirectory) where Entity : BaseEntity, new()
         {
             object response = await OfflineDataContext.GetData(currentDirectory);
-            List<Entity> entity = response.FromSerializedToObject<Entity>();
+            List<Entity> entity;
+            try
+            {
+                entity = response.FromSerializedToObject<Entity>();
+            }
+            catch (FailedToConvertFromSerialized)
+            {
+                WindowManager.Instance.ShowWarning("Please put in the correct type of data. \n More specifically, you gave the wrong directory and it can't be deserialized to an entity");
+                throw;
+            }
+            
             return entity;
         }
         public async Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new() where Entity : BaseEntity, new()
@@ -86,7 +96,17 @@ namespace RodizioSmartRestuarant.Helpers
         async Task<List<Aggregate>> GetAggregates<Aggregate, Entity>(Directories currentDirectory) where Aggregate : BaseAggregates<Entity>, new() where Entity: BaseEntity, new()
         {
             object response = await OfflineDataContext.GetData(currentDirectory);
-            List<Aggregate> aggregate = response.FromSerializedToObjectArray<Aggregate, Entity>();
+
+            List<Aggregate> aggregate;
+            try
+            {
+                aggregate = response.FromSerializedToObjectArray<Aggregate, Entity>();
+            }
+            catch (FailedToConvertFromSerialized)
+            {
+                WindowManager.Instance.ShowWarning("Please put in the correct type of data. \n More specifically, you gave the wrong directory and it can't be deserialized to an entity");
+                throw;
+            }
             return aggregate;
         }
 

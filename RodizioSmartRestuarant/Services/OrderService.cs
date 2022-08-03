@@ -58,6 +58,29 @@ namespace RodizioSmartRestuarant.Services
             }
         }
 
+        public List<Order> SearchForQueryString(string querystring, List<Order> orders)
+        {
+            List<Order> list = new List<Order>();
+
+            foreach (var item in orders)
+            {
+                string orderNumber = item[0].OrderNumber.ToString();
+
+                string x = orderNumber;
+                string n = x.Substring(x.IndexOf('_') + 1, 4);
+
+                if (item[0].PhoneNumber == querystring || n == querystring)
+                {
+                    Order orderItems = new Order();
+
+                    orderItems.Add(item[0]);
+
+                    list.Add(orderItems);
+                }
+            }
+
+            return list;
+        }
         public async Task<object> GetOfflineOrdersCompletedInclusive()=> await _offlineService.GetOfflineDataArray<Order, OrderItem>("Order");
 
         public async Task CompleteOrder(string fullPath)
