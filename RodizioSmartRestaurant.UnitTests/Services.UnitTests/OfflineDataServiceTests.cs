@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RodizioSmartRestaurant.UnitTests.View.UnitTests
+namespace RodizioSmartRestaurant.UnitTests.Services.UnitTests
 {
     [TestClass]
     public class OfflineDataServiceTests

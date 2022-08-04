@@ -84,8 +84,9 @@
     <Compile Include="Extensions.UnitTests\JsonConvertExtensionTests.cs" />
     <Compile Include="Extensions.UnitTests\SerializedConvertExtensionsTests.cs" />
     <Compile Include="Helper.UnitTests\ConnectionStringManagerTests.cs" />
+    <Compile Include="Helper.UnitTests\SerializedObjectManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services.UnitTests\OfflineDataService.UnitTest.cs" />
+    <Compile Include="Services.UnitTests\OfflineDataServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
