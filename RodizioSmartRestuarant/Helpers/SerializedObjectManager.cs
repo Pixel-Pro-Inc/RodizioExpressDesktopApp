@@ -33,7 +33,7 @@ namespace RodizioSmartRestuarant.Helpers
         }
 
         Directories[] paths = { Directories.Order, Directories.Menu, Directories.Account, Directories.Branch };//Exclusive of Printer, Settings So They Don't Get Deleted On UpdateOfflineData
-        public string savePath(Directories dir) 
+        internal string savePath(Directories dir) 
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
@@ -262,6 +262,8 @@ namespace RodizioSmartRestuarant.Helpers
                         var binaryFormatter = new BinaryFormatter();
                         using (var fileStream = File.Open(savePath(dir) + "/data.txt", FileMode.Open))
                         {
+                            // This is if the stream exists, but there is nothing inside of it
+                            if (fileStream.Length == 0) return null;
                             load = (object)binaryFormatter.Deserialize(fileStream);
 
                             return load;

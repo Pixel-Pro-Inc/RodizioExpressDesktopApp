@@ -16,7 +16,8 @@ namespace RodizioSmartRestuarant.Extensions
     public static class SerializedConvertExtensions
     {
         /// <summary>
-        /// This takes a response and changes its to the desired types. It is used when we 'expect' to have an aggregate returned to us
+        /// This takes a response and changes its to the desired types. It is used when we 'expect' to have an aggregate returned to us.
+        /// <para> We honestly expect this to get in an object thats really a List of a List of <see cref="IDictionary{TKey, TValue} "/></para>
         /// </summary>
         /// <typeparam name="Aggregate"></typeparam>
         /// <param name="source"></param>

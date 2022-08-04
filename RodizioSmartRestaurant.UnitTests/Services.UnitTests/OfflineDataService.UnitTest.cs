@@ -11,6 +11,15 @@ namespace RodizioSmartRestaurant.UnitTests.View.UnitTests
     [TestClass]
     public class OfflineDataServiceTests
     {
+        [ClassInitialize]
+        public static void TestFixtureSetup(TestContext context)
+        {
+            // This is so when offlineContext.GetData() is fired and it asks if its the server, it will fire yes
+            LocalStorage.Instance = new LocalStorage();
+            LocalStorage.Instance.networkIdentity = new NetworkIdentity("desktop", true);
+        }
+
+
 
         /// <summary>
         /// This was ignored cause it can't work without actually running the app and the network server being instanciated
@@ -19,20 +28,20 @@ namespace RodizioSmartRestaurant.UnitTests.View.UnitTests
         /// </para>
         /// </summary>
         [TestMethod]
-       [Ignore]
+        [Ignore]
         public async Task OfflineStoreData_GiveAccountDirectory_CorrectAccountValuesFromOnlineComparedtoOffline()
         {
             //Arrange
             string fullpath = "Account/";
             string firstname = "Proffessor Xavier2";
-            AppUser TestUser = new AppUser() { FirstName = firstname };
+            List<AppUser> TestUsers= new List<AppUser>() { new AppUser() { FirstName = firstname } }; 
             OfflineDataService offlineService = new OfflineDataService();
             
             //Act
-            await offlineService.OfflineStoreData(fullpath, TestUser);
+            await offlineService.OfflineStoreData(fullpath, TestUsers);
 
             //Asert
-            // NOTE: Here is where the problem is thrown cause it can't work without making a networkServer which is done when fully loaded
+            // FIXME: Here is where the problem is thrown cause it can't cast by explicit methods, this is why we may need to use IDictionary, or maybe use a serialize
             List<AppUser> users= await offlineService.GetOfflineData<AppUser>(fullpath);
             foreach (var user in users)
             {

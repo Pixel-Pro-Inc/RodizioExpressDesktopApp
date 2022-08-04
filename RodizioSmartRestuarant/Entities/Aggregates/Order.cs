@@ -11,6 +11,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
     /// <para> We needed this for a long while but finally was pushed to make it when Abel had to convert object to json in
     /// the extention but the List of List of orderitem  wasn't really working nice with single items like a list of appusers</para>
     /// </summary>
+    [Serializable]
     public class Order : BaseAggregates<OrderItem>
     {
 
@@ -182,25 +183,22 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
-        public string _paymentMethod
-        {
-            get { return _paymentMethod == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _paymentMethod; }
-            set
-            {
-                if (this.Any())
-                {
-                    _paymentMethod = this.First().PaymentMethod;
-                }
-            }
-        }
+        private string _paymentMethod { get; set; }
         /// <summary>
         /// This is the payment method gotten from the first element of <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
         /// <para> I also made it Immutable/ReadOnly</para>
         /// </summary>
         public string PaymentMethod
         {
-            get { return _paymentMethod; }
-            private set { }
+            get { return _paymentMethod == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _paymentMethod; }
+            // FIXME: This should be a private init not set, but we need VS 22 for that
+            private set
+            {
+                if (this.Any())
+                {
+                    _paymentMethod = this.First().PaymentMethod;
+                }
+            }
         }
 
         private bool? _waitingForPayment

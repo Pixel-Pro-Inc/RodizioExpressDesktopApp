@@ -10,6 +10,7 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
     /// <summary>
     /// This is a class that will define what all aggregates should have, eg Order, Menu
     /// </summary>
+    [Serializable]
     public class BaseAggregates<Entity> : List<Entity>, IBaseAggregate
     {
 
