@@ -54,7 +54,7 @@ namespace RodizioSmartRestuarant
         {
             string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
 
-            string fileName = $"error_log[{DateTime.Now.ToString()}].txt";
+            string fileName = $"error_log.txt";
 
             // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works
             // SendErrorlogSMS(e.ExceptionObject.ToString());
