@@ -5,6 +5,7 @@ using RodizioSmartRestuarant.Entities.Aggregates;
 using RodizioSmartRestuarant.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RodizioSmartRestaurant.UnitTests.Extensions.UnitTests
 {
@@ -12,11 +13,11 @@ namespace RodizioSmartRestaurant.UnitTests.Extensions.UnitTests
     public class JsonConvertExtensionTests
     {
         [TestMethod]
-        public async void FromJsonToObjectArray_MenuResponseFromFirebase_ListofMenusReturned()
+        public async Task FromJsonToObjectArray_MenuResponseFromFirebase_ListofMenusReturned()
         {
             //Arrange
             FirebaseDataContext _firebaseDataContext = new FirebaseDataContext();
-            string path = "Menu/rd29502";
+            string path = "menu/rd29502";
             List<object> response = await _firebaseDataContext.GetData(path);
 
             //Act
