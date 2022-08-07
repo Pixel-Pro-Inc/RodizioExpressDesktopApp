@@ -42,8 +42,6 @@ namespace RodizioSmartRestuarant.Extensions
             }
             catch (InvalidCastException inEx)
             {
-                // TODO: Test the exception handling so that it actually always throws the correct exception with the right messages
-                // @Abel: This one is kind important, but only after functionality is finished.
                 throw new FailedToConvertFromJson($" The Extension failed to convert {results[results.Count]} to {typeof(T)}" + "It might be cause it is expecting a JObject but we are " +
                     "trying to cast it to a JArray, You should try using FromJsonToObject instead", inEx);
             }

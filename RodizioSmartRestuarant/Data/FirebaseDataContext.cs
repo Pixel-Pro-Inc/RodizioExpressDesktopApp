@@ -108,7 +108,7 @@ namespace RodizioSmartRestuarant.Data
                         _dataService.DataReceived();
                     });
         }
-
+        // @Yewo: I think you need to consider making a test for this one, or at least explain to me what it hopes to accomplish cause yeah, I don't fully understand its behavious
 
     }
 }
