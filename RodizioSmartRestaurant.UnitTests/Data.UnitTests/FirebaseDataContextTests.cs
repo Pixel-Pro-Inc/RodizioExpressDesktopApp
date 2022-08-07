@@ -15,7 +15,6 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
         private static FirebaseDataContext fbDataContext = new FirebaseDataContext();
         // We don't need to delete data over and over cause since the data is unique it will just keep over writting
 
-
         #region GetData tests
 
         // All these are testing for is if it can manage to get values from the database, not the validity of the data
@@ -91,7 +90,7 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
             {
                 new OrderItem() { OrderNumber=orderNumber }
             };
-            string path = "Order/" + BranchSettings.Instance.branchId + "/" + TestOrder.OrderNumber;
+            string path = "Order/" + "rd29502" + "/" + TestOrder.OrderNumber;
             //paths.Add("DeleteData_GivenPathString_ReturnsWithNothing", path);
             await fbDataContext.StoreData(path, TestOrder);
 
@@ -104,7 +103,6 @@ namespace RodizioSmartRestaurant.UnitTests.Data.UnitTests
         }
 
         #endregion
-
 
     }
 }
