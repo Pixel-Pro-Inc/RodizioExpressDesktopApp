@@ -28,8 +28,8 @@ namespace RodizioSmartRestuarant.Data
 
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = ConnectionStringManager.GetConnectionString("FirebaseAuth"),
-            BasePath = ConnectionStringManager.GetConnectionString("FireBaseBasePath")
+            AuthSecret = ConnectionStringManager.GetConnectionString("RodizioSmartRestuarant.Properties.Settings.FirebaseAuth"),
+            BasePath = ConnectionStringManager.GetConnectionString("RodizioSmartRestuarant.Properties.Settings.FireBaseBasePath")
         };
         IFirebaseClient client;
         IDataService _dataService;
