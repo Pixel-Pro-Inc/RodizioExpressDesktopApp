@@ -27,7 +27,7 @@ namespace RodizioSmartRestuarant.Data
         // REFACTOR: Use environment variables here
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl",
+            AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
         };
         IFirebaseClient client;
