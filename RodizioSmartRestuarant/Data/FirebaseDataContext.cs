@@ -62,26 +62,25 @@ namespace RodizioSmartRestuarant.Data
 
             dynamic data = JsonConvert.DeserializeObject<dynamic>(response.Body);
 
-            if (data != null)
+            // This is cause if it is null we just give it back the null
+            if (data == null) return objects;
+            // This works well when it is a list of objects to parse, but as a single object it fights
+            foreach (var item in data)
             {
-                foreach (var item in data)
+                object _object = new object();
+                if (item != null)
                 {
-                    object _object = new object();
-
-                    if (item != null)
+                    // REFACTOR: Try to see if this is the solution we need to make the overload in JsonConvertExtension unified
+                    if (item.GetType() == typeof(JProperty))
                     {
-                        // REFACTOR: Try to see if this is the solution we need to make the overload in JsonConvertExtension unified
-                        if (item.GetType() == typeof(JProperty))
-                        {
-                            _object = JsonConvert.DeserializeObject<object>(((JProperty)item).Value.ToString());
-                        }
-                        else
-                        {
-                            _object = JsonConvert.DeserializeObject<object>(((JObject)item).ToString());
-                        }
-
-                        objects.Add(_object);
+                        _object = JsonConvert.DeserializeObject<object>(((JProperty)item).Value.ToString());
                     }
+                    else
+                    {
+                        _object = JsonConvert.DeserializeObject<object>(((JObject)item).ToString());
+                    }
+
+                    objects.Add(_object);
                 }
             }
 
@@ -103,6 +102,7 @@ namespace RodizioSmartRestuarant.Data
         /// <param name="fullPath"></param>
         public async void OnDataChanging(string fullPath)
         {
+            // TODO: Have this have tests
             EventStreamResponse response = await client.OnAsync(fullPath,
                     (sender, args, context) => {
                         _dataService.DataReceived();

@@ -82,21 +82,21 @@ namespace RodizioSmartRestuarant.Services
                     }
                     return branchids;
                 case Directories.PrinterName:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");   
                 case Directories.Settings:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.NetworkInterface:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.Print:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.TCPServer:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.TCPServerIP:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.Error:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 case Directories.CalledOutOrders:
-                    break;
+                    throw new NotImplementedException("This type of data isn't called from this method or at all. You might be using the method wrong, consider using something in the TCPServer");
                 default:
                     break;
             }
@@ -244,15 +244,15 @@ namespace RodizioSmartRestuarant.Services
         [Obsolete]
         public async Task EditData_Online(string fullPath, object data)
         {
-            if (await connectionChecker.CheckConnection())
-            {
-                await SetLastActive();
+            // REFACTOR: Consider using Windows Message method
+            if (!await connectionChecker.CheckConnection()) throw new NoNetworkException(" You can't edit online without network");
 
-                _firebaseServices.StoreData(fullPath, data);
+            await SetLastActive();
 
-                if (fullPath.ToLower().Contains("menu"))
-                    UpdateLocalStorage((Menu)data, Directories.Menu);
-            }
+            _firebaseServices.StoreData(fullPath, data);
+
+            if (fullPath.ToLower().Contains("menu"))
+                UpdateLocalStorage((Menu)data, Directories.Menu);
         }
 
         public async void ResetLocalData(List<Order> orders)
@@ -301,30 +301,30 @@ namespace RodizioSmartRestuarant.Services
 
         async Task SetLastActive()
         {
-            if (await connectionChecker.CheckConnection())
+            // REFACTOR: Consider using Windows Message method
+            if (!await connectionChecker.CheckConnection()) throw new NoNetworkException(" You can't edit online without network");
+
+            var list = await _firebaseServices.GetData<Branch>("Branch");
+
+            Branch branch = null;
+
+            foreach (var b in list)
             {
-                var list = await _firebaseServices.GetData<Branch>("Branch");
-
-                Branch branch = null;
-
-                foreach (var b in list)
+                if (b.Id == BranchSettings.Instance.branchId)
                 {
-                    if (b.Id == BranchSettings.Instance.branchId)
-                    {
-                        branch = b;
-                    }
+                    branch = b;
                 }
+            }
 
-                if (BranchSettings.Instance.branchId != "/")
-                {
-                    branch.LastActive = DateTime.UtcNow;
+            if (BranchSettings.Instance.branchId != "/")
+            {
+                branch.LastActive = DateTime.UtcNow;
 
-                    BranchSettings.Instance.branch = branch;
+                BranchSettings.Instance.branch = branch;
 
-                    _firebaseServices.StoreData("Branch" + BranchSettings.Instance.branchId, branch);
+                _firebaseServices.StoreData("Branch" + BranchSettings.Instance.branchId, branch);
 
-                    elapsedTimeLastActive = 0;
-                }
+                elapsedTimeLastActive = 0;
             }
         }
         //Apply offline changes to db

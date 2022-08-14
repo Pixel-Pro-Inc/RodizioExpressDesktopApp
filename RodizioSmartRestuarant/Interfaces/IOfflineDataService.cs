@@ -35,6 +35,12 @@ namespace RodizioSmartRestuarant.Interfaces
         /// <returns><see cref="List{Aggregate}"/></returns>
         Task<List<Aggregate>> GetOfflineDataArray<Aggregate, Entity>(string fullPath) where Aggregate : BaseAggregates<Entity>, new() where Entity : BaseEntity, new();
         Task OfflineStoreData(string fullPath, object data);
+        /// <summary>
+        /// This is to store data that isn't known, for the TCPServer
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        Task<List<object>> GetOfflineData(string fullPath);
 
         /// <summary>
         /// We don't have a method that called to delete data locally. When the need arises replace this with that

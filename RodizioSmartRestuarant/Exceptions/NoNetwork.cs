@@ -7,7 +7,7 @@ namespace RodizioSmartRestuarant.Exceptions
     internal class NoNetworkException : Exception
     {
         /// <summary>
-        /// The only reason I have this is cause I was lazy to put up proper logic prompt out that there is no network so you can't store online
+        /// The only reason I have this is cause I was lazy to put up proper logic prompt out that there is no network so you can't work online
         /// </summary>
         public NoNetworkException()
         {

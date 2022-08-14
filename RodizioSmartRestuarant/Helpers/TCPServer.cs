@@ -229,33 +229,32 @@ namespace RodizioSmartRestuarant.Helpers
         }
         public async void ProcessResponse(RequestObject request, string ipPort)
         {
-            // TRACK: Do you think its over kill to have a check on the request.requestType if null?
+            // NOTE: We use only offline data service here cause we don't ever expect it to be stored in firebase so it has to go directly
             switch (request.requestType)
             {
                 case RequestObject.requestMethod.Get:
-                    List<object> result =(List<object>) await _dataService.GetData(request.fullPath);
+                    List<object> result =(List<object>) await _offlineDataService.GetOfflineData(request.fullPath);
                     SendData(ipPort, result, request.fullPath);
                     break;
                 case RequestObject.requestMethod.Store:
                     if(lastRequestSource == "MOBILE")
                     {
                         // TRACK: Handles data from mobile.
-                        // REFACTOR: I believe you want work done here Yewo, but I'm not sure how to begin
                         var obj = request.data;
 
                         request.data = JsonConvert.DeserializeObject<OrderItem>(obj.ToString());
                     }
-                    await _dataService.StoreData(request.fullPath, request.data);
+                    await _offlineDataService.OfflineStoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Update:
-                    await _dataService.StoreData(request.fullPath, request.data);
+                    await _offlineDataService.OfflineStoreData(request.fullPath, request.data);
                     break;
                 case RequestObject.requestMethod.Delete:
                     _offlineDataService.OfflineDeleteOrder((Order)request.data);
                     break;
                 case RequestObject.requestMethod.UpdateLocalDataRequest:
                     // UPDATE: So I removed the offline thing here. I figured it was necessary but dataservice job is to feed the most relevant information be offline or online
-                    List<object> result_1 = (List<object>)await _dataService.GetData(request.fullPath);
+                    List<object> result_1 = (List<object>)await _offlineDataService.GetOfflineData(request.fullPath);
                     SendData(ipPort, result_1, request.fullPath);
                     break;
             }

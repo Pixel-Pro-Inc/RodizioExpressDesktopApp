@@ -63,9 +63,15 @@ namespace RodizioSmartRestuarant.Helpers
                     }
 
                     return branchresult;
+                    // @Abel: Why aren't there offline Order switch case?
             }
 
             return null;
+        }
+        public async Task<List<object>> GetOfflineData(string fullPath)
+        {
+            Directories currentDirectory = GetDirectory(fullPath);
+            return (List<object>)await OfflineDataContext.GetData(currentDirectory);
         }
         async Task<List<Entity>> GetEntities<Entity>(Directories currentDirectory) where Entity : BaseEntity, new()
         {

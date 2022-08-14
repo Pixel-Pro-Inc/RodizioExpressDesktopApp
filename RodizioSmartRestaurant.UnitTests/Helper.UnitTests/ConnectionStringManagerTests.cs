@@ -25,7 +25,7 @@ namespace RodizioSmartRestaurant.UnitTests
             string result = ConnectionStringManager.GetConnectionString(variableName);
 
             //Assert
-            Assert.AreEqual("https://rodizoapp-default-rtdb.firebaseio.com/", result);
+            Assert.AreEqual("https://rodizotestapp.firebaseio.com/", result);
 
         }
 
