@@ -12,7 +12,7 @@ namespace RodizioSmartRestuarant.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.3.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -26,7 +26,7 @@ namespace RodizioSmartRestuarant.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://rodizoapp-default-rtdb.firebaseio.com/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://rodizotestapp.firebaseio.com/")]
         public string FireBaseBasePath {
             get {
                 return ((string)(this["FireBaseBasePath"]));
@@ -36,7 +36,7 @@ namespace RodizioSmartRestuarant.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl")]
+        [global::System.Configuration.DefaultSettingValueAttribute("y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH")]
         public string FirebaseAuth {
             get {
                 return ((string)(this["FirebaseAuth"]));

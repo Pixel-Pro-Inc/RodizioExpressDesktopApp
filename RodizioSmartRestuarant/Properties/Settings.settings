@@ -4,17 +4,17 @@
   <Settings>
     <Setting Name="FireBaseBasePath" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;https://rodizoapp-default-rtdb.firebaseio.com/&lt;/ConnectionString&gt;
+&lt;SerializableConnectionString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;ConnectionString&gt;https://rodizotestapp.firebaseio.com/&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">https://rodizoapp-default-rtdb.firebaseio.com/</Value>
+      <Value Profile="(Default)">https://rodizotestapp.firebaseio.com/</Value>
     </Setting>
     <Setting Name="FirebaseAuth" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl&lt;/ConnectionString&gt;
+&lt;SerializableConnectionString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;ConnectionString&gt;y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl</Value>
+      <Value Profile="(Default)">y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH</Value>
     </Setting>
   </Settings>
 </SettingsFile>

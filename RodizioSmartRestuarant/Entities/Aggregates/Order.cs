@@ -82,10 +82,15 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
             private set { }
         }
 
-        private DateTime _orderDateTime
+        private DateTime? _orderDateTime { get; set; }
+        /// <summary>
+        /// This is the <see cref="DateTime"/> gotten from the first element of <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
+        /// <para> I also made it Immutable/ReadOnly</para>
+        /// </summary>
+        public DateTime? OrderDateTime
         {
             get { return _orderDateTime == null ? throw new NullReferenceException("There are no OrderItems in this Order") : _orderDateTime; }
-            set
+            init
             {
                 if (this.Any())
                 {
@@ -93,21 +98,13 @@ namespace RodizioSmartRestuarant.Entities.Aggregates
                 }
             }
         }
-        /// <summary>
-        /// This is the <see cref="DateTime"/> gotten from the first element of <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
-        /// <para> I also made it Immutable/ReadOnly</para>
-        /// </summary>
-        public DateTime OrderDateTime
-        {
-            get { return _orderDateTime; }
-            private set { }
-        }
 
         private float? _price { get; set; }
         /// <summary>
         /// This is the Price gotten from the adding all the prices of the <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
         /// <para> I also made it Immutable/ReadOnly</para>
         /// </summary>
+        /// 
         public float? Price
         {
             get { return _price; }
