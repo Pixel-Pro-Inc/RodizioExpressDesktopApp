@@ -371,7 +371,6 @@
       <DependentUpon>GettingReady.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ActivityIndicator.cs" />
-    <Compile Include="Helpers\EmailSender.cs" />
     <Compile Include="Helpers\Formatting.cs" />
     <Compile Include="Helpers\LocalIP.cs" />
     <Compile Include="Helpers\Notification.cs" />
