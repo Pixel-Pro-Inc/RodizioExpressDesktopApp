@@ -291,6 +291,9 @@
     <Reference Include="System.Net.Http.Extensions, Version=2.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Json.6.0.0\lib\net461\System.Net.Http.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http.Primitives, Version=4.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
@@ -359,6 +362,7 @@
     <Compile Include="Configuration\StartUp.cs" />
     <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Entities\Enums.cs" />
+    <Compile Include="Entities\ErrorLog.cs" />
     <Compile Include="Entities\NetworkIdentity.cs" />
     <Compile Include="Entities\NetworkInterfaceObject.cs" />
     <Compile Include="Entities\SettingsProperties.cs" />
@@ -367,6 +371,7 @@
       <DependentUpon>GettingReady.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ActivityIndicator.cs" />
+    <Compile Include="Helpers\EmailSender.cs" />
     <Compile Include="Helpers\Formatting.cs" />
     <Compile Include="Helpers\LocalIP.cs" />
     <Compile Include="Helpers\Notification.cs" />
