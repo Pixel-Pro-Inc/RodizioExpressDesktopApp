@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using System;
@@ -18,14 +19,14 @@ namespace RodizioSmartRestuarant.Helpers
         // @Yewo: What made you think to do this, makking a window manager. Cause it feels, kinda unlike you *laughing emoji*
         public static WindowManager Instance { get; set; }
 
-        public List<Window> openWindows = new List<Window>();
+        public List<BaseWindow> openWindows = new List<BaseWindow>();
 
         public WindowManager()
         {
             Instance = this;
         }
 
-        public void CloseAllExcept(Window target)
+        public void CloseAllExcept(BaseWindow target)
         {
             // REFACTOR: We need to extract this code cause it is used alot in this cs file
             for (int i = 0; i < openWindows.Count; i++)
@@ -37,7 +38,7 @@ namespace RodizioSmartRestuarant.Helpers
             UpdateList();
         }
 
-        public void CloseAllAndOpen(Window target)
+        public void CloseAllAndOpen(BaseWindow target)
         {
             if (!WindowAlreadyOpen(target))
             {
@@ -56,14 +57,14 @@ namespace RodizioSmartRestuarant.Helpers
             ShowWarning();
         }
 
-        public void Close(Window target)
+        public void Close(BaseWindow target)
         {
             target.Close();
 
             UpdateList();
         }
 
-        public void CloseAndOpen(Window close, Window target)
+        public void CloseAndOpen(BaseWindow close, BaseWindow target)
         {
             if (!WindowAlreadyOpen(target))
             {
@@ -96,7 +97,7 @@ namespace RodizioSmartRestuarant.Helpers
             ShowWarning();
         }
 
-        public void Open(Window target)
+        public void Open(BaseWindow target)
         {
             if (!WindowAlreadyOpen(target))
             {
@@ -126,7 +127,7 @@ namespace RodizioSmartRestuarant.Helpers
                 
         }
 
-        bool WindowAlreadyOpen(Window target)
+        bool WindowAlreadyOpen(BaseWindow target)
         {
             UpdateList();
 
@@ -153,231 +154,24 @@ namespace RodizioSmartRestuarant.Helpers
         // We can prolly extract the method and have it use generic types and set the generic parameter to be within 'Window' or something 
         // more specific we want so we don't have to do this every time a new window is generated and also, well we don't have to maintain a million
         // if statements
-        void UpdateList()
+        public void UpdateList()
         {
-            int k = 0;
-
-            while(k == 0)
+            while(true)
             {
+                //Check closed windows that are still in the list
                 for (int i = 0; i < openWindows.Count; i++)
                 {
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(LoadingScreen))
-                        {
-                            if (((LoadingScreen)openWindows[i]).IsClosed)
-                            {
-                                openWindows.RemoveAt(i);
+                    if (!openWindows[i].IsClosed)
+                        continue;
 
-                                i = 100000;
-                            }
-                        }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(Login))
-                    {
-                        if (((Login)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(MenuEditor))
-                    {
-                        if (((MenuEditor)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(NewOrder))
-                    {
-                        if (((NewOrder)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(OrderStatus))
-                    {
-                        if (((OrderStatus)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(POS))
-                    {
-                        if (((POS)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(ReceivePayment))
-                    {
-                        if (((ReceivePayment)openWindows[i]).IsClosed)
-                        {
-                            openWindows.RemoveAt(i);
-
-                            i = 100000;
-                        }
-                    }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(RodizioSmartRestuarant.Settings))
-                        {
-                            if (((RodizioSmartRestuarant.Settings)openWindows[i]).IsClosed)
-                            {
-                                openWindows.RemoveAt(i);
-
-                                i = 100000;
-                            }
-                        }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(ResetPasswordScreen))
-                        {
-                            if (((ResetPasswordScreen)openWindows[i]).IsClosed)
-                            {
-                                openWindows.RemoveAt(i);
-
-                                i = 100000;
-                            }
-                        }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(OrderSource))
-                        {
-                            if (((OrderSource)openWindows[i]).IsClosed)
-                            {
-                                openWindows.RemoveAt(i);
-
-                                i = 100000;
-                            }
-                        }
-
-                    if (i < openWindows.Count)
-                        if (openWindows[i].GetType() == typeof(CashierReport))
-                        {
-                            if (((CashierReport)openWindows[i]).IsClosed)
-                            {
-                                openWindows.RemoveAt(i);
-
-                                i = 100000;
-                            }
-                        }
-
+                    //Remove closed windows 
+                    openWindows.RemoveAt(i);
+                    break;
                 }
 
-                for (int i = 0; i < openWindows.Count; i++)
-                {
-                    k = 1;
-
-                    if (openWindows[i].GetType() == typeof(LoadingScreen))
-                    {
-                        if (((LoadingScreen)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(Login))
-                    {
-                        if (((Login)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(MenuEditor))
-                    {
-                        if (((MenuEditor)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(NewOrder))
-                    {
-                        if (((NewOrder)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(OrderStatus))
-                    {
-                        if (((OrderStatus)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(POS))
-                    {
-                        if (((POS)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(ReceivePayment))
-                    {
-                        if (((ReceivePayment)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(RodizioSmartRestuarant.Settings))
-                    {
-                        if (((RodizioSmartRestuarant.Settings)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(ResetPasswordScreen))
-                    {
-                        if (((ResetPasswordScreen)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(OrderSource))
-                    {
-                        if (((OrderSource)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-
-                    if (openWindows[i].GetType() == typeof(CashierReport))
-                    {
-                        if (((CashierReport)openWindows[i]).IsClosed)
-                        {
-                            k = 0;
-                        }
-                    }
-                }
-                if (openWindows.Count == 0)
-                    k = 1;
+                //Exit the loop if there are no more closed windows
+                if (openWindows.Where(w => w.IsClosed).ToList().Count == 0)
+                    break;
             }
 
             Settings.Instance.OnWindowCountChange();
@@ -477,14 +271,14 @@ namespace RodizioSmartRestuarant.Helpers
             changeCount++;
         }
 
-        void AddToOpenWindows(Window target)
+        void AddToOpenWindows(BaseWindow target)
         {
             openWindows.Add(target);
 
             UpdateList();
         }
 
-        public List<Window> GetAllOpenWindows()
+        public List<BaseWindow> GetAllOpenWindows()
         {
             return openWindows;
         }

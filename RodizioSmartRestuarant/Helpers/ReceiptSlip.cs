@@ -132,7 +132,7 @@ namespace RodizioSmartRestuarant.Helpers
                 int Offset = 10;
                 int smallinc = 10, mediuminc = 12, largeinc = 15;
 
-                var bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/Images/rodizio_express_logo.png", UriKind.Absolute));
+                var bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/../Images/rodizio_express_logo.png", UriKind.Absolute));
 
                 var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create((BitmapImage)bitmapImage));
@@ -274,7 +274,7 @@ namespace RodizioSmartRestuarant.Helpers
                 underLine = "----- SCAN TO ORDER -----";
                 DrawLine(underLine, largefont, Offset, 0);
 
-                var _bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/Images/receipt_qr.png", UriKind.Absolute));
+                var _bitmapImage = new BitmapImage(new Uri(@"pack://application:,,,/../Images/receipt_qr.png", UriKind.Absolute));
 
                 var _encoder = new PngBitmapEncoder();
                 _encoder.Frames.Add(BitmapFrame.Create((BitmapImage)_bitmapImage));
