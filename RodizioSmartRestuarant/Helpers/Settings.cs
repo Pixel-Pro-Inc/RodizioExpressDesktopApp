@@ -1,4 +1,5 @@
-﻿using RodizioSmartRestuarant.Entities;
+﻿using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
+using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Extensions;
 using System;
 using System.Collections;
@@ -34,7 +35,7 @@ namespace RodizioSmartRestuarant.Helpers
         {
             float displaySize = properties.displaySize;
 
-            List<Window> windows = WindowManager.Instance.GetAllOpenWindows();
+            List<BaseWindow> windows = WindowManager.Instance.GetAllOpenWindows();
             foreach (var window in windows)
             {
                 if (!(window is POS || window is MenuEditor || window is NewOrder))

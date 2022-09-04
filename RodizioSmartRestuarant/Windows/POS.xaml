@@ -1,0 +1,288 @@
+﻿<src:BaseWindow x:Class="RodizioSmartRestuarant.POS"
+        xmlns:src="clr-namespace:RodizioSmartRestuarant.CustomBaseClasses.BaseClasses"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RodizioSmartRestuarant"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        mc:Ignorable="d"
+        Icon="../Images/rodizio_icon.ico"
+        WindowStyle="None"
+        WindowState="Maximized"
+        Title="POS" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Grid.Row="1">
+            <Border.Background>
+                <LinearGradientBrush Opacity ="1">
+                    <GradientStop Color="Orange" Offset="0.0"/>
+                    <GradientStop Color="OrangeRed" Offset="1.5"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <Border Grid.ColumnSpan="2" Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush Opacity ="1">
+                    <GradientStop Color="#292929" Offset="0.0"/>
+                    <GradientStop Color="#292929" Offset="1.5"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <Border Grid.Column="1" Grid.Row="1">
+            <Border.Background>
+                <LinearGradientBrush Opacity ="1">
+                    <GradientStop Color="#ebebeb" Offset="0.0"/>
+                    <GradientStop Color="#ebebeb" Offset="1.5"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <TextBlock Grid.ColumnSpan="2"
+               HorizontalAlignment="Left"
+                   Name="welcomeMsg"
+               FontSize="20"
+               Foreground="White"
+               FontWeight="Bold">Welcome, </TextBlock>
+
+        <TextBlock Grid.ColumnSpan="2"
+               HorizontalAlignment="Center"
+               FontSize="20"
+               Foreground="White"
+               FontWeight="Bold">Rodizio Express POS</TextBlock>
+
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="New Order"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Create a new order"
+                Width ="120"
+                Click="NewOrder_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Order Statuses"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Show order progress"
+                Width ="120"
+                Click="Statuses_Click"
+                />
+            <Button
+                Name="menuButton"
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Menu"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Edit menu item availability"
+                Width ="120"
+                Click="Menu_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Help"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Find help"
+                Width ="120"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Settings"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Customize views"
+                Width ="120"
+                Click="Settings_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Cashier Report"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Generate Cashier Report"
+                Width ="120"
+                Click="Cashier_Report_Click"
+                />
+            <Button
+                Style="{StaticResource ButtonStyleRound}"
+                Content="Logout"
+                VerticalAlignment="Bottom"
+                Margin="0,10,0,0"
+                Height="35"
+                ToolTip="Logout"
+                Width ="120"
+                Click="Logout_Click"
+                />            
+        </StackPanel>
+
+        <TextBlock Foreground="White"
+               HorizontalAlignment="Center"
+                   Name="versionText"
+               Grid.Column="0"
+               Grid.Row="1"
+               VerticalAlignment="Bottom">Version 1.0.0</TextBlock>
+
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Height="65">
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Refresh searches."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,0,0,0"
+                    Click="Refresh_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Refresh"
+            Width="20"
+            Height="20"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+                <wpfTool:WatermarkTextBox
+            Watermark =" Search"
+                    Name="searchBox"
+            Height="40"
+            Width="275"
+            FontSize="20"
+            FontWeight="Normal"
+            Background="Transparent"
+            Foreground="#3a3a3a"
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"            
+            />
+                <Button                    
+            Height="40"
+                    ToolTip="Clear search bar."
+            BorderThickness="3"
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="40"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="0,12,0,13"
+                    Click="Clear_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+                			Kind="Close"
+                			Width="20"
+                			Height="20"
+                			VerticalAlignment="Center"
+                			HorizontalAlignment="Center"
+                			Foreground="#292929"
+                			IsEnabled="False"
+                    />
+                    </StackPanel>
+                </Button>
+                <Button                    
+            Height="40"
+            BorderThickness="3"
+                    ToolTip="Search."
+            BorderBrush="#e6e6e6"
+            Background="Transparent"
+            Width="80"
+            VerticalAlignment="Center" 
+            HorizontalAlignment="Center"
+            Margin="10,0,0,0"
+                    Click="Search_Click"
+            >
+                    <StackPanel>
+                        <iconPacks:PackIconMaterial 
+            Kind="Magnify"
+            Width="30"
+            Height="30"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Foreground="#292929"
+            IsEnabled="False"
+                    >
+                        </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1"
+               Name ="activeOrdersCount"
+               Grid.Column="1"
+               Margin="20,55,0,0"
+               FontWeight="Medium">Active Orders</TextBlock>
+
+        <Border 
+            Grid.Row="1"
+            Grid.Column="1"
+            BorderBrush="Black"
+            BorderThickness="1"
+            Margin="20,80,20,60">
+            <ScrollViewer>
+                <StackPanel Name="orderViewer">
+                    
+                </StackPanel>
+            </ScrollViewer>
+        </Border>       
+
+        <Image 
+            Grid.Column="1"
+            Grid.Row="1"
+            Width=" 100"
+            Height="40"
+            Margin="0,0,10,10"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Source="../Images/pixel_pro_logo.png"/>
+        <Grid Grid.RowSpan="2" 
+              Grid.ColumnSpan="2"
+              Name="spinner"
+              Visibility="Collapsed">
+            <Border Grid.RowSpan="2" 
+                Grid.ColumnSpan="2"
+                Opacity="0.75">
+                <Border.Background>
+                    <LinearGradientBrush>
+                        <GradientStop Color="#000000"></GradientStop>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Image
+            Source="../Images/loading_circle.png"
+            Width="125"
+            Height="125"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Visibility="Visible"
+            RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
+    </Grid>
+</src:BaseWindow>

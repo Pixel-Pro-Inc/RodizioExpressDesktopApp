@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,7 +15,7 @@ namespace RodizioSmartRestuarant.Helpers
     {
         public static void AttachEventHandler()
         {
-            List<Window> windows = WindowManager.Instance.GetAllOpenWindows();
+            List<BaseWindow> windows = WindowManager.Instance.GetAllOpenWindows();
             foreach (var window in windows)
             {
                 //Adjust Text Boxes Sizes
