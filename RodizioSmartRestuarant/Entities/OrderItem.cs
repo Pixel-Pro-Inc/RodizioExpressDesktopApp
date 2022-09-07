@@ -64,9 +64,20 @@ namespace RdKitchenApp.Entities
         public int Quantity { get; set; }
         public string OrderNumber { get; set; }
         public bool Collected { get; set; }
+        public bool MarkedForDeletion { get; set; } = false;
         public string PhoneNumber { get; set; }
         public DateTime OrderDateTime { get; set; }
         public string User { get; set; }
+        public List<string> Chefs { get; set; }
         public int PrepTime { get; set; }
+        //New Additions
+        public string Flavour { get; set; }
+        public string MeatTemperature { get; set; }
+        public List<string> Sauces { get; set; } = new List<string>();
+        public string SubCategory { get; set; }
+        //To allow customers to use multiple payment methods 
+        public bool SplitPayment { get; set; } = false;
+        public List<string> paymentMethods { get; set; } = new List<string>();
+        public List<string> payments { get; set; } = new List<string>();
     }
 }
