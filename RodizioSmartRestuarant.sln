@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31112.23
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodizioSmartRestuarant", "RodizioSmartRestuarant\RodizioSmartRestuarant.csproj", "{35359002-D484-4505-AC49-1569DBEB37EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodizioSmartRestaurant.UnitTests", "RodizioSmartRestaurant.UnitTests\RodizioSmartRestaurant.UnitTests.csproj", "{A75BF048-6EBC-43A4-A622-D0CFB6E74D33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RodizioSmartRestuarant.UnitTests", "RodizioSmartRestuarant.UnitTests\RodizioSmartRestuarant.UnitTests.csproj", "{D44AAD74-6910-4E32-A4FC-F8B2198C686F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A75BF048-6EBC-43A4-A622-D0CFB6E74D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A75BF048-6EBC-43A4-A622-D0CFB6E74D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A75BF048-6EBC-43A4-A622-D0CFB6E74D33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D44AAD74-6910-4E32-A4FC-F8B2198C686F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D44AAD74-6910-4E32-A4FC-F8B2198C686F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D44AAD74-6910-4E32-A4FC-F8B2198C686F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D44AAD74-6910-4E32-A4FC-F8B2198C686F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
