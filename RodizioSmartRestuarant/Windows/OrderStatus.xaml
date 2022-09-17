@@ -52,11 +52,11 @@
             </StackPanel>
 
         </Grid>
-        <!-- Menu Scroller-->
-        <Grid Name="menuGrid">
+        
+        <!--Food Poster-->
+        <Grid Name="foodPosterGrid">
             <Grid.RowDefinitions>
                 <RowDefinition/>
-                <RowDefinition Height="125"/>
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0" Grid.ColumnSpan="2">
@@ -75,22 +75,14 @@
                 </Border.Background>
             </Border>
 
-            <!--Menu Scroll Element-->
+            <!--Food Poster-->
             <StackPanel>
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Name="menuScroller_1">
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Name="menuScroller_2">
-                </StackPanel>
+                <Image Source="../Images/poster_meat_lovers_combo.png"></Image>
             </StackPanel>
 
             <!--Logo Panel-->
-            <StackPanel Grid.Row="1"
-                        Orientation="Horizontal">
-                <StackPanel Margin="40,0">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="40,0" VerticalAlignment="Bottom">
                     <Image Source="../Images/rodizio_express_logo.png"
                        Width="250"
                        Height="70"
