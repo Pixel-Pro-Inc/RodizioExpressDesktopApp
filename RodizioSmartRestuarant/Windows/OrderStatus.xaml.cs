@@ -54,23 +54,6 @@ namespace RodizioSmartRestuarant
 
                 phoneNumberText.Text += i == 0 ? " " + num : "/" + num;
             }
-
-            PopulateMenuScrollers();
-
-            //Timer Setup
-            DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-            dispatcherTimer.Start();
-        }
-
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            if (countShowTime)
-                menuItemsShownTimer++;
-
-            if (menuItemsShownTimer >= menuItemsShownThreshold)
-                RenderMenuItems();
         }
 
         // This is called also in windowManager so that you don't have to update this window with an event defined here
@@ -131,7 +114,7 @@ namespace RodizioSmartRestuarant
 
             await Task.Delay(5000);
             statusGrid.Visibility = Visibility.Collapsed;
-            menuGrid.Visibility = Visibility.Visible;
+            foodPosterGrid.Visibility = Visibility.Visible;
         }
 
         List<string> getCalledOutOrders()
@@ -150,7 +133,7 @@ namespace RodizioSmartRestuarant
             inProgress.Children.Clear();
 
             statusGrid.Visibility = Visibility.Visible;
-            menuGrid.Visibility = Visibility.Collapsed;
+            foodPosterGrid.Visibility = Visibility.Collapsed;
 
             for (int i = 0; i < orders.Count; i++)
             {
@@ -208,6 +191,7 @@ namespace RodizioSmartRestuarant
         }
 
         #region MenuScrollerRegion
+        /*
         private FirebaseDataContext firebaseDataContext = FirebaseDataContext.Instance;
 
         List<MenuItem> menuCollection_1;
@@ -396,6 +380,7 @@ namespace RodizioSmartRestuarant
 
             return stackPanel;
         }
+        */
         #endregion
     }
 }
