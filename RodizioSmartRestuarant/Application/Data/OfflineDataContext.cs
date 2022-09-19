@@ -1,0 +1,113 @@
+﻿using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Infrastructure;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using static RodizioSmartRestuarant.Core.Entities.Enums;
+
+namespace RodizioSmartRestuarant.Application.Data
+{
+    public static class OfflineDataContext
+    {
+        //Data Stored of Order, Menu, User
+        #region Download
+
+        /// <summary>
+        /// This gets data from the local hdd if the device is the server, else it sends a request to the server. The object is returned as an object, but really it should be a list of clients
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async static Task<object> GetData(Directories path)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                object data = (List<object>)new SerializedObjectManager().RetrieveData(path) != null ? ((List<object>)new SerializedObjectManager().RetrieveData(path))[0] : null;
+
+                if (data == null) // NOTE: We make this into a list of objects cause in OfflineDataService there is alot of type checking that needs it that way even if its not immediate
+                    return new List<object>();
+
+                return data;
+            }
+
+            // I'm assuming so that it can wait for the server to finish another request it was processing
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            var data_1 = await TCPClient.SendRequest(null, path.ToString(), RequestObject.requestMethod.Get);
+
+            return data_1;
+        }
+
+        #endregion
+        #region Update
+
+        // REFACTOR: Similiar method to Storedata(), consider using base method, override or extract logic and inject functions into it
+        public async static void EditOrderData(Directories path, OrderItem data)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                new SerializedObjectManager().EditOrderData(data, path);
+                LocalDataChange();
+                return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Update);
+        }
+
+        // REFACTOR: Similiar method to Storedata(), consider using base method, override or extract logic and inject functions into it
+        public async static void DeleteOrder(Directories path, Order data)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                new SerializedObjectManager().DeleteOrder(data, path);
+                LocalDataChange();
+                return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Delete);
+        }
+        public static void LocalDataChange()
+        {
+            WindowManager.Instance.UpdateAllOrderViews_Offline();
+            UpdateNetworkDevices();
+        }
+        public static void UpdateNetworkDevices()
+        {
+            if (TCPServer.Instance != null)
+                TCPServer.Instance.UpdateAllNetworkDevicesUI();
+        }
+
+        #endregion
+
+        public async static void StoreDataOverwrite(Directories path, object data)
+        {
+            if (LocalStorage.Instance.networkIdentity.isServer)
+            {
+                new SerializedObjectManager().SaveOverwriteData(data, path);
+                LocalDataChange();
+                return;
+            }
+
+            while (TCPClient.processingRequest)
+            {
+                await Task.Delay(25);
+            }
+
+            await TCPClient.SendRequest(data, path.ToString(), RequestObject.requestMethod.Store);
+        }
+
+    }
+}

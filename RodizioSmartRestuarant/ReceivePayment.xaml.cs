@@ -1,8 +1,9 @@
-﻿using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Entities;
-using RodizioSmartRestuarant.Entities.Aggregates;
-using RodizioSmartRestuarant.Helpers;
+﻿using RodizioSmartRestuarant.Core;
+using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Infrastructure;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -62,7 +63,7 @@ namespace RodizioSmartRestuarant
 
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            RodizioSmartRestuarant.Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
         }
         public bool IsClosed { get; private set; }
 

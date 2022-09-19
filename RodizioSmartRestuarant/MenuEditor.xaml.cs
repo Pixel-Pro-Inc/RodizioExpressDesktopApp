@@ -1,24 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Entities;
-using RodizioSmartRestuarant.Helpers;
-using RodizioSmartRestuarant.Interfaces;
-using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
+using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
+using MenuItem = RodizioSmartRestuarant.Core.Entities.MenuItem;
 
 namespace RodizioSmartRestuarant
 {
@@ -27,7 +14,7 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class MenuEditor : Window
     {
-        Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
+        Core.Entities.Aggregates.Menu menu = new Core.Entities.Aggregates.Menu();
         IDataService _dataService;
         IMenuService _menuService;
 
@@ -52,7 +39,7 @@ namespace RodizioSmartRestuarant
 
             menuView.Children.Clear();
 
-            Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
+            Core.Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
 
             menu = items;
 
@@ -62,12 +49,12 @@ namespace RodizioSmartRestuarant
             }
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
             ActivityIndicator.RemoveSpinner(spinner);
         }
 
-        void UpdateMenuViewSearch(Entities.Aggregates.Menu items)
+        void UpdateMenuViewSearch(Core.Entities.Aggregates.Menu items)
         {
             menuView.Children.Clear();
 
@@ -150,7 +137,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            Entities.Aggregates.Menu result = _menuService.SearchForQueryString(query, menu);
+            Core.Entities.Aggregates.Menu result = _menuService.SearchForQueryString(query, menu);
 
             showingResults = true;            
 

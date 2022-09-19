@@ -10,7 +10,7 @@
         Background="Transparent"
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         MouseDown="LoadingScreen_OnMouseDown"
         WindowStartupLocation="CenterScreen"
         >
@@ -25,7 +25,7 @@
         </Border>
         <Image
             Name="logo"
-            Source="Images/rodizio_express_logo.png"
+            Source="Core/Images/rodizio_express_logo.png"
             Width="220"
             RenderTransformOrigin="0.5,0.5"
             />

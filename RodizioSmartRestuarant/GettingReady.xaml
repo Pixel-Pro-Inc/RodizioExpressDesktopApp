@@ -11,7 +11,7 @@
         Background="Transparent"
         WindowStyle="None" 
         ResizeMode="NoResize"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         WindowStartupLocation="CenterScreen"
         Title="Get Started">
     <Grid>
@@ -26,7 +26,7 @@
         <StackPanel>
             <Image
                 Name="logo"
-                Source="Images/rodizio_express_logo.png"
+                Source="Core/Images/rodizio_express_logo.png"
                 Width="220"
                 Height="60"
                 Margin="0,50,0,0"

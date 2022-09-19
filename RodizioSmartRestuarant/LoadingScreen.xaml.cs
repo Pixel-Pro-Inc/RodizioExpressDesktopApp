@@ -1,22 +1,12 @@
-﻿using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Helpers;
+﻿using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using Squirrel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static RodizioSmartRestuarant.Entities.Enums;
+using static RodizioSmartRestuarant.Core.Entities.Enums;
 
 namespace RodizioSmartRestuarant
 {
@@ -69,7 +59,7 @@ namespace RodizioSmartRestuarant
 
                     //Show Update Dialog
                     WindowManager.Instance = new WindowManager();
-                    new Helpers.Settings();
+                    new Settings();
                     WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
                     return;
                 }
@@ -93,7 +83,7 @@ namespace RodizioSmartRestuarant
             if (!FirstTime())
             {
                 WindowManager.Instance = new WindowManager();
-                new Helpers.Settings();
+                new Settings();
                 WindowManager.Instance.CloseAndOpen(this, new GettingReady());
             }   
             // @Yewo: Why wasn't this line in the other block ( line 86)

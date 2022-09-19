@@ -1,23 +1,14 @@
-﻿using RdKitchenApp.Entities;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Entities;
-using RodizioSmartRestuarant.Entities.Aggregates;
-using RodizioSmartRestuarant.Helpers;
-using RodizioSmartRestuarant.Interfaces;
+﻿using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Infrastructure;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using OrderItem = RodizioSmartRestuarant.Entities.OrderItem;
 
 namespace RodizioSmartRestuarant
 {

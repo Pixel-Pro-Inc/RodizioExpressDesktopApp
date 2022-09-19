@@ -1,30 +1,20 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Entities;
-using RodizioSmartRestuarant.Entities.Aggregates;
-using RodizioSmartRestuarant.Helpers;
-using RodizioSmartRestuarant.Interfaces;
+using RodizioSmartRestuarant.Application.Data;
+using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Infrastructure;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using Squirrel;
 using System;
 using System.Collections.Generic;
-using System.Deployment.Application;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static RodizioSmartRestuarant.Entities.Enums;
-using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
+using static RodizioSmartRestuarant.Core.Entities.Enums;
+using Formatting = RodizioSmartRestuarant.Infrastructure.Helpers.Formatting;
 
 namespace RodizioSmartRestuarant
 {
@@ -377,7 +367,7 @@ namespace RodizioSmartRestuarant
                 ActivityIndicator.RemoveSpinner(spinner);
 
                 //Updates with size settings
-                RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+                RodizioSmartRestuarant.Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
                 UpdateOrderCount();
 

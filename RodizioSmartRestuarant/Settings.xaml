@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RodizioSmartRestuarant"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         Title="Settings" Height="250" Width="400">
     <Grid>
         <Grid.RowDefinitions>

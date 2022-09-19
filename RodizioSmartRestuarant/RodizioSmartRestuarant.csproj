@@ -71,7 +71,7 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Images\rodizio_icon.ico</ApplicationIcon>
+    <ApplicationIcon>Core\Images\rodizio_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -356,66 +356,66 @@
     <Compile Include="CashierReport.xaml.cs">
       <DependentUpon>CashierReport.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Configuration\StartUp.cs" />
-    <Compile Include="Data\FirebaseDataContext.cs" />
-    <Compile Include="Entities\Aggregates\BaseAggregates.cs" />
-    <Compile Include="Entities\Aggregates\Menu.cs" />
-    <Compile Include="Entities\Aggregates\Order.cs" />
-    <Compile Include="Entities\BaseEntity.cs" />
-    <Compile Include="Entities\Enums.cs" />
-    <Compile Include="Entities\NetworkIdentity.cs" />
-    <Compile Include="Entities\NetworkInterfaceObject.cs" />
-    <Compile Include="Entities\SettingsProperties.cs" />
-    <Compile Include="Exceptions\FailedToConvertFromJson.cs" />
-    <Compile Include="Extensions\JsonConvertExtensions.cs" />
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Extensions\SerializedConvertExtensions.cs" />
+    <Compile Include="Infrastructure\Configuration\StartUp.cs" />
+    <Compile Include="Application\Data\FirebaseDataContext.cs" />
+    <Compile Include="Core\Entities\Aggregates\BaseAggregates.cs" />
+    <Compile Include="Core\Entities\Aggregates\Menu.cs" />
+    <Compile Include="Core\Entities\Aggregates\Order.cs" />
+    <Compile Include="Core\Entities\BaseEntity.cs" />
+    <Compile Include="Core\Entities\Enums.cs" />
+    <Compile Include="Core\Entities\NetworkIdentity.cs" />
+    <Compile Include="Core\Entities\NetworkInterfaceObject.cs" />
+    <Compile Include="Core\Entities\SettingsProperties.cs" />
+    <Compile Include="Application\Exceptions\FailedToConvertFromJson.cs" />
+    <Compile Include="Application\Extensions\JsonConvertExtensions.cs" />
+    <Compile Include="Application\Extensions\ObjectExtensions.cs" />
+    <Compile Include="Application\Extensions\SerializedConvertExtensions.cs" />
     <Compile Include="GettingReady.xaml.cs">
       <DependentUpon>GettingReady.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\ActivityIndicator.cs" />
-    <Compile Include="Helpers\ConnectionStringManager.cs" />
-    <Compile Include="Helpers\Formatting.cs" />
-    <Compile Include="Helpers\LocalIP.cs" />
-    <Compile Include="Exceptions\NoConnectionStringSectionFound.cs" />
-    <Compile Include="Helpers\Notification.cs" />
-    <Compile Include="Interfaces\BaseInterfaces\IBaseAggregate.cs" />
-    <Compile Include="Interfaces\BaseInterfaces\IBaseEntity.cs" />
-    <Compile Include="Interfaces\IDataService.cs" />
-    <Compile Include="Interfaces\IOfflineDataService.cs" />
-    <Compile Include="Interfaces\IOrderService.cs" />
-    <Compile Include="Services\DataService.cs" />
-    <Compile Include="Exceptions\FailedToConvertFromSerialized.cs" />
-    <Compile Include="Exceptions\NoNetwork.cs" />
-    <Compile Include="Exceptions\InCorrectDirectory.cs" />
-    <Compile Include="Services\OfflineDataService.cs" />
-    <Compile Include="Helpers\OnScreenKeyboard.cs" />
-    <Compile Include="Helpers\PrintReceiptScaled.cs" />
-    <Compile Include="Helpers\RequestObject.cs" />
-    <Compile Include="Data\Waiver.cs" />
-    <Compile Include="Entities\restaurantEntity.cs" />
-    <Compile Include="Entities\Stock.cs" />
-    <Compile Include="Helpers\SerializedObjectManager.cs" />
-    <Compile Include="Helpers\ReceiptSlip.cs" />
+    <Compile Include="Infrastructure\Helpers\ActivityIndicator.cs" />
+    <Compile Include="Infrastructure\Helpers\ConnectionStringManager.cs" />
+    <Compile Include="Infrastructure\Helpers\Formatting.cs" />
+    <Compile Include="Infrastructure\Helpers\LocalIP.cs" />
+    <Compile Include="Application\Exceptions\NoConnectionStringSectionFound.cs" />
+    <Compile Include="Infrastructure\Helpers\Notification.cs" />
+    <Compile Include="Application\Interfaces\BaseInterfaces\IBaseAggregate.cs" />
+    <Compile Include="Application\Interfaces\BaseInterfaces\IBaseEntity.cs" />
+    <Compile Include="Application\Interfaces\IDataService.cs" />
+    <Compile Include="Application\Interfaces\IOfflineDataService.cs" />
+    <Compile Include="Application\Interfaces\IOrderService.cs" />
+    <Compile Include="Infrastructure\Services\DataService.cs" />
+    <Compile Include="Application\Exceptions\FailedToConvertFromSerialized.cs" />
+    <Compile Include="Application\Exceptions\NoNetworkException.cs" />
+    <Compile Include="Application\Exceptions\InCorrectDirectory.cs" />
+    <Compile Include="Infrastructure\Services\OfflineDataService.cs" />
+    <Compile Include="Infrastructure\OnScreenKeyboard.cs" />
+    <Compile Include="Infrastructure\Helpers\PrintReceiptScaled.cs" />
+    <Compile Include="Infrastructure\Helpers\RequestObject.cs" />
+    <Compile Include="Core\Waiver.cs" />
+    <Compile Include="Core\Entities\restaurantEntity.cs" />
+    <Compile Include="Core\Entities\Stock.cs" />
+    <Compile Include="Infrastructure\Helpers\SerializedObjectManager.cs" />
+    <Compile Include="Infrastructure\ReceiptSlip.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration\BranchSettings.cs" />
-    <Compile Include="Data\OfflineDataContext.cs" />
-    <Compile Include="Entities\AppUser.cs" />
-    <Compile Include="Entities\Branch.cs" />
-    <Compile Include="Entities\MenuItem.cs" />
-    <Compile Include="Entities\OrderItem.cs" />
-    <Compile Include="Helpers\ConnectionChecker.cs" />
-    <Compile Include="Helpers\LocalStorage.cs" />
-    <Compile Include="Helpers\Settings.cs" />
-    <Compile Include="Helpers\TCPClient.cs" />
-    <Compile Include="Helpers\TCPServer.cs" />
-    <Compile Include="Helpers\WindowManager.cs" />
-    <Compile Include="Interfaces\IFireBaseServices.cs" />
-    <Compile Include="Interfaces\IMenuService.cs" />
-    <Compile Include="Interfaces\BaseInterfaces\IBaseService.cs" />
+    <Compile Include="Infrastructure\Configuration\BranchSettings.cs" />
+    <Compile Include="Application\Data\OfflineDataContext.cs" />
+    <Compile Include="Core\Entities\AppUser.cs" />
+    <Compile Include="Core\Entities\Branch.cs" />
+    <Compile Include="Core\Entities\MenuItem.cs" />
+    <Compile Include="Core\Entities\OrderItem.cs" />
+    <Compile Include="Infrastructure\Helpers\ConnectionChecker.cs" />
+    <Compile Include="Infrastructure\LocalStorage.cs" />
+    <Compile Include="Infrastructure\Helpers\Settings.cs" />
+    <Compile Include="Infrastructure\TCPClient.cs" />
+    <Compile Include="Infrastructure\TCPServer.cs" />
+    <Compile Include="Infrastructure\Helpers\WindowManager.cs" />
+    <Compile Include="Application\Interfaces\IFireBaseServices.cs" />
+    <Compile Include="Application\Interfaces\IMenuService.cs" />
+    <Compile Include="Application\Interfaces\BaseInterfaces\IBaseService.cs" />
     <Compile Include="LoadingScreen.xaml.cs">
       <DependentUpon>LoadingScreen.xaml</DependentUpon>
     </Compile>
@@ -440,10 +440,10 @@
     <Compile Include="ResetPasswordScreen.xaml.cs">
       <DependentUpon>ResetPasswordScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Services\FirebaseServices.cs" />
-    <Compile Include="Services\MenuService.cs" />
-    <Compile Include="Services\OrderService.cs" />
-    <Compile Include="Services\_BaseService.cs" />
+    <Compile Include="Infrastructure\Services\FirebaseServices.cs" />
+    <Compile Include="Infrastructure\Services\MenuService.cs" />
+    <Compile Include="Infrastructure\Services\OrderService.cs" />
+    <Compile Include="Infrastructure\Services\_BaseService.cs" />
     <Compile Include="Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
@@ -558,16 +558,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\pixel_pro_logo.png" />
+    <Resource Include="Core\Images\pixel_pro_logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\rodizio_icon.ico" />
+    <Resource Include="Core\Images\rodizio_icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\rodizio_express_logo.png" />
+    <Resource Include="Core\Images\rodizio_express_logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\loading_circle.png" />
+    <Resource Include="Core\Images\loading_circle.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
@@ -582,7 +582,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\receipt_qr.png" />
+    <Resource Include="Core\Images\receipt_qr.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         ResizeMode="NoResize"        
         WindowStartupLocation="CenterScreen"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         Title="OrderStatus" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -34,7 +34,7 @@
             </Border.Background>
         </Border>
 
-        <Image Grid.ColumnSpan="2" Margin="0,20,0,0" Source="Images/rodizio_express_logo.png" Height="80"></Image>
+        <Image Grid.ColumnSpan="2" Margin="0,20,0,0" Source="Core/Images/rodizio_express_logo.png" Height="80"></Image>
         <StackPanel Grid.Row="1" Grid.Column="0">
             <Label HorizontalContentAlignment="Center" FontWeight="Bold" Foreground="White" FontSize="30">On Its Way</Label>
             <WrapPanel Name="inProgress" HorizontalAlignment="Center">

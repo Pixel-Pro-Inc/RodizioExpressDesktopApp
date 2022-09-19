@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RodizioSmartRestuarant"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         Title="Setup" Height="450" Width="800">
     <Grid>
         <Border>
@@ -20,7 +20,7 @@
         
         <StackPanel>
             <Image 
-            Source="Images/rodizio_express_logo.png"
+            Source="Core/Images/rodizio_express_logo.png"
             Width="320"
             VerticalAlignment="Top"
             Margin="0,30,0,0"/>
@@ -81,7 +81,7 @@
                 </Border.Background>
             </Border>
             <Image
-            Source="Images/loading_circle.png"
+            Source="Core/Images/loading_circle.png"
             Width="125"
             Height="125"
             Grid.RowSpan="2"

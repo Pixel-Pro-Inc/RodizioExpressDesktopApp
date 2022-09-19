@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         >
     <Grid>
         <Border>
@@ -36,14 +36,14 @@
         </StackPanel>
 
         <Image 
-            Source="Images/rodizio_express_logo.png"
+            Source="Core/Images/rodizio_express_logo.png"
             Width="320"
             VerticalAlignment="Top"
             Margin="0,50,0,0"/>
 
         <Image
             Name="loadingCircle"
-            Source="Images/loading_circle.png"
+            Source="Core/Images/loading_circle.png"
             Width="125"
             Height="125"
             Grid.Row="1"

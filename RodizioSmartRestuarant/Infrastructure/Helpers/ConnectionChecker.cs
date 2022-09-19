@@ -1,0 +1,66 @@
+﻿using FireSharp.Config;
+using FireSharp.Interfaces;
+using FireSharp.Response;
+using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using System;
+using System.Threading.Tasks;
+
+namespace RodizioSmartRestuarant.Infrastructure.Helpers
+{
+    public class ConnectionChecker
+    {
+        //REFACTOR: We need to use environment variables here
+        IFirebaseConfig config = new FirebaseConfig
+        {
+            AuthSecret = "Bjpp5DtGhoP1IllH6CbcD47SNMTgPU2S91EqWNwl",
+            BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
+        };
+
+        IFirebaseClient client;
+        IDataService _dataService;
+        public int notifCount = 0;
+        public async Task<bool> CheckConnection()
+        {
+            bool result = true;
+
+            try
+            {
+                if (!LocalStorage.Instance.networkIdentity.isServer)
+                    return false;
+
+                client = new FireSharp.FirebaseClient(config);
+
+                FirebaseResponse response = await client.GetAsync("Branch/" + BranchSettings.Instance.branchId);
+            }
+            catch(Exception ex)
+            {
+                result = false;
+
+                if (notifCount != 0)
+                {
+                    _dataService.ToggleConnectionStatus(result);
+
+                    return result;
+                }                    
+
+                notifCount++;
+                new Notification("Connectivity", "You're offline. you can continue working offline but you'll miss out on new orders made by customers. Get back online as soon as possible.");
+            }
+
+            _dataService.ToggleConnectionStatus(result);
+            
+            return result;
+        }
+
+        [System.Runtime.InteropServices.DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
+
+        public bool CheckLAN()
+        {
+            // @Yewo: You have this property but you never define it. Are we just passing nulls?
+            int desc;
+            return InternetGetConnectedState(out desc, 0);
+        }
+    }
+}

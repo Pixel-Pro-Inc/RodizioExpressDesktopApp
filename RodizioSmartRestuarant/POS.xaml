@@ -7,7 +7,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         WindowStyle="None"
         WindowState="Maximized"
         Title="POS" Height="450" Width="800">
@@ -258,7 +258,7 @@
             Margin="0,0,10,10"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
-            Source="Images/pixel_pro_logo.png"/>
+            Source="Core/Images/pixel_pro_logo.png"/>
         <Grid Grid.RowSpan="2" 
               Grid.ColumnSpan="2"
               Name="spinner"
@@ -273,7 +273,7 @@
                 </Border.Background>
             </Border>
             <Image
-            Source="Images/loading_circle.png"
+            Source="Core/Images/loading_circle.png"
             Width="125"
             Height="125"
             Grid.RowSpan="2"

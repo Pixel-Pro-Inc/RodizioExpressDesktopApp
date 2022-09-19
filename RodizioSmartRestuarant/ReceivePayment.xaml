@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RodizioSmartRestuarant"
         mc:Ignorable="d"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         ResizeMode="NoResize"
         Title="Receive Payment" Height="400" Width="650">
     <Grid>

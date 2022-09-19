@@ -1,16 +1,11 @@
-﻿using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Helpers;
+﻿using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace RodizioSmartRestuarant
@@ -18,7 +13,7 @@ namespace RodizioSmartRestuarant
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         public static App Instance { get; set; }
         public bool isInitialSetup { get; set; }
@@ -37,7 +32,7 @@ namespace RodizioSmartRestuarant
             if (!createdNew)
             {
                 //App Instance Already Running //UPDATE: Does this mean that it shuts down the entire application or just that thread?
-                Application.Current.Shutdown();
+                System.Windows.Application.Current.Shutdown();
                 return;
             }
 
@@ -50,7 +45,7 @@ namespace RodizioSmartRestuarant
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
+            string folder = new SerializedObjectManager().savePath(RodizioSmartRestuarant.Core.Entities.Enums.Directories.Error);
 
             string fileName = "error_log.txt";
 
@@ -90,7 +85,7 @@ namespace RodizioSmartRestuarant
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
         public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
-        void CloseApp() => Application.Current.Shutdown();
+        void CloseApp() => System.Windows.Application.Current.Shutdown();
 
         // REFACTOR: Please name this more appropriatly
         // @Yewo: look up

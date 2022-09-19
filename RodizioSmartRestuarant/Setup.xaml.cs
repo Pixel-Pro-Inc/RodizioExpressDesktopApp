@@ -1,21 +1,8 @@
-﻿using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Helpers;
+﻿using RodizioSmartRestuarant.Infrastructure.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static RodizioSmartRestuarant.Entities.Enums;
+using static RodizioSmartRestuarant.Core.Entities.Enums;
 
 namespace RodizioSmartRestuarant
 {
@@ -70,7 +57,7 @@ namespace RodizioSmartRestuarant
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
-        async void Next(string id, string name)
+        void Next(string id, string name)
         {
             //Activity Indicator
             ActivityIndicator.AddSpinner(spinner);

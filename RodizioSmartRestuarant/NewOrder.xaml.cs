@@ -1,21 +1,17 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Helpers;
-using RodizioSmartRestuarant.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
-using RodizioSmartRestuarant.Data;
-using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
-using RodizioSmartRestuarant.Interfaces;
-using RodizioSmartRestuarant.Entities.Aggregates;
+using MenuItem = RodizioSmartRestuarant.Core.Entities.MenuItem;
+using Formatting = RodizioSmartRestuarant.Infrastructure.Helpers.Formatting;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Infrastructure;
 
 namespace RodizioSmartRestuarant
 {
@@ -24,7 +20,7 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class NewOrder : Window
     {
-        Entities.Aggregates.Menu menu = new Entities.Aggregates.Menu();
+        Core.Entities.Aggregates.Menu menu = new Core.Entities.Aggregates.Menu();
         Order orders = new Order();
         private string _source;
         IMenuService _menuService;
@@ -63,7 +59,7 @@ namespace RodizioSmartRestuarant
 
             menuView.Children.Clear();
 
-            Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
+            Core.Entities.Aggregates.Menu items = await _menuService.GetOnlineMenu(BranchSettings.Instance.branchId);
 
             menu = items;
 
@@ -74,12 +70,12 @@ namespace RodizioSmartRestuarant
             }
 
             //Updates with size settings
-            Helpers.Settings.Instance.OnWindowCountChange();
+            Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
             ActivityIndicator.RemoveSpinner(spinner);
         }
 
-        void UpdateMenuViewSearch(Entities.Aggregates.Menu items)
+        void UpdateMenuViewSearch(Core.Entities.Aggregates.Menu items)
         {
             menuView.Children.Clear();
 
@@ -89,7 +85,7 @@ namespace RodizioSmartRestuarant
             }
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
         }
 
         StackPanel GetPanel(MenuItem menuItem)
@@ -260,7 +256,7 @@ namespace RodizioSmartRestuarant
             stackPanel.Children.Add(button);
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
             if (!menuItem.Availability)
                 stackPanel.Visibility = Visibility.Collapsed;
@@ -327,7 +323,7 @@ namespace RodizioSmartRestuarant
             }
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+           Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
             UpdateTotal();
             UpdateOrderPrepTime(orders);
@@ -450,7 +446,7 @@ namespace RodizioSmartRestuarant
             orderPropertiesStackPanel.Children.Add(label_3);
 
             //Updates with size settings
-            RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
+            Infrastructure.Helpers.Settings.Instance.OnWindowCountChange();
 
             mainStackPanel.Children.Add(stackPanel);
             mainStackPanel.Children.Add(orderPropertiesStackPanel);
@@ -805,7 +801,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            Entities.Aggregates.Menu result = _menuService.SearchForQueryString(query, menu);
+            Core.Entities.Aggregates.Menu result = _menuService.SearchForQueryString(query, menu);
 
             showingResults = true;
 

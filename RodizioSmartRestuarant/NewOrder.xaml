@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         WindowState="Maximized"
         ResizeMode="NoResize"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         Title="NewOrder" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -194,7 +194,7 @@
                 </Border.Background>
             </Border>
             <Image
-            Source="Images/loading_circle.png"
+            Source="Core/Images/loading_circle.png"
             Width="125"
             Height="125"
             Grid.RowSpan="2"

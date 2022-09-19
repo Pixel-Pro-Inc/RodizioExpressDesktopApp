@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         WindowStyle="None"
         WindowState="Maximized"
-        Icon="Images/rodizio_icon.ico"
+        Icon="Core/Images/rodizio_icon.ico"
         ResizeMode="NoResize"
         Title="UpdateDialog" Height="450" Width="800">
     <Grid>
@@ -21,7 +21,7 @@
         </Border>
         <Image
             Name="logo"
-            Source="Images/rodizio_express_logo.png"
+            Source="Core/Images/rodizio_express_logo.png"
             Width="220"
             Margin="0,0,0,70"
             RenderTransformOrigin="0.5,0.5"

@@ -1,7 +1,8 @@
-﻿using RodizioSmartRestuarant.Entities;
-using RodizioSmartRestuarant.Configuration;
-using RodizioSmartRestuarant.Data;
-using RodizioSmartRestuarant.Helpers;
+﻿using RodizioSmartRestuarant.Application.Interfaces;
+using RodizioSmartRestuarant.Core.Entities;
+using RodizioSmartRestuarant.Infrastructure;
+using RodizioSmartRestuarant.Infrastructure.Configuration;
+using RodizioSmartRestuarant.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RodizioSmartRestuarant.Interfaces;
 
 namespace RodizioSmartRestuarant
 {
