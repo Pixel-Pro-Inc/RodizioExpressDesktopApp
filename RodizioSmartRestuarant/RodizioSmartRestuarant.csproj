@@ -248,6 +248,9 @@
     <Reference Include="RestSharp, Version=104.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.104.4.0\lib\net4\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="SendGrid, Version=9.28.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
+      <HintPath>..\packages\SendGrid.9.28.0\lib\net452\SendGrid.dll</HintPath>
+    </Reference>
     <Reference Include="SharpCompress, Version=0.17.1.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpCompress.0.17.1\lib\net45\SharpCompress.dll</HintPath>
     </Reference>
@@ -288,6 +291,9 @@
     <Reference Include="System.Net.Http.Extensions, Version=2.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.Json.6.0.0\lib\net461\System.Net.Http.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http.Primitives, Version=4.2.28.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.28\lib\net45\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
@@ -299,6 +305,7 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Text.Encodings.Web, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Text.Encodings.Web.6.0.0\lib\net461\System.Text.Encodings.Web.dll</HintPath>
@@ -345,24 +352,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="Windows\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CashierReport.xaml.cs">
+    <Compile Include="Windows\CashierReport.xaml.cs">
       <DependentUpon>CashierReport.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configuration\StartUp.cs" />
     <Compile Include="Data\FirebaseDataContext.cs" />
     <Compile Include="Entities\Enums.cs" />
+    <Compile Include="Entities\ErrorLog.cs" />
     <Compile Include="Entities\NetworkIdentity.cs" />
     <Compile Include="Entities\NetworkInterfaceObject.cs" />
     <Compile Include="Entities\SettingsProperties.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="GettingReady.xaml.cs">
+    <Compile Include="Windows\GettingReady.xaml.cs">
       <DependentUpon>GettingReady.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ActivityIndicator.cs" />
+    <Compile Include="CustomBaseClasses\BaseClasses\BaseWindow.cs" />
     <Compile Include="Helpers\Formatting.cs" />
     <Compile Include="Helpers\LocalIP.cs" />
     <Compile Include="Helpers\Notification.cs" />
@@ -377,7 +386,7 @@
     <Compile Include="Helpers\SearchOrders.cs" />
     <Compile Include="Helpers\SerializedObjectManager.cs" />
     <Compile Include="Helpers\ReceiptSlip.cs" />
-    <Compile Include="App.xaml.cs">
+    <Compile Include="Windows\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -393,48 +402,48 @@
     <Compile Include="Helpers\TCPClient.cs" />
     <Compile Include="Helpers\TCPServer.cs" />
     <Compile Include="Helpers\WindowManager.cs" />
-    <Compile Include="LoadingScreen.xaml.cs">
+    <Compile Include="Windows\LoadingScreen.xaml.cs">
       <DependentUpon>LoadingScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MenuEditor.xaml.cs">
+    <Compile Include="Windows\MenuEditor.xaml.cs">
       <DependentUpon>MenuEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NewOrder.xaml.cs">
+    <Compile Include="Windows\NewOrder.xaml.cs">
       <DependentUpon>NewOrder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OrderSource.xaml.cs">
+    <Compile Include="Windows\OrderSource.xaml.cs">
       <DependentUpon>OrderSource.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OrderStatus.xaml.cs">
+    <Compile Include="Windows\OrderStatus.xaml.cs">
       <DependentUpon>OrderStatus.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ReceivePayment.xaml.cs">
+    <Compile Include="Windows\ReceivePayment.xaml.cs">
       <DependentUpon>ReceivePayment.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ReconnectingPage.xaml.cs">
+    <Compile Include="Windows\ReconnectingPage.xaml.cs">
       <DependentUpon>ReconnectingPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ResetPasswordScreen.xaml.cs">
+    <Compile Include="Windows\ResetPasswordScreen.xaml.cs">
       <DependentUpon>ResetPasswordScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.xaml.cs">
+    <Compile Include="Windows\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Setup.xaml.cs">
+    <Compile Include="Windows\Setup.xaml.cs">
       <DependentUpon>Setup.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SyncOrdersToDB.xaml.cs">
+    <Compile Include="Windows\SyncOrdersToDB.xaml.cs">
       <DependentUpon>SyncOrdersToDB.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UpdateDialog.xaml.cs">
+    <Compile Include="Windows\UpdateDialog.xaml.cs">
       <DependentUpon>UpdateDialog.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Login.xaml.cs">
+    <Compile Include="Windows\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
-    <Compile Include="POS.xaml.cs">
+    <Compile Include="Windows\POS.xaml.cs">
       <DependentUpon>POS.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -465,67 +474,67 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="CashierReport.xaml">
+    <Page Include="Windows\CashierReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GettingReady.xaml">
+    <Page Include="Windows\GettingReady.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="LoadingScreen.xaml">
+    <Page Include="Windows\LoadingScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Login.xaml">
+    <Page Include="Windows\Login.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MenuEditor.xaml">
+    <Page Include="Windows\MenuEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NewOrder.xaml">
+    <Page Include="Windows\NewOrder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OrderSource.xaml">
+    <Page Include="Windows\OrderSource.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OrderStatus.xaml">
+    <Page Include="Windows\OrderStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="POS.xaml">
+    <Page Include="Windows\POS.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ReceivePayment.xaml">
+    <Page Include="Windows\ReceivePayment.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ReconnectingPage.xaml">
+    <Page Include="Windows\ReconnectingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ResetPasswordScreen.xaml">
+    <Page Include="Windows\ResetPasswordScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Settings.xaml">
+    <Page Include="Windows\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Setup.xaml">
+    <Page Include="Windows\Setup.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SyncOrdersToDB.xaml">
+    <Page Include="Windows\SyncOrdersToDB.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UpdateDialog.xaml">
+    <Page Include="Windows\UpdateDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -556,6 +565,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\receipt_qr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\poster_meat_lovers_combo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />

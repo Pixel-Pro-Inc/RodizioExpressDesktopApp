@@ -44,8 +44,14 @@ namespace RodizioSmartRestuarant.Helpers
                     }
                 }
 
-                usedTimes.Add(lastTime);                
-                temp.Add(orderItems.Where(o => o[0].OrderDateTime == lastTime).ToArray()[0]);
+                usedTimes.Add(lastTime);
+
+                foreach (var order in orderItems)
+                {
+                    if (order[0].OrderDateTime == lastTime)
+                        if (!temp.Contains(order))
+                            temp.Add(order);
+                }
             }
 
             return temp.ToArray().Reverse().ToList();

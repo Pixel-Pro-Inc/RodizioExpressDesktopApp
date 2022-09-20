@@ -296,9 +296,13 @@ namespace RodizioSmartRestuarant.Helpers
 
                     orderresult.Add(values);
 
-                    OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
+                    if (!orderNumbers.Contains(((OrderItem)data).OrderNumber))
+                    {
+                        OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
 
-                    LocalDataChange();
+                        LocalDataChange();
+                        break;
+                    }
                     break;
             }
         }
