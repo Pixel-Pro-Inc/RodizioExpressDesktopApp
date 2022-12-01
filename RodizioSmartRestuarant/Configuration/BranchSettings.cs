@@ -10,7 +10,6 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using static RodizioSmartRestuarant.Entities.Enums;
-
 namespace RodizioSmartRestuarant.Configuration
 {
     public class BranchSettings
