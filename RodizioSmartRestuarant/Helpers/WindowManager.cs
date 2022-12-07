@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
@@ -198,12 +199,12 @@ namespace RodizioSmartRestuarant.Helpers
 
                 var result = await FirebaseDataContext.Instance.GetData_Online("Order/" + BranchSettings.Instance.branchId);                                
 
-                List<List<OrderItem>> temp = new List<List<OrderItem>>();
+                List<Order> temp = new List<Order>();
 
                 foreach (var item in result)
                 {
                     // We don't need to declare this variable but I'll just leave it
-                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                    Order data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
 
                     temp.Add(data);
                 }
@@ -222,8 +223,8 @@ namespace RodizioSmartRestuarant.Helpers
                         await Task.Delay(500);//Waiting for the method called in the dispatcher to conclude
                     }
 
-                    List<List<OrderItem>> ordersUpdated = new List<List<OrderItem>>();
-                    ordersUpdated = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());                    
+                    List<Order> ordersUpdated = new List<Order>();
+                    ordersUpdated = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());                    
 
                     if (openWindows[i].GetType() == typeof(OrderStatus))
                     {
@@ -242,11 +243,11 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 var result = await FirebaseDataContext.Instance.GetData("Order/" + BranchSettings.Instance.branchId);
 
-                List<List<OrderItem>> temp = new List<List<OrderItem>>();
+                List<Order> temp = new List<Order>();
 
                 foreach (var item in result)
                 {
-                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                    Order data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
 
                     temp.Add(data);
                 }

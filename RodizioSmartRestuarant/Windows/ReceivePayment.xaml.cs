@@ -1,4 +1,5 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
@@ -15,13 +16,13 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class ReceivePayment : BaseWindow
     {
-        private List<OrderItem> _order;
+        private Order _order;
         public float total;
 
         string method;
 
         POS _pOS;
-        public ReceivePayment(List<OrderItem> order, POS pOS)
+        public ReceivePayment(Order order, POS pOS)
         {
             _order = order;
             _pOS = pOS;
@@ -65,7 +66,7 @@ namespace RodizioSmartRestuarant
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
         //Creates Labels to be added to the xaml
-        List<Label> GetLabels(List<OrderItem> order, string _type)
+        List<Label> GetLabels(Order order, string _type)
         {
             List<Label> labels = new List<Label>();
 
@@ -131,7 +132,7 @@ namespace RodizioSmartRestuarant
                 float f = float.Parse(changeAmt.Content.ToString());
                 if (f >= 0)
                 {
-                    List<OrderItem> orderItems = new List<OrderItem>();
+                    Order orderItems = new Order();
                     foreach (var item in _order)
                     {
                         //Use a bloody mapper next time
@@ -164,19 +165,18 @@ namespace RodizioSmartRestuarant
                         });
                     }
 
-                    foreach (var item in orderItems)
+                    for (int i = 0; i < orderItems.Count; i++)
                     {
-                        item.WaitingForPayment = false;
-                        item.Purchased = true;
-                        item.Preparable = true;                        
-                        item.PaymentMethod = method;
-
+                        orderItems[i].WaitingForPayment = false;
+                        orderItems[i].Purchased = true;
+                        orderItems[i].Preparable = true;
                         if (method != "split")
                             continue;
 
-                        item.SplitPayment = true;
-                        item.paymentMethods.Add("cash"); item.paymentMethods.Add("card");
-                        item.payments.Add((float.Parse(cashBox.Text)).ToString("f2")); item.payments.Add((float.Parse(cardBox.Text)).ToString("f2"));
+                        orderItems[i].SplitPayment = true;
+                        //If in an even position it will set paymentMethod to cash, else card
+                        orderItems[i].paymentMethod = (i % 2 == 0) ? "cash": "card";
+                        orderItems[i].payment.Add((float.Parse(cashBox.Text)).ToString("f2")); item.payment.Add((float.Parse(cardBox.Text)).ToString("f2"));
                     }
 
                     _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
@@ -244,7 +244,7 @@ namespace RodizioSmartRestuarant
             }
         }
         //This method prints a receipt
-        void PrintReceipt(List<OrderItem> orderItem, Branch branch)
+        void PrintReceipt(Order orderItem, Branch branch)
         {
             if(amountBox.Text != null && amountBox.Text != "")
             {

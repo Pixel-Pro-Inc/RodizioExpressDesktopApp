@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Windows.Threading;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -35,7 +36,7 @@ namespace RodizioSmartRestuarant
         {
 
         }
-        public OrderStatus(List<List<OrderItem>> orders)
+        public OrderStatus(List<Order> orders)
         {
             InitializeComponent();
 
@@ -57,12 +58,12 @@ namespace RodizioSmartRestuarant
         }
 
         // This is called also in windowManager so that you don't have to update this window with an event defined here
-        public void UpdateScreen(List<List<OrderItem>> orders)
+        public void UpdateScreen(List<Order> orders)
         {
             Dispatcher.BeginInvoke(new Action(() => Logic(orders)));
         }
 
-        public async void CallOutOrders(List<List<OrderItem>> orders)
+        public async void CallOutOrders(List<Order> orders)
         {
             //To avoid collection modified exception
             try
@@ -127,7 +128,7 @@ namespace RodizioSmartRestuarant
 
         void saveCalledOutOrders(List<string> orderNumbers) => new SerializedObjectManager().SaveOverwriteData(orderNumbers, Directories.CalledOutOrders);
 
-        public void Logic(List<List<OrderItem>> orders)
+        public void Logic(List<Order> orders)
         {
             ready.Children.Clear();
             inProgress.Children.Clear();
@@ -164,7 +165,7 @@ namespace RodizioSmartRestuarant
             CallOutOrders(orders);
         }
 
-        Label GetLabel(List<OrderItem> order)
+        Label GetLabel(Order order)
         {
             Label label = new Label()
             {

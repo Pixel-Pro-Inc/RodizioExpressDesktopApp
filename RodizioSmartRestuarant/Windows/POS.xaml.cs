@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
@@ -33,7 +34,7 @@ namespace RodizioSmartRestuarant
     public partial class POS : BaseWindow
     {
         private static readonly HttpClient client = new HttpClient();
-        public List<List<OrderItem>> orders = new List<List<OrderItem>>();
+        public List<Order> orders = new List<Order>();
         private FirebaseDataContext firebaseDataContext;
         private bool showingResults;
 
@@ -74,17 +75,17 @@ namespace RodizioSmartRestuarant
             var resultOnline = await firebaseDataContext.GetData_Online("Order/" + BranchSettings.Instance.branchId);
 
             //Offline include completed orders
-            List<List<OrderItem>> tempOffline = (List<List<OrderItem>>)(await firebaseDataContext.GetOfflineOrdersCompletedInclusive());
+            List<Order> tempOffline = (List<Order>)(await firebaseDataContext.GetOfflineOrdersCompletedInclusive());
 
             //Online orders 
             // TODO: Check to see if completed ones are included
-            List<List<OrderItem>> tempOnline = new List<List<OrderItem>>();
+            List<Order> tempOnline = new List<Order>();
 
             foreach (var item in resultOnline)
             {
-                List<OrderItem> data = new List<OrderItem>();
+                Order data = new Order();
 
-                data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
 
                 tempOnline.Add(data);
             }
@@ -92,7 +93,7 @@ namespace RodizioSmartRestuarant
             //Compare online orders with offline orders(Completed Order Inclusive)
 
             //All Orders
-            List<List<OrderItem>> temp = new List<List<OrderItem>>();
+            List<Order> temp = new List<Order>();
 
             //Primarily take offline over online
             List<string> offlineOrderNumbers = GetOrderNumbers(tempOffline);
@@ -124,7 +125,7 @@ namespace RodizioSmartRestuarant
 
         #region Order logic
 
-        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld, int index)
+        bool OrderItemChanged(Order itemsNew, Order itemsOld, int index)
         {
             string newItem = itemsNew[0].OrderNumber;
             string oldItem = itemsOld[0].OrderNumber;
@@ -152,7 +153,7 @@ namespace RodizioSmartRestuarant
 
             return orderNumbers;
         }
-        List<string> GetOrderNumbers(List<List<OrderItem>> orderItems)
+        List<string> GetOrderNumbers(List<Order> orderItems)
         {
             List<string> orderNumbers = new List<string>();
 
@@ -164,7 +165,7 @@ namespace RodizioSmartRestuarant
 
             return orderNumbers;
         }
-        List<string> GetOrderNumbers_4Digit(List<List<OrderItem>> orderItems)
+        List<string> GetOrderNumbers_4Digit(List<Order> orderItems)
         {
             List<string> orderNumbers = new List<string>();
 
@@ -176,7 +177,7 @@ namespace RodizioSmartRestuarant
 
             return orderNumbers;
         }
-        bool ContainsOnlyCollectedOrder(List<List<OrderItem>> orderItems)
+        bool ContainsOnlyCollectedOrder(List<Order> orderItems)
         {
             int count = 0;
 
@@ -194,13 +195,13 @@ namespace RodizioSmartRestuarant
         /// <summary>
         /// Logic for compiling and displaying relevant orders
         /// </summary>
-        public void UpdateOrderView(List<List<OrderItem>> data, UIChangeSource? source = null)
+        public void UpdateOrderView(List<Order> data, UIChangeSource? source = null)
         {
             ActivityIndicator.AddSpinner(spinner);
             this.Dispatcher.Invoke(() =>
             {
 
-                List<List<OrderItem>> temp = data;//.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
+                List<Order> temp = data;//.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
 
                 temp = Formatting.ChronologicalOrderList(temp);
 
@@ -296,7 +297,7 @@ namespace RodizioSmartRestuarant
                         {
                             var item = temp[i];
 
-                            List<List<OrderItem>> ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
+                            List<Order> ord = orders.Where(o => o[0].OrderNumber == item[0].OrderNumber).ToArray().ToList();
 
                             if (OrderItemChanged(item, ord[0], i))
                             {
@@ -395,7 +396,7 @@ namespace RodizioSmartRestuarant
 
         // UPDATE: I changed the name of the method to be more specific to the cancel function
         void UpdateOrderCount() => activeOrdersCount.Text = orderViewer.Children.Count + " - Active Orders";
-        StackPanel GetPanel(List<OrderItem> items)
+        StackPanel GetPanel(Order items)
         {
             StackPanel stackPanel = new StackPanel()
             {
@@ -895,7 +896,7 @@ namespace RodizioSmartRestuarant
 
         private void Search(string query)
         {
-            List<List<OrderItem>> result = new SearchOrders().Search(query, orders);
+            List<Order> result = new SearchOrders().Search(query, orders);
 
             showingResults = true;
 
@@ -948,7 +949,7 @@ namespace RodizioSmartRestuarant
 
         // TODO: Rethink this method nigga
         // @Yewo: What does this method even aim to do
-        UIChangeSource GetUIChangeSource(List<List<OrderItem>> Orders)
+        UIChangeSource GetUIChangeSource(List<Order> Orders)
         {
 
             List<string> orderNumbers = GetCurrentOrderNumbers();
@@ -956,10 +957,10 @@ namespace RodizioSmartRestuarant
             if (orderNumbers.Count == 0 || ContainsOnlyCollectedOrder(this.orders)) return UIChangeSource.StartUp; //Started POS Up
 
             // @Yewo: Why is this variable even made, when there is no logic that changes the Orders in this scope
-            List<List<OrderItem>> Updatedorders = Orders;//Updated Order List
+            List<Order> Updatedorders = Orders;//Updated Order List
 
             // Gets orders that haven't been collected or markedForDeletion
-            List<List<OrderItem>> _orders = Updatedorders.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
+            List<Order> _orders = Updatedorders.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
 
             //the 'orders' mentioned here are the global orders stored locally  in the POS object
             var updatedOrders = GetOrderNumbers_4Digit(_orders);
@@ -991,7 +992,7 @@ namespace RodizioSmartRestuarant
         }
 
         // @Yewo: Not sure what this method does
-        public async void OnTransaction(string orderNumber, List<OrderItem> order)
+        public async void OnTransaction(string orderNumber, Order order)
         {
             ActivityIndicator.AddSpinner(spinner);
 
