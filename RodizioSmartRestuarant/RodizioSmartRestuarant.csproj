@@ -356,6 +356,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Entities\Location.cs" />
     <Compile Include="Windows\CashierReport.xaml.cs">
       <DependentUpon>CashierReport.xaml</DependentUpon>
     </Compile>

@@ -210,7 +210,7 @@ namespace RodizioSmartRestuarant.Helpers
                 InsertHeaderStyleItem(" Change: ", Formatting.FormatAmountString(changeAmt), Offset);
 
                 Offset = Offset + largeinc;
-                String address = shop.Location;
+                String address = shop.Location.AddressName;
                 DrawSimpleString("Address: " + address, _minifont, Offset, 15);
 
                 Offset = Offset + smallinc;
