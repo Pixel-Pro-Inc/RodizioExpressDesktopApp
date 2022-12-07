@@ -28,11 +28,8 @@ namespace RodizioSmartRestuarant.Data
         // REFACTOR: Use environment variables here
         IFirebaseConfig config = new FirebaseConfig
         {
-            //AuthSecret = Environment.GetEnvironmentVariable("Firebase_AuthSecret"),
-            //BasePath = Environment.GetEnvironmentVariable("Firebase_BasePath")
-            //Test database
-            AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
-            BasePath = "https://rodizotestapp.firebaseio.com/"
+            AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
+            BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
         };
         IFirebaseClient client;
 
