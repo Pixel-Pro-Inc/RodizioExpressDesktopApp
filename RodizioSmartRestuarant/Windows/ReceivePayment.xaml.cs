@@ -188,8 +188,12 @@ namespace RodizioSmartRestuarant
 
                 //This is to check if the change and the values makes sense, cause funny enough, Yewo didn't bother to put the check. Yes I'm talking to you
                 // smarty pants
-                if (float.Parse(cashBox.Text) + float.Parse(cardBox.Text) == order.Price) 
+                if (float.Parse(cashBox.Text) + float.Parse(cardBox.Text) != order.Price)
+                {
                     ShowError($"The {cashBox.Text} and the {cardBox.Text} have to add up to the Price of {order.Price.ToString()}");
+                    WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(order, _pOS));
+                }
+                    
 
                 //PLEASE NOTE: This won't work if you don't set the ENTIRE  order.Payments. Otherwise it will throw errors with the Price of the orders
                 //THAT MEANS THAT, you have to make a new list with the values in the correct desired arrangement. You could also make a new string array 
