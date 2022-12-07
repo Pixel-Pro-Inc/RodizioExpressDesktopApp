@@ -24,7 +24,9 @@ namespace RodizioSmartRestuarant.Helpers
         {
             Instance = this;
 
-            SettingsProperties settings = new SerializedObjectManager().RetrieveData(Directories.Settings) != null? ((IDictionary<string, object>)((List<object>)new SerializedObjectManager().RetrieveData(Directories.Settings))[0]).ToObject<SettingsProperties>(): new SettingsProperties();
+            SettingsProperties settings = new SerializedObjectManager().RetrieveData(Directories.Settings) != null? 
+                ((IDictionary<string, object>)((List<object>)new SerializedObjectManager().RetrieveData(Directories.Settings))[0]).ToObject<SettingsProperties>(): 
+                new SettingsProperties();
 
             Instance.properties = settings;
         }

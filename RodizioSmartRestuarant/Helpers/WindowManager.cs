@@ -17,7 +17,6 @@ namespace RodizioSmartRestuarant.Helpers
 {
     public class WindowManager
     {
-        // @Yewo: What made you think to do this, makking a window manager. Cause it feels, kinda unlike you *laughing emoji*
         public static WindowManager Instance { get; set; }
 
         public List<BaseWindow> openWindows = new List<BaseWindow>();

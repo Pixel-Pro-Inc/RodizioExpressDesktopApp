@@ -6,6 +6,7 @@ using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -127,67 +128,82 @@ namespace RodizioSmartRestuarant
         //Completes a transaction
         private void Finish_Click(object sender, RoutedEventArgs e)
         {
-            if(changeAmt.Content != null)
+            if (changeAmt.Content == null) return;
+
+            float f = float.Parse(changeAmt.Content.ToString());
+            if (f < 0) return;
+            Order order = new Order();
+            foreach (var item in _order)
             {
-                float f = float.Parse(changeAmt.Content.ToString());
-                if (f >= 0)
+                // REFACTOR: Just have them equate each other
+                //Next time you cant just equate them together
+                order.Add(new OrderItem()
                 {
-                    Order orderItems = new Order();
-                    foreach (var item in _order)
-                    {
-                        //Use a bloody mapper next time
-                        orderItems.Add(new OrderItem()
-                        {
-                            Id = item.Id,
-                            Name = item.Name,
-                            Category = item.Category,
-                            Description = item.Description,
-                            Reference = item.Reference,
-                            Price = item.Price,
-                            Weight = item.Weight,
-                            Fufilled = item.Fufilled,
-                            Purchased = item.Purchased,
-                            PaymentMethod = item.PaymentMethod,
-                            Preparable = item.Preparable,
-                            WaitingForPayment = item.WaitingForPayment,
-                            Quantity = item.Quantity,
-                            PhoneNumber = item.PhoneNumber,
-                            OrderNumber = item.OrderNumber,
-                            //Add changes to OrderItem model here as well
-                            OrderDateTime = item.OrderDateTime,
-                            Collected = item.Collected,
-                            User = LocalStorage.Instance.user.FullName(),
-                            PrepTime = item.PrepTime,
-                            Flavour = item.Flavour,
-                            MeatTemperature = item.MeatTemperature,
-                            Sauces = item.Sauces,
-                            SubCategory = item.SubCategory
-                        });
-                    }
+                    Id = item.Id,
+                    Name = item.Name,
+                    Category = item.Category,
+                    Description = item.Description,
+                    Reference = item.Reference,
+                    Price = item.Price,
+                    Weight = item.Weight,
+                    Fufilled = item.Fufilled,
+                    Purchased = item.Purchased,
+                    PaymentMethod = item.PaymentMethod,
+                    Preparable = item.Preparable,
+                    WaitingForPayment = item.WaitingForPayment,
+                    Quantity = item.Quantity,
+                    PhoneNumber = item.PhoneNumber,
+                    OrderNumber = item.OrderNumber,
+                    //Add changes to OrderItem model here as well
+                    OrderDateTime = item.OrderDateTime,
+                    Collected = item.Collected,
+                    User = LocalStorage.Instance.user.FullName(),
+                    PrepTime = item.PrepTime,
+                    Flavour = item.Flavour,
+                    MeatTemperature = item.MeatTemperature,
+                    Sauces = item.Sauces,
+                    SubCategory = item.SubCategory
+                });
+            }
 
-                    for (int i = 0; i < orderItems.Count; i++)
-                    {
-                        orderItems[i].WaitingForPayment = false;
-                        orderItems[i].Purchased = true;
-                        orderItems[i].Preparable = true;
-                        if (method != "split")
-                            continue;
+            for (int i = 0; i < order.Count; i++)
+            {
+                order[i].WaitingForPayment = false;
+                order[i].Purchased = true;
+                order[i].Preparable = true;
+                if (method != "split")
+                    continue;
 
-                        orderItems[i].SplitPayment = true;
-                        //If in an even position it will set paymentMethod to cash, else card
-                        orderItems[i].paymentMethod = (i % 2 == 0) ? "cash": "card";
-                        orderItems[i].payment.Add((float.Parse(cashBox.Text)).ToString("f2")); item.payment.Add((float.Parse(cardBox.Text)).ToString("f2"));
-                    }
-
-                    _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
-
-                    PrintReceipt(_order, BranchSettings.Instance.branch);
-
-                    options.Visibility = Visibility.Collapsed;
-
-                    //Close();
+                order[i].SplitPayment = true;
+                //This block is just a simply assignment of the paymethod type only. It doesn't actually give the value yet
+                //This is because, in all honesty the paymentMethod is a property of the Order type, not of an orderitem since you cann't set it logically to a specific
+                // orderitem. So we set them arbitarily
+                if (order.Count >= 2)
+                {
+                    //If in an even position it will set paymentMethod to cash, else card
+                    order[i].paymentMethod = (i % 2 == 0) ? "cash" : "card";
                 }
-            }            
+                //If it is just one orderItem, its impossible to set them both so just have it go for split
+                else { order[i].paymentMethod = "split"; }
+
+                //This is to check if the change and the values makes sense, cause funny enough, Yewo didn't bother to put the check. Yes I'm talking to you
+                // smarty pants
+                if (float.Parse(cashBox.Text) + float.Parse(cardBox.Text) == order.Price) 
+                    ShowError($"The {cashBox.Text} and the {cardBox.Text} have to add up to the Price of {order.Price.ToString()}");
+
+                //PLEASE NOTE: This won't work if you don't set the ENTIRE  order.Payments. Otherwise it will throw errors with the Price of the orders
+                //THAT MEANS THAT, you have to make a new list with the values in the correct desired arrangement. You could also make a new string array 
+                //like I did just to make sure.
+                order.Payments = new string[3] { cashBox.Text, cardBox.Text, "0" }.ToList();
+            }
+
+            _pOS.OnTransaction(_order[0].OrderNumber, order);
+
+            PrintReceipt(_order, BranchSettings.Instance.branch);
+
+            options.Visibility = Visibility.Collapsed;
+
+            //Close();
         }
         //An option of whether the customer is using a card
         private void Card_Click(object sender, RoutedEventArgs e)

@@ -17,7 +17,7 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
         protected void NullAggregateGuard(string message)
         {
             //I'm assuming this is the same as Any() but since we working with an older version of C# this will have to do
-            if (Exists(x=> x!=null)) throw new NullReferenceException(message);
+            if (Count==0) throw new NullReferenceException(message);
         }
 
     }

@@ -140,15 +140,6 @@ namespace RodizioSmartRestuarant
         }
 
         public void ShowKeyboard()=> Dispatcher.BeginInvoke(new Action(() => Logic()));
-        static void ShowWarning(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
         public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
         void CloseApp() => Application.Current.Shutdown();
 
