@@ -194,7 +194,7 @@ namespace RodizioSmartRestuarant
                 if (!(await new ConnectionChecker().CheckConnection()))
                 {
                     //Message Box
-                    ShowWarning();
+                    ShowWarning("You cannot reset your password without an internet connection.");
                     block = 0;
                     return;
                 }
@@ -204,16 +204,6 @@ namespace RodizioSmartRestuarant
                 block = 0;
             }
 
-        }
-
-        void ShowWarning()
-        {
-            string messageBoxText = "You cannot reset your password without an internet connection.";
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
         private void Close_Button_Click(object sender, RoutedEventArgs e)

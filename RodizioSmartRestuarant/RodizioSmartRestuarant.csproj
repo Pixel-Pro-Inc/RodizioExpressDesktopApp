@@ -356,6 +356,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppLication\Exceptions\BaseAggregateException.cs" />
+    <Compile Include="AppLication\Interfaces\IBaseAggregate.cs" />
+    <Compile Include="AppLication\Interfaces\IBaseEntity.cs" />
+    <Compile Include="Entities\Aggregates\BaseAggregates.cs" />
+    <Compile Include="Entities\Aggregates\Order.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Windows\CashierReport.xaml.cs">
       <DependentUpon>CashierReport.xaml</DependentUpon>

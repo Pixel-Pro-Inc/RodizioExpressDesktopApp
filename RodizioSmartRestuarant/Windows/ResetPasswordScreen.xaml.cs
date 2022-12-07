@@ -119,24 +119,5 @@ namespace RodizioSmartRestuarant
 
             return true;
         }
-        void ShowWarning(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
-
-        void ShowSuccess(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Success";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.None;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
     }
 }

@@ -141,15 +141,6 @@ namespace RodizioSmartRestuarant
         }
 
         public void ShowKeyboard()=> Dispatcher.BeginInvoke(new Action(() => Logic()));
-        static void ShowWarning(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
         public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
         // TODO: You should have it so that when ever the POS is closed it will pull up the login page. Then it should fire this method if closeApp is hit
         void CloseApp()
