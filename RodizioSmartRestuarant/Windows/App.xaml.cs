@@ -145,23 +145,10 @@ namespace RodizioSmartRestuarant
         // TODO: You should have it so that when ever the POS is closed it will pull up the login page. Then it should fire this method if closeApp is hit
         void CloseApp()
         {
-            // This makes sure that only when there are no windows but one, will it close the application. 
-            if (Application.Current.Windows.Count==1)
+            for (int i = 0; i < Application.Current.Windows.Count; i++)
             {
                 Application.Current.Shutdown();
             }
-            //It should warn the user that they haven't closed the window and remove it. 
-            else
-            {
-                //Error Message
-                MessageBoxResult messageBoxResult = MessageBox.Show("Please close all the windows to close the application.", "Some windows are open", System.Windows.MessageBoxButton.OK);
-                if (messageBoxResult == MessageBoxResult.OK)
-                {
-                    WindowManager.Instance.CloseAllAndOpen(new Login());
-                }
-            }
-
-            // 
 
         }
 

@@ -201,7 +201,7 @@ namespace RodizioSmartRestuarant
                 order.Payments = new string[3] { cashBox.Text, cardBox.Text, "0" }.ToList();
             }
 
-            _pOS.OnTransaction(_order[0].OrderNumber, order);
+            _pOS.OnTransaction(order.OrderNumber, order);
 
             PrintReceipt(_order, BranchSettings.Instance.branch);
 

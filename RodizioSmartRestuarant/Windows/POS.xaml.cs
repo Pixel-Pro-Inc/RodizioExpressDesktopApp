@@ -809,22 +809,15 @@ namespace RodizioSmartRestuarant
                         item.User = LocalStorage.Instance.user.FullName();
                     }
 
-                    // REFACTOR: This logic has been used before, please extract it and make it a usable method, go to line 818 for other occurence
-                    string branchId = "";
-                    string fullPath = "";
-
-                    branchId = BranchSettings.Instance.branchId;
-                    fullPath = "Order/" + branchId;
-
-                    foreach (var item in orders[i])
+                    if (TCPServer.Instance == null)
                     {
-                        if (TCPServer.Instance != null)
-                            await firebaseDataContext.StoreData(fullPath, item);
+                        await firebaseDataContext.StoreData("Order/", orders[i]);
+                        return;
                     }
 
-                    if (TCPServer.Instance == null)
-                        await firebaseDataContext.StoreData("Order/", orders[i]);
-
+                    string branchId = BranchSettings.Instance.branchId;
+                    string fullPath = "Order/" + branchId + "/" + orders[i].OrderNumber + "/" + orders[i].Id.ToString();
+                    await firebaseDataContext.StoreData(fullPath, orders[i]);
                     return;
                 }
             }
@@ -996,24 +989,17 @@ namespace RodizioSmartRestuarant
         public async void OnTransaction(string orderNumber, Order order)
         {
             ActivityIndicator.AddSpinner(spinner);
-
-            string n = orderNumber;
-
-
-            // @Yewo: Why not have the if statement outside in wraping over this foreach loop?
-            //  if (TCPServer.Instance != null)
-            foreach (var item in order)
+            if (TCPServer.Instance == null)
             {
-                string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
-
-                // REFACTOR: Why do we have to check for each item in the order?
-                if (TCPServer.Instance != null)
-                    await firebaseDataContext.StoreData(fullPath, item);
+                await firebaseDataContext.StoreData("Order/", order);
+                return;
             }
 
-            if (TCPServer.Instance == null)
-                await firebaseDataContext.StoreData("Order/", order);
+            string branchId = BranchSettings.Instance.branchId;
+            string fullPath = "Order/" + branchId + "/" + orderNumber + "/" + order.Id.ToString();
+            await firebaseDataContext.StoreData(fullPath, order);
+
+
         }
 
         async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);
