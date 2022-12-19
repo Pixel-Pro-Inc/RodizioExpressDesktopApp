@@ -25,17 +25,17 @@ namespace RodizioSmartRestuarant.Data
         string branchId = "";
 
         // REFACTOR: Use environment variables here
-        /*IFirebaseConfig config = new FirebaseConfig
+        IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
-        };*/
+        };
 
-        IFirebaseConfig config = new FirebaseConfig
+        /*IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
             BasePath = "https://rodizotestapp.firebaseio.com/"
-        };
+        };*/
         IFirebaseClient client;
 
         public ConnectionChecker connectionChecker = new ConnectionChecker();
