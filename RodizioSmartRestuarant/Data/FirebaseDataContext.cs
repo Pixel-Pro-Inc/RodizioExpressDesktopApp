@@ -30,6 +30,12 @@ namespace RodizioSmartRestuarant.Data
             AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
         };
+
+        /*IFirebaseConfig config = new FirebaseConfig
+        {
+            AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
+            BasePath = "https://rodizotestapp.firebaseio.com/"
+        };*/
         IFirebaseClient client;
 
         public ConnectionChecker connectionChecker = new ConnectionChecker();
@@ -59,12 +65,12 @@ namespace RodizioSmartRestuarant.Data
                 if (item.GetType() == typeof(JObject))
                 {
                     Branch branch = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
-                    if(branch.Id == BranchSettings.Instance.branchId)
+                    if(branch.BranchId == BranchSettings.Instance.branchId)
                         BranchSettings.Instance.branch = branch;
                 }
                 if (item.GetType() == typeof(Branch))//Local Storage
                 {
-                    if(((Branch)item).Id == BranchSettings.Instance.branchId)
+                    if(((Branch)item).BranchId == BranchSettings.Instance.branchId)
                         BranchSettings.Instance.branch = (Branch)item;
                 }
             }
@@ -272,7 +278,7 @@ namespace RodizioSmartRestuarant.Data
                 {
                     var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
 
-                    if (b.Id == BranchSettings.Instance.branchId)
+                    if (b.BranchId == BranchSettings.Instance.branchId)
                         onlineBranch = b;
                 }
                 #endregion
@@ -407,7 +413,7 @@ namespace RodizioSmartRestuarant.Data
             {
                 item.MarkedForDeletion = true;
                 string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Id.ToString();
+                string fullPath = "Order/" + branchId + "/" + item.OrderNumber + "/" + item.Index.ToString();
 
                 if (TCPServer.Instance != null)
                     await StoreData(fullPath, item);//Remove from order view on all network devices
@@ -624,11 +630,12 @@ namespace RodizioSmartRestuarant.Data
             {
                 for (int i = 0; i < order.Count; i++)
                 {
-                    order[i].Id = i;
+                    order[i].Index = i;
+                    order[i].ID = order[i].OrderDateTime.Ticks.ToString();
 
                     if (order[i].Collected)
                     {
-                        if (!(await StoreData_Online_EndOfDaySync("CompletedOrders" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                        if (!(await StoreData_Online_EndOfDaySync("CompletedOrders" + branchId + "/" + order[i].ID + "/" + i, order[i])))
                             return;
 
                         continue;
@@ -636,13 +643,13 @@ namespace RodizioSmartRestuarant.Data
 
                     if (!order[i].MarkedForDeletion)
                     {
-                        if (!(await StoreData_Online_EndOfDaySync("Order" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                        if (!(await StoreData_Online_EndOfDaySync("Order" + branchId + "/" + order[i].ID + "/" + i, order[i])))
                             return;
 
                         continue;
                     }
 
-                    if (!(await StoreData_Online_EndOfDaySync("CancelledOrders" + branchId + "/" + order[i].OrderNumber + "/" + i, order[i])))
+                    if (!(await StoreData_Online_EndOfDaySync("CancelledOrders" + branchId + "/" + order[i].ID + "/" + i, order[i])))
                         return;
                 }
             }
@@ -665,7 +672,7 @@ namespace RodizioSmartRestuarant.Data
                 {
                     var b = JsonConvert.DeserializeObject<Branch>(((JObject)item).ToString());
 
-                    if (b.Id == BranchSettings.Instance.branchId)
+                    if (b.BranchId == BranchSettings.Instance.branchId)
                     {
                         branch = b;
                     }

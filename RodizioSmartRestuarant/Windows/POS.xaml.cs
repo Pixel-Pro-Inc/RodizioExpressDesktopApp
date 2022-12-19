@@ -1003,7 +1003,7 @@ namespace RodizioSmartRestuarant
             foreach (var item in order)
             {
                 string branchId = BranchSettings.Instance.branchId;
-                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Id.ToString();
+                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Index;
 
                 // REFACTOR: Why do we have to check for each item in the order?
                 if (TCPServer.Instance != null)

@@ -133,7 +133,7 @@ namespace RodizioSmartRestuarant
 
                 TextBox textBox = new TextBox()
                 {
-                    Name = "r" + menuItem.Id
+                    Name = "r" + menuItem.ID
                 };
 
                 textBox.TextChanged += Price_TextChanged;
@@ -156,7 +156,7 @@ namespace RodizioSmartRestuarant
 
             TextBox textBox1 = new TextBox()
             {
-                Name = "q" + menuItem.Id,
+                Name = "q" + menuItem.ID,
                 Text = "1"
             };
 
@@ -247,7 +247,7 @@ namespace RodizioSmartRestuarant
             Button button = new Button()
             {
                 Content = "Add",
-                Name = "n" + menuItem.Id
+                Name = "n" + menuItem.ID
             };
 
             button.Click += Add_Click;
@@ -303,11 +303,9 @@ namespace RodizioSmartRestuarant
                 {
                     string id = textBox.Name.Remove(0, 1);
 
-                    int numId = Int32.Parse(id);
-
                     for (int i = 0; i < menuItems.Count; i++)
                     {
-                        if (menuItems[i].Id == numId)
+                        if (menuItems[i].ID == id)
                         {
                             if (inputNum >= 1)
                             {
@@ -328,7 +326,7 @@ namespace RodizioSmartRestuarant
 
             for (int i = 0; i < orders.Count; i++)
             {
-                orders[i].Id = i;
+                orders[i].Index = i;
 
                 orderView.Children.Add(GetStackPanel(orders[i], i));
             }
@@ -470,11 +468,9 @@ namespace RodizioSmartRestuarant
             Button button = (Button)sender;
             string id = button.Name.Remove(0, 1);
 
-            int numId = Int32.Parse(id);
-
             for (int i = 0; i < orders.Count; i++)
             {
-                if (orders[i].Id == numId)
+                if (orders[i].ID == id)
                 {
                     orders.RemoveAt(i);
 
@@ -498,11 +494,9 @@ namespace RodizioSmartRestuarant
                 {
                     string id = textBox.Name.Remove(0, 1);
 
-                    int numId = Int32.Parse(id);
-
                     for (int i = 0; i < menuItems.Count; i++)
                     {
-                        if (menuItems[i].Id == numId)
+                        if (menuItems[i].ID == id)
                         {
                             if(inputNum >= menuItems[i].MinimumPrice)
                             {
@@ -527,11 +521,9 @@ namespace RodizioSmartRestuarant
 
             string id = button.Name.Remove(0, 1);
 
-            int numId = Int32.Parse(id);
-
             for (int i = 0; i < menuItems.Count; i++)
             {
-                if (menuItems[i].Id == numId)
+                if (menuItems[i].ID == id)
                 {
                     if(menuItems[i].Category == "Meat" && menuItems[i].Price == "0.00")
                     {
@@ -646,7 +638,7 @@ namespace RodizioSmartRestuarant
                 if (!optForSMS)
                     orderItem.PhoneNumber = "";
 
-                orderItem.Id = i;
+                orderItem.Index = i;
 
                 //await firebaseDataContext.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
             }            
@@ -690,7 +682,7 @@ namespace RodizioSmartRestuarant
             {
                 orderItems.Add(new OrderItem()
                 {
-                    Id = item.Id,
+                    Index = item.Index,
                     Name = item.Name,
                     Category = item.Category,
                     Description = item.Description,
