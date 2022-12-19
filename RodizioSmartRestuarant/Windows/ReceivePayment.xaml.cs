@@ -137,7 +137,7 @@ namespace RodizioSmartRestuarant
                         //Use a bloody mapper next time
                         orderItems.Add(new OrderItem()
                         {
-                            Id = item.Id,
+                            ID = item.ID,
                             Name = item.Name,
                             Category = item.Category,
                             Description = item.Description,

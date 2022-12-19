@@ -97,7 +97,7 @@ namespace RodizioSmartRestuarant
             Button button = new Button()
             {
                 Content = menuItem.Availability ? "Mark as unavailable" : "Mark as available",
-                Name = "n" + menuItem.Id
+                Name = "n" + menuItem.ID
             };
 
             button.Click += AvailablityToggle_Click;
@@ -116,17 +116,15 @@ namespace RodizioSmartRestuarant
 
             string id = button.Name.Remove(0, 1);
 
-            int numId = Int32.Parse(id);
-
             for (int i = 0; i < menuItems.Count; i++)
             {
-                if(menuItems[i].Id == numId)
+                if(menuItems[i].ID == id)
                 {
                     menuItems[i].Availability = !menuItems[i].Availability;
                     
                     //UpdateDatabase
                     string branchId = BranchSettings.Instance.branchId;
-                    string fullPath = "Menu/" + branchId + "/" + numId;
+                    string fullPath = "Menu/" + branchId + "/" + id;
 
                     await firebaseDataContext.EditData_Online(fullPath, menuItems[i]);
 
