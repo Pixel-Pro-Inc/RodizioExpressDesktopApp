@@ -115,7 +115,7 @@ namespace RodizioSmartRestuarant
             // TRACK: @Yewo I want to know how and why the Re-downloading takes place
             foreach (var item in temp)
             {
-                await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
+                await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].ID);//Delete all downloaded orders from DB
             }
             #endregion
 
