@@ -470,7 +470,7 @@ namespace RodizioSmartRestuarant
 
             for (int i = 0; i < orders.Count; i++)
             {
-                if (orders[i].ID == id)
+                if (orders[i].Index == Int32.Parse(id))
                 {
                     orders.RemoveAt(i);
 
@@ -639,7 +639,7 @@ namespace RodizioSmartRestuarant
                     orderItem.PhoneNumber = "";
 
                 orderItem.Index = i;
-
+                orderItem.ID = DateTime.UtcNow.Ticks.ToString();
                 //await firebaseDataContext.StoreData("Order/" + BranchSettings.Instance.branchId + "/" + orderItem.OrderNumber + "/" + orderItem.Id, orderItem);
             }            
 

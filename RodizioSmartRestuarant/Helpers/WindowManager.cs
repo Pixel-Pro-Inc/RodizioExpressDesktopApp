@@ -211,7 +211,7 @@ namespace RodizioSmartRestuarant.Helpers
                 // @Yewo: Why the need to delete orders from the database?
                 foreach (var item in temp)
                 {
-                    await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
+                    await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].ID);//Delete all downloaded orders from DB
                 }
 
                 for (int i = 0; i < openWindows.Count; i++)

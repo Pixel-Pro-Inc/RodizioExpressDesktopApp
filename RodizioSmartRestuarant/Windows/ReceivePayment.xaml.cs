@@ -138,6 +138,7 @@ namespace RodizioSmartRestuarant
                         orderItems.Add(new OrderItem()
                         {
                             ID = item.ID,
+                            Index = item.Index,
                             Name = item.Name,
                             Category = item.Category,
                             Description = item.Description,
