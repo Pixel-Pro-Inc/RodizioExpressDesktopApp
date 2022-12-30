@@ -117,7 +117,7 @@ namespace RodizioSmartRestuarant
             // TRACK: @Yewo I want to know how and why the Re-downloading takes place
             foreach (var item in temp)
             {
-                await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].OrderNumber);//Delete all downloaded orders from DB
+                await FirebaseDataContext.Instance.DeleteData("Order/" + BranchSettings.Instance.branchId + "/" + item[0].ID);//Delete all downloaded orders from DB
             }
             #endregion
 
@@ -801,7 +801,7 @@ namespace RodizioSmartRestuarant
                 string n = button.Name.Replace('e', '-');
                 n = n.Remove(0, 1);
 
-                if (orders[i][0].OrderNumber == n)
+                if (orders[i].OrderNumber == n)
                 {
                     foreach (var item in orders[i])
                     {
@@ -809,15 +809,22 @@ namespace RodizioSmartRestuarant
                         item.User = LocalStorage.Instance.user.FullName();
                     }
 
-                    if (TCPServer.Instance == null)
+                    // REFACTOR: This logic has been used before, please extract it and make it a usable method, go to line 818 for other occurence
+                    string branchId = "";
+                    string fullPath = "";
+
+                    branchId = BranchSettings.Instance.branchId;
+                    fullPath = "Order/" + branchId;
+
+                    foreach (var item in orders[i])
                     {
-                        await firebaseDataContext.StoreData("Order/", orders[i]);
-                        return;
+                        if (TCPServer.Instance != null)
+                            await firebaseDataContext.StoreData(fullPath, item);
                     }
 
-                    string branchId = BranchSettings.Instance.branchId;
-                    string fullPath = "Order/" + branchId + "/" + orders[i].OrderNumber + "/" + orders[i].Id.ToString();
-                    await firebaseDataContext.StoreData(fullPath, orders[i]);
+                    if (TCPServer.Instance == null)
+                        await firebaseDataContext.StoreData("Order/", orders[i]);
+
                     return;
                 }
             }
@@ -989,17 +996,24 @@ namespace RodizioSmartRestuarant
         public async void OnTransaction(string orderNumber, Order order)
         {
             ActivityIndicator.AddSpinner(spinner);
-            if (TCPServer.Instance == null)
+
+            string n = orderNumber;
+
+
+            // @Yewo: Why not have the if statement outside in wraping over this foreach loop?
+            //  if (TCPServer.Instance != null)
+            foreach (var item in order)
             {
-                await firebaseDataContext.StoreData("Order/", order);
-                return;
+                string branchId = BranchSettings.Instance.branchId;
+                string fullPath = "Order/" + branchId + "/" + n + "/" + item.Index;
+
+                // REFACTOR: Why do we have to check for each item in the order?
+                if (TCPServer.Instance != null)
+                    await firebaseDataContext.StoreData(fullPath, item);
             }
 
-            string branchId = BranchSettings.Instance.branchId;
-            string fullPath = "Order/" + branchId + "/" + orderNumber + "/" + order.Id.ToString();
-            await firebaseDataContext.StoreData(fullPath, order);
-
-
+            if (TCPServer.Instance == null)
+                await firebaseDataContext.StoreData("Order/", order);
         }
 
         async void SendCancelSMS(string phoneNumber, string orderNumber) => await client.PostAsync("https://rodizioexpress.com/api/sms/send/cancel/" + phoneNumber + "/" + orderNumber, null);

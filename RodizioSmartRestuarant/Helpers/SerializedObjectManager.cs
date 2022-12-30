@@ -214,7 +214,7 @@ namespace RodizioSmartRestuarant.Helpers
             {
                 if(order[0].OrderNumber == serializedData.OrderNumber)
                 {
-                    order[serializedData.Id] = serializedData;
+                    order[serializedData.Index] = serializedData;
                     break;
                 }
             }

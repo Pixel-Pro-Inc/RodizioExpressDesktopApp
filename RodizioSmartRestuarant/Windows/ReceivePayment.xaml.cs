@@ -87,7 +87,7 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Units", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = item.Quantity});
+                    labels.Add(new Label() { Content = item.Quantity });
                 }
 
                 return labels;
@@ -97,7 +97,7 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Unit Price", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price)/(float)item.Quantity) });
+                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price) / (float)item.Quantity) });
                 }
 
                 return labels;
@@ -139,7 +139,8 @@ namespace RodizioSmartRestuarant
                 //Next time you cant just equate them together
                 order.Add(new OrderItem()
                 {
-                    Id = item.Id,
+                    ID = item.ID,
+                    Index = item.Index,
                     Name = item.Name,
                     Category = item.Category,
                     Description = item.Description,
@@ -193,7 +194,7 @@ namespace RodizioSmartRestuarant
                     ShowError($"The {cashBox.Text} and the {cardBox.Text} have to add up to the Price of {order.Price.ToString()}");
                     WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(order, _pOS));
                 }
-                    
+
 
                 //PLEASE NOTE: This won't work if you don't set the ENTIRE  order.Payments. Otherwise it will throw errors with the Price of the orders
                 //THAT MEANS THAT, you have to make a new list with the values in the correct desired arrangement. You could also make a new string array 
@@ -266,7 +267,7 @@ namespace RodizioSmartRestuarant
         //This method prints a receipt
         void PrintReceipt(Order orderItem, Branch branch)
         {
-            if(amountBox.Text != null && amountBox.Text != "")
+            if (amountBox.Text != null && amountBox.Text != "")
             {
                 float change = float.Parse(changeAmt.Content.ToString());
                 float amount = float.Parse(amountBox.Text);
@@ -275,14 +276,14 @@ namespace RodizioSmartRestuarant
             }
             else
             {
-                if(method == "split")
+                if (method == "split")
                 {
                     float change = float.Parse(changeAmt.Content.ToString());
                     float amount = float.Parse(cashBox.Text) + float.Parse(cardBox.Text);
 
                     new ReceiptSlip.PrintJob(orderItem, branch, amount, change).Print(BranchSettings.Instance.printerName);
                 }
-            }            
+            }
         }
 
         //OverLoads for promotion desired. Update the xaml if we are including it and use these 

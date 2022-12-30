@@ -232,7 +232,7 @@ namespace RodizioSmartRestuarant.Helpers
                             {
                                 if ((itm.ToObject<OrderItem>()).OrderNumber == ((OrderItem)data).OrderNumber)
                                 {
-                                    if ((itm.ToObject<OrderItem>()).Id == ((OrderItem)data).Id)
+                                    if ((itm.ToObject<OrderItem>()).Index == ((OrderItem)data).Index)
                                         oldOrderItem = itm.ToObject<OrderItem>();
                                 }
                             }

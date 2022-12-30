@@ -9,7 +9,10 @@ namespace RodizioSmartRestuarant.Entities
     [Serializable]
     public class Location
     {
-        public int Id { get; set; }
+        /// <summary>
+        /// Index of location in list.
+        /// </summary>
+        public int Index { get; set; }
         public string AddressName { get; set; }
         public float Latitude { get; set; }
         public float Longitude { get; set; }

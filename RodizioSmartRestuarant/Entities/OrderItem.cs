@@ -10,7 +10,14 @@ namespace RodizioSmartRestuarant.Entities
     [Serializable]
     public class OrderItem
     {
-        public int Id { get; set; }
+        /// <summary>
+        /// Unique Identifier for each order in DB.
+        /// </summary>
+        public string ID { get; set; }
+        /// <summary>
+        /// Index of order item in order list
+        /// </summary>
+        public int Index { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public string SubCategory { get; set; } = "";

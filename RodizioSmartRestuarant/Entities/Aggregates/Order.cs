@@ -50,7 +50,7 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
             string orderItems = "";
             foreach (var orderItem in this)
             {
-                orderItems = orderItem.Name + " IdentityFied with " + orderItem.Id.ToString() + "\n" + " Costing:" + Price.ToString() + "\n\n";
+                orderItems = orderItem.Name + " IdentityFied with " + orderItem.Index.ToString() + "\n" + " Costing:" + Price.ToString() + "\n\n";
             }
             return orderItems;
         }
@@ -141,12 +141,12 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
         /// This is the id gotten from the first element of <see cref="OrderItem"/>s it has. If it doesn't have an element it throws <see cref="NullReferenceException()"/>
         /// <para> I also made it Immutable/ReadOnly</para>
         /// </summary>
-        public int? Id
+        public string ID
         {
             get
             {
                 NullAggregateGuard(NullAggMessage);
-                return this.First().Id;
+                return this.First().ID;
             }
         }
 
