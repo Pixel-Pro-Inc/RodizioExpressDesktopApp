@@ -39,10 +39,10 @@ namespace RodizioSmartRestuarant
 
             _mutex = new Mutex(true, appName, out createdNew);
 
-            // @Yewo: I need further clarifaction on this one, 
+
             if (!createdNew)
             {
-                //App Instance Already Running //UPDATE: Does this mean that it shuts down the entire application or just that thread?
+                //App Instance Already Running 
                 Application.Current.Shutdown();
                 return;
             }
@@ -83,14 +83,15 @@ namespace RodizioSmartRestuarant
             noUICount++;
         }
 
+        // TODO: Put this in an ERRORloggger
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             string folder = new SerializedObjectManager().savePath(Entities.Enums.Directories.Error);
 
             string fileName = $"error_log.txt";
 
-            // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works
-            // SendErrorlogSMS(e.ExceptionObject.ToString());
+            // TODO: Have the smpt server send the error messages to our email, But we basically need to test if the line below works. It wasn't done in the API
+            //SendErrorlogSMS(e.ExceptionObject.ToString());
 
             // if the file doesn't exists
             if(!File.Exists(folder + "/" + fileName))
@@ -140,17 +141,16 @@ namespace RodizioSmartRestuarant
         }
 
         public void ShowKeyboard()=> Dispatcher.BeginInvoke(new Action(() => Logic()));
-        static void ShowWarning(string msg)
-        {
-            string messageBoxText = msg;
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
         public void ShutdownApp() => Dispatcher.BeginInvoke(new Action(() => CloseApp()));
-        void CloseApp() => Application.Current.Shutdown();
+        // TODO: You should have it so that when ever the POS is closed it will pull up the login page. Then it should fire this method if closeApp is hit
+        void CloseApp()
+        {
+            for (int i = 0; i < Application.Current.Windows.Count; i++)
+            {
+                Application.Current.Shutdown();
+            }
+
+        }
 
         // REFACTOR: Please name this more appropriatly
         // @Yewo: look up

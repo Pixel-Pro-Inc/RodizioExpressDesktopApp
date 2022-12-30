@@ -15,6 +15,7 @@ using MenuItem = RodizioSmartRestuarant.Entities.MenuItem;
 using RodizioSmartRestuarant.Data;
 using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -24,7 +25,7 @@ namespace RodizioSmartRestuarant
     public partial class NewOrder : BaseWindow
     {
         List<MenuItem> menuItems = new List<MenuItem>();
-        List<OrderItem> orders = new List<OrderItem>();
+        Order orders = new Order();
         private FirebaseDataContext firebaseDataContext;
         private string _source;
 
@@ -613,7 +614,7 @@ namespace RodizioSmartRestuarant
             CheckChanged();
         }
 
-        async void ConfirmOrder(List<OrderItem> orderItems)
+        async void ConfirmOrder(Order orderItems)
         {
             //Activity Indicator
             ActivityIndicator.AddSpinner(spinner);
@@ -675,9 +676,9 @@ namespace RodizioSmartRestuarant
             }            
         }
 
-        private void CreateUnpaidOrder(List<OrderItem> _order, POS _pOS)
+        private void CreateUnpaidOrder(Order _order, POS _pOS)
         {
-            List<OrderItem> orderItems = new List<OrderItem>();
+            Order orderItems = new Order();
             foreach (var item in _order)
             {
                 orderItems.Add(new OrderItem()
@@ -728,7 +729,7 @@ namespace RodizioSmartRestuarant
         public async Task<string> GetOrderNum(string branchId)
         {
             var response = await firebaseDataContext.GetData("Order/" + branchId);
-            List<OrderItem> orders = new List<OrderItem>();
+            Order orders = new Order();
 
             foreach (var item in response)
             {
@@ -864,7 +865,7 @@ namespace RodizioSmartRestuarant
                 block1 = 1;
             }            
         }
-        private void UpdateOrderPrepTime(List<OrderItem> orderItems)
+        private void UpdateOrderPrepTime(Order orderItems)
         {
             int orderTime = 0;
             foreach (var item in orderItems)

@@ -1,4 +1,5 @@
-﻿using RodizioSmartRestuarant.Data;
+﻿using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Extensions;
 using System;
@@ -129,7 +130,7 @@ namespace RodizioSmartRestuarant.Helpers
             if (TCPServer.Instance != null)
                 TCPServer.Instance.localDataInUse = false;
         }
-        public async void DeleteOrder(List<OrderItem> serializedData, Directories dir)
+        public async void DeleteOrder(Order serializedData, Directories dir)
         {
             //Retrieve locally stored data
             object offlineData = null;
@@ -142,10 +143,10 @@ namespace RodizioSmartRestuarant.Helpers
             offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
 
             //Covert IDictionary to OrderItem
-            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+            List<Order> offlineOrders = new List<Order>();
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
             {
-                offlineOrders.Add(new List<OrderItem>());
+                offlineOrders.Add(new Order());
 
                 foreach (var itm in item)
                 {
@@ -196,11 +197,11 @@ namespace RodizioSmartRestuarant.Helpers
             offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
 
             //Covert IDictionary to OrderItem
-            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+            List<Order> offlineOrders = new List<Order>();
 
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
             {
-                offlineOrders.Add(new List<OrderItem>());
+                offlineOrders.Add(new Order());
 
                 foreach (var itm in item)
                 {

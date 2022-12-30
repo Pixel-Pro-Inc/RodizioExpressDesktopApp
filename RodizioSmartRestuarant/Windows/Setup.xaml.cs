@@ -61,16 +61,6 @@ namespace RodizioSmartRestuarant
             Next(id, name);
         }
 
-        void ShowWarning(string msg)
-        {
-            string messageBoxText = msg + ".";
-            string caption = "Warning";
-            MessageBoxButton button = MessageBoxButton.OK;
-            MessageBoxImage icon = MessageBoxImage.Warning;
-
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
-
         async void Next(string id, string name)
         {
             //Activity Indicator

@@ -1,10 +1,12 @@
 ﻿using RodizioSmartRestuarant.Configuration;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -15,13 +17,13 @@ namespace RodizioSmartRestuarant
     /// </summary>
     public partial class ReceivePayment : BaseWindow
     {
-        private List<OrderItem> _order;
+        private Order _order;
         public float total;
 
         string method;
 
         POS _pOS;
-        public ReceivePayment(List<OrderItem> order, POS pOS)
+        public ReceivePayment(Order order, POS pOS)
         {
             _order = order;
             _pOS = pOS;
@@ -65,7 +67,7 @@ namespace RodizioSmartRestuarant
             RodizioSmartRestuarant.Helpers.Settings.Instance.OnWindowCountChange();
         }
         //Creates Labels to be added to the xaml
-        List<Label> GetLabels(List<OrderItem> order, string _type)
+        List<Label> GetLabels(Order order, string _type)
         {
             List<Label> labels = new List<Label>();
 
@@ -85,7 +87,7 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Units", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = item.Quantity});
+                    labels.Add(new Label() { Content = item.Quantity });
                 }
 
                 return labels;
@@ -95,7 +97,7 @@ namespace RodizioSmartRestuarant
                 labels.Add(new Label() { Content = "Unit Price", FontWeight = FontWeights.Bold });
                 foreach (var item in order)
                 {
-                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price)/(float)item.Quantity) });
+                    labels.Add(new Label() { Content = Formatting.FormatAmountString(float.Parse(item.Price) / (float)item.Quantity) });
                 }
 
                 return labels;
@@ -126,69 +128,87 @@ namespace RodizioSmartRestuarant
         //Completes a transaction
         private void Finish_Click(object sender, RoutedEventArgs e)
         {
-            if(changeAmt.Content != null)
+            if (changeAmt.Content == null) return;
+
+            float f = float.Parse(changeAmt.Content.ToString());
+            if (f < 0) return;
+            Order order = new Order();
+            foreach (var item in _order)
             {
-                float f = float.Parse(changeAmt.Content.ToString());
-                if (f >= 0)
+                // REFACTOR: Just have them equate each other
+                //Next time you cant just equate them together
+                order.Add(new OrderItem()
                 {
-                    List<OrderItem> orderItems = new List<OrderItem>();
-                    foreach (var item in _order)
-                    {
-                        //Use a bloody mapper next time
-                        orderItems.Add(new OrderItem()
-                        {
-                            ID = item.ID,
-                            Index = item.Index,
-                            Name = item.Name,
-                            Category = item.Category,
-                            Description = item.Description,
-                            Reference = item.Reference,
-                            Price = item.Price,
-                            Weight = item.Weight,
-                            Fufilled = item.Fufilled,
-                            Purchased = item.Purchased,
-                            PaymentMethod = item.PaymentMethod,
-                            Preparable = item.Preparable,
-                            WaitingForPayment = item.WaitingForPayment,
-                            Quantity = item.Quantity,
-                            PhoneNumber = item.PhoneNumber,
-                            OrderNumber = item.OrderNumber,
-                            //Add changes to OrderItem model here as well
-                            OrderDateTime = item.OrderDateTime,
-                            Collected = item.Collected,
-                            User = LocalStorage.Instance.user.FullName(),
-                            PrepTime = item.PrepTime,
-                            Flavour = item.Flavour,
-                            MeatTemperature = item.MeatTemperature,
-                            Sauces = item.Sauces,
-                            SubCategory = item.SubCategory
-                        });
-                    }
+                    ID = item.ID,
+                    Index = item.Index,
+                    Name = item.Name,
+                    Category = item.Category,
+                    Description = item.Description,
+                    Reference = item.Reference,
+                    Price = item.Price,
+                    Weight = item.Weight,
+                    Fufilled = item.Fufilled,
+                    Purchased = item.Purchased,
+                    PaymentMethod = item.PaymentMethod,
+                    Preparable = item.Preparable,
+                    WaitingForPayment = item.WaitingForPayment,
+                    Quantity = item.Quantity,
+                    PhoneNumber = item.PhoneNumber,
+                    OrderNumber = item.OrderNumber,
+                    //Add changes to OrderItem model here as well
+                    OrderDateTime = item.OrderDateTime,
+                    Collected = item.Collected,
+                    User = LocalStorage.Instance.user.FullName(),
+                    PrepTime = item.PrepTime,
+                    Flavour = item.Flavour,
+                    MeatTemperature = item.MeatTemperature,
+                    Sauces = item.Sauces,
+                    SubCategory = item.SubCategory
+                });
+            }
 
-                    foreach (var item in orderItems)
-                    {
-                        item.WaitingForPayment = false;
-                        item.Purchased = true;
-                        item.Preparable = true;                        
-                        item.PaymentMethod = method;
+            for (int i = 0; i < order.Count; i++)
+            {
+                order[i].WaitingForPayment = false;
+                order[i].Purchased = true;
+                order[i].Preparable = true;
+                if (method != "split")
+                    continue;
 
-                        if (method != "split")
-                            continue;
-
-                        item.SplitPayment = true;
-                        item.paymentMethods.Add("cash"); item.paymentMethods.Add("card");
-                        item.payments.Add((float.Parse(cashBox.Text)).ToString("f2")); item.payments.Add((float.Parse(cardBox.Text)).ToString("f2"));
-                    }
-
-                    _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
-
-                    PrintReceipt(_order, BranchSettings.Instance.branch);
-
-                    options.Visibility = Visibility.Collapsed;
-
-                    //Close();
+                order[i].SplitPayment = true;
+                //This block is just a simply assignment of the paymethod type only. It doesn't actually give the value yet
+                //This is because, in all honesty the paymentMethod is a property of the Order type, not of an orderitem since you cann't set it logically to a specific
+                // orderitem. So we set them arbitarily
+                if (order.Count >= 2)
+                {
+                    //If in an even position it will set paymentMethod to cash, else card
+                    order[i].paymentMethod = (i % 2 == 0) ? "cash" : "card";
                 }
-            }            
+                //If it is just one orderItem, its impossible to set them both so just have it go for split
+                else { order[i].paymentMethod = "split"; }
+
+                //This is to check if the change and the values makes sense, cause funny enough, Yewo didn't bother to put the check. Yes I'm talking to you
+                // smarty pants
+                if (float.Parse(cashBox.Text) + float.Parse(cardBox.Text) != order.Price)
+                {
+                    ShowError($"The {cashBox.Text} and the {cardBox.Text} have to add up to the Price of {order.Price.ToString()}");
+                    WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(order, _pOS));
+                }
+
+
+                //PLEASE NOTE: This won't work if you don't set the ENTIRE  order.Payments. Otherwise it will throw errors with the Price of the orders
+                //THAT MEANS THAT, you have to make a new list with the values in the correct desired arrangement. You could also make a new string array 
+                //like I did just to make sure.
+                order.Payments = new string[3] { cashBox.Text, cardBox.Text, "0" }.ToList();
+            }
+
+            _pOS.OnTransaction(order.OrderNumber, order);
+
+            PrintReceipt(_order, BranchSettings.Instance.branch);
+
+            options.Visibility = Visibility.Collapsed;
+
+            //Close();
         }
         //An option of whether the customer is using a card
         private void Card_Click(object sender, RoutedEventArgs e)
@@ -245,9 +265,9 @@ namespace RodizioSmartRestuarant
             }
         }
         //This method prints a receipt
-        void PrintReceipt(List<OrderItem> orderItem, Branch branch)
+        void PrintReceipt(Order orderItem, Branch branch)
         {
-            if(amountBox.Text != null && amountBox.Text != "")
+            if (amountBox.Text != null && amountBox.Text != "")
             {
                 float change = float.Parse(changeAmt.Content.ToString());
                 float amount = float.Parse(amountBox.Text);
@@ -256,14 +276,14 @@ namespace RodizioSmartRestuarant
             }
             else
             {
-                if(method == "split")
+                if (method == "split")
                 {
                     float change = float.Parse(changeAmt.Content.ToString());
                     float amount = float.Parse(cashBox.Text) + float.Parse(cardBox.Text);
 
                     new ReceiptSlip.PrintJob(orderItem, branch, amount, change).Print(BranchSettings.Instance.printerName);
                 }
-            }            
+            }
         }
 
         //OverLoads for promotion desired. Update the xaml if we are including it and use these 

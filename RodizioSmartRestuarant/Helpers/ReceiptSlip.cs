@@ -1,5 +1,6 @@
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,13 +20,13 @@ namespace RodizioSmartRestuarant.Helpers
         {
             private PrintDocument PrintDocument;
             private XGraphics graphics;
-            private List<OrderItem> order { set; get; }
+            private Order order { set; get; }
             private Branch shop { set; get; }
 
             private float amtReceived { get; set; }
             private float changeAmt { get; set; }
             private float scaleFactor = 1.22f;
-            public PrintJob(List<OrderItem> order, Branch shop, float amountReceived, float Change)
+            public PrintJob(Order order, Branch shop, float amountReceived, float Change)
             {
                 this.order = order;
                 this.shop = shop;

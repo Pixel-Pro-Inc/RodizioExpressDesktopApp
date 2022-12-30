@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>RodizioSmartRestuarant</id>
+    <version>1.2.3</version>
+    <authors>PixelPro</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl>
+    <description>Package description</description>
+    <releaseNotes>&lt;![CDATA[
+&lt;p&gt;Summary of changes made in this release of the package.&lt;/p&gt;
+
+]]&gt;</releaseNotes>
+    <copyright>
+    </copyright>
+    <tags>Tag1 Tag2</tags>
+  </metadata>
+</package>

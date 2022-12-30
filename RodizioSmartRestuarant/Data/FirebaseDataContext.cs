@@ -14,31 +14,32 @@ using Newtonsoft.Json;
 using System.Windows.Threading;
 using static RodizioSmartRestuarant.Entities.Enums;
 using RodizioSmartRestuarant.Extensions;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant.Data
 {
     public class FirebaseDataContext:OfflineDataHelpers
     {
         public static FirebaseDataContext Instance { get; set; }
-
+        
         public bool startedSyncing = false;
         string branchId = "";
 
         // REFACTOR: Use environment variables here
         
-        IFirebaseConfig config = new FirebaseConfig
+        /*IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
             BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
-        };
+        };*/
         
-        /*
+        
         IFirebaseConfig config = new FirebaseConfig
         {
             AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
             BasePath = "https://rodizotestapp.firebaseio.com/"
         };
-        */
+        
         IFirebaseClient client;
 
         public ConnectionChecker connectionChecker = new ConnectionChecker();
@@ -167,11 +168,11 @@ namespace RodizioSmartRestuarant.Data
 
             offlineData = offlineData == null ? new List<List<IDictionary<string, object>>>() : offlineData;
 
-            List<List<OrderItem>> offlineOrders = new List<List<OrderItem>>();
+            List<Order> offlineOrders = new List<Order>();
 
             foreach (var item in (List<List<IDictionary<string, object>>>)offlineData)
             {
-                offlineOrders.Add(new List<OrderItem>());
+                offlineOrders.Add(new Order());
 
                 foreach (var itm in item)
                 {
@@ -231,13 +232,13 @@ namespace RodizioSmartRestuarant.Data
                 new SerializedObjectManager().DeleteAllData();
                 //Store new data
                 #region Retrieve data
-                List<List<OrderItem>> onlineOrders = new List<List<OrderItem>>();
+                List<Order> onlineOrders = new List<Order>();
 
                 List<object> list = await GetData1("Order" + branchId);
 
                 foreach (var item in list)
                 {
-                    List<OrderItem> data = JsonConvert.DeserializeObject<List<OrderItem>>(((JArray)item).ToString());
+                    Order data = JsonConvert.DeserializeObject<Order>(((JArray)item).ToString());
 
                     if (!data[0].Collected)
                         onlineOrders.Add(data);
@@ -354,16 +355,16 @@ namespace RodizioSmartRestuarant.Data
                 return;
             }
         }
-        public async void ResetLocalData(List<List<OrderItem>> orders)
+        public async void ResetLocalData(List<Order> orders)
         {
             //Makes sure only the server makes the syncing changes
             if (TCPServer.Instance == null)
                 return;
 
-            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+            List<Order> orderItems = new List<Order>();
 
             //Offline include completed orders
-            orderItems = (List<List<OrderItem>>)(await GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await GetOfflineOrdersCompletedInclusive());
 
             foreach (var item in orderItems)
             {
@@ -409,7 +410,7 @@ namespace RodizioSmartRestuarant.Data
                 await DeleteData(fullPath);
             }
         }
-        public async Task CancelOrder(List<OrderItem> orderItems)
+        public async Task CancelOrder(Order orderItems)
         {
             //Mark for deletion when back online
             foreach (var item in orderItems)
@@ -448,7 +449,7 @@ namespace RodizioSmartRestuarant.Data
                 await DeleteData(fullPath);
             }
         }
-        bool OrderItemChanged(List<OrderItem> itemsNew, List<OrderItem> itemsOld)
+        bool OrderItemChanged(Order itemsNew, Order itemsOld)
         {
             string newItem = itemsNew[0].OrderNumber;
             string oldItem = itemsOld[0].OrderNumber;
@@ -626,7 +627,7 @@ namespace RodizioSmartRestuarant.Data
         }
 
         //Including Completed
-        public async Task SyncDataEndOfDay(List<List<OrderItem>> orders)
+        public async Task SyncDataEndOfDay(List<Order> orders)
         {
             //Add new offline orders to database
             foreach (var order in orders)

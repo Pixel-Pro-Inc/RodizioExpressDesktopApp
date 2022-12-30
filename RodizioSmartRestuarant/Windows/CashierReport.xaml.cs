@@ -1,4 +1,4 @@
-﻿using RdKitchenApp.Entities;
+﻿using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using OrderItem = RodizioSmartRestuarant.Entities.OrderItem;
+using RodizioSmartRestuarant.Core.Entities.Aggregates;
 
 namespace RodizioSmartRestuarant
 {
@@ -41,15 +42,15 @@ namespace RodizioSmartRestuarant
 
             //Get Orders
 
-            List<List<OrderItem>> orderItems = new List<List<OrderItem>>();
+            List<Order> orderItems = new List<Order>();
             //Offline include completed orders
-            orderItems = (List<List<OrderItem>>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
+            orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 
             //Exclude Unpaid Orders
-            List<List<OrderItem>> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
+            List<Order> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
 
             //Cash Orders Summary
-            List<List<OrderItem>> cashOrders = new List<List<OrderItem>>();
+            List<Order> cashOrders = new List<Order>();
             cashOrders = GetRelevantOrders("cash", LocalStorage.Instance.user, orders);
 
             foreach (var order in cashOrders)
@@ -70,7 +71,7 @@ namespace RodizioSmartRestuarant
             cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
 
             //Card Orders Summary
-            List<List<OrderItem>> cardOrders = new List<List<OrderItem>>();
+            List<Order> cardOrders = new List<Order>();
             cardOrders = GetRelevantOrders("card", LocalStorage.Instance.user, orders);
 
             foreach (var order in cardOrders)
@@ -91,7 +92,7 @@ namespace RodizioSmartRestuarant
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
 
             //Split Orders Summary
-            List<List<OrderItem>> splitOrders = new List<List<OrderItem>>();
+            List<Order> splitOrders = new List<Order>();
             splitOrders = GetRelevantOrders("split", LocalStorage.Instance.user, orders);
 
             foreach (var order in splitOrders)
@@ -99,22 +100,22 @@ namespace RodizioSmartRestuarant
                 cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "card"));
                 cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "cash"));
 
-                cardTotal += float.Parse(order[0].payments[1]);
-                cashTotal += float.Parse(order[0].payments[0]);
+                cardTotal += float.Parse(order[0].payment);
+                cashTotal += float.Parse(order[0].payment);
             }
 
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
             cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
         }
 
-        List<List<OrderItem>> GetRelevantOrders(string paymentMethod, AppUser user, List<List<OrderItem>> allPaidOrders)
+        List<Order> GetRelevantOrders(string paymentMethod, AppUser user, List<Order> allPaidOrders)
         {
-            List<List<OrderItem>> relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == paymentMethod.ToLower().Trim()).ToList();
+            List<Order> relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == paymentMethod.ToLower().Trim()).ToList();
 
             return relevantOrders.Where(o => o[0].User.ToLower() == user.FullName().ToLower()).ToList();
         }
 
-        StackPanel GetOrderSummaryPanel(List<OrderItem> order, string method = null)
+        StackPanel GetOrderSummaryPanel(Order order, string method = null)
         {
             StackPanel stackPanel = new StackPanel()
             {
@@ -153,7 +154,7 @@ namespace RodizioSmartRestuarant
                 TextBlock textBlock_1 = new TextBlock()
                 {
                     FontSize = 15,
-                    Text = "BWP " + Formatting.FormatAmountString(method == "cash"? float.Parse(order[0].payments[0]) : float.Parse(order[0].payments[1]))
+                    Text = "BWP " + Formatting.FormatAmountString(float.Parse(order[0].payment) )
                 };
 
                 stackPanel.Children.Add(textBlock);
