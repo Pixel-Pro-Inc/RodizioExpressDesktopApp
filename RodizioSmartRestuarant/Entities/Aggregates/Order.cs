@@ -189,11 +189,11 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
             {
                 NullAggregateGuard(NullAggMessage);
                 //Takes the first paymentMethod it finds
-                string firstPaymentMethod = this.FirstOrDefault().paymentMethod?? throw new NullReferenceException("You didn't give a paymentMethod for an orderItem"); 
+                string firstPaymentMethod = this.FirstOrDefault().PaymentMethod?? throw new NullReferenceException("You didn't give a paymentMethod for an orderItem"); 
                 foreach (var item in this)
                 {
                     //If the firstpayment method isn't the same as the following or in case by some fluke the orderitem is labelled split
-                    if (item.paymentMethod != firstPaymentMethod|| item.paymentMethod.ToLower()== "split") return "split";
+                    if (item.PaymentMethod != firstPaymentMethod|| item.PaymentMethod.ToLower()== "split") return "split";
                 }
 
                 return firstPaymentMethod;
@@ -220,9 +220,9 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
                 //if the PaymentMethod is the same it registers that indeed it exists by putting it in
                 //if it hasn't found anything then it just adds an empty string, that way it will put the next payment method in the next position but have
                 //nothing in the previous posistion. This is so the arrangement is kept
-                result.Add(this.Any(orderitem => orderitem.paymentMethod.ToUpper() == "CASH") ? "Cash" : "N/A");
-                result.Add(this.Any(orderitem => orderitem.paymentMethod.ToUpper() == "CARD") ? "Card" : "N/A");
-                result.Add(this.Any(orderitem => orderitem.paymentMethod.ToUpper() == "ONLINE") ? "Online" : "N/A");
+                result.Add(this.Any(orderitem => orderitem.PaymentMethod.ToUpper() == "CASH") ? "Cash" : "N/A");
+                result.Add(this.Any(orderitem => orderitem.PaymentMethod.ToUpper() == "CARD") ? "Card" : "N/A");
+                result.Add(this.Any(orderitem => orderitem.PaymentMethod.ToUpper() == "ONLINE") ? "Online" : "N/A");
 
                 return result;
             }
@@ -247,9 +247,9 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
 
                 //If they forgot to put in the payments then it will throw the exception. Because how is it supposed to know which individual value of 
                 //payment was made for the price. That is the whole point of the information payment
-                this.Where(orderitem => orderitem.payment == null)
-                        .ToList()
-                        .ForEach(filteredorderitem => filteredorderitem.payment = "0");
+                //this.Where(orderitem => orderitem.payments == null)
+                //        .ToList()
+                //        .ForEach(filteredorderitem => filteredorderitem.payment = "0");
                 //if (this.Any(orderitem => orderitem.payment == null))
                 //{
                 //    //The below code isn't being handled by the API well so we will just comment it out but by all means it should be there
@@ -257,16 +257,16 @@ namespace RodizioSmartRestuarant.Core.Entities.Aggregates
                 //}
 
                 //Checks if there is several Paymentmethods if any at all then then it will get the Paymentvalue of each kind
-                for (int i = 0; i < PaymentMethods.Count; i++)
-                {
-                    //Here we get the payment value, but also the summation for an important check
-                    summation += Paymentvalue = this
-                        //Checks where the PaymentMethod we are looking for is the same as the item in the iteration
-                        .Where(orderitem => PaymentMethods[i] == orderitem.paymentMethod)
-                        //Adds all of them that are the same to the payment value. Here is the most important code line for this block
-                        .Sum(filteredorderitem => float.Parse(filteredorderitem.payment));
-                    result[i] = Paymentvalue.ToString();
-                }
+                //for (int i = 0; i < PaymentMethods.Count; i++)
+                //{
+                //    //Here we get the payment value, but also the summation for an important check
+                //    summation += Paymentvalue = this
+                //        //Checks where the PaymentMethod we are looking for is the same as the item in the iteration
+                //        .Where(orderitem => PaymentMethods[i] == orderitem.paymentMethod)
+                //        //Adds all of them that are the same to the payment value. Here is the most important code line for this block
+                //        .Sum(filteredorderitem => float.Parse(filteredorderitem.payment));
+                //    result[i] = Paymentvalue.ToString();
+                //}
                 //Makes sure that the total Payments of all the orderitems equals the price, then returns the result or informs that there is a payment missing
                 return summation == Price ? result.ToList() : throw new BaseAggregateException("The Price doesn't match the payments you gave for the orderitems");
 

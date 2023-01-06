@@ -100,8 +100,8 @@ namespace RodizioSmartRestuarant
                 cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "card"));
                 cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "cash"));
 
-                cardTotal += float.Parse(order[0].payment);
-                cashTotal += float.Parse(order[0].payment);
+                cardTotal += float.Parse(order[0].payments[0]);
+                cashTotal += float.Parse(order[0].payments[1]);
             }
 
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
@@ -154,7 +154,7 @@ namespace RodizioSmartRestuarant
                 TextBlock textBlock_1 = new TextBlock()
                 {
                     FontSize = 15,
-                    Text = "BWP " + Formatting.FormatAmountString(float.Parse(order[0].payment) )
+                    Text = "BWP " + Formatting.FormatAmountString(float.Parse(order[0].payments[0]) )
                 };
 
                 stackPanel.Children.Add(textBlock);
