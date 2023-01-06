@@ -8,7 +8,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Icon="../Images/rodizio_icon.ico"
-        Title="Setup" Height="450" Width="800">
+        Title="Setup" Height="500" Width="800">
     <Grid>
         <Border>
             <Border.Background >
@@ -42,6 +42,11 @@
             <StackPanel Width="200">
                 <Label>Enter your receipt printer name</Label>
                 <TextBox Name="Receipt" Height="25"></TextBox>
+            </StackPanel>
+
+            <StackPanel Width="200">
+                <Label>Enter the api domain</Label>
+                <TextBox Name="apiEntry" Height="25"></TextBox>
             </StackPanel>
 
             <CheckBox Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked" Width="200" Margin="0,10,0,0">

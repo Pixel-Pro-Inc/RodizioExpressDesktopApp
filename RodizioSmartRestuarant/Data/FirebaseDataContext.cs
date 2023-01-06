@@ -224,6 +224,42 @@ namespace RodizioSmartRestuarant.Data
 
             OfflineDataContext.LocalDataChange();
         }
+
+        public async Task UpdateCustomers()
+        {
+            //Delete Local Customers
+            new SerializedObjectManager().DeleteCustomers();
+
+            List<Customer> onlineCustomers = new List<Customer>();
+
+            var list = await GetData1("Customers");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+
+                if (item != null)
+                {
+                    Customer customer = JsonConvert.DeserializeObject<Customer>(((JObject)item).ToString());
+
+                    onlineCustomers.Add(customer);
+                }
+            }
+
+            List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+            // @Yewo: Why clear an empty list?
+            values.Clear();
+
+            foreach (var item in onlineCustomers)
+            {
+                values.Add(item.AsDictionary());
+            }
+
+            new SerializedObjectManager().SaveData(values, Directories.Customers);
+
+            OfflineDataContext.LocalDataChange();
+        }
         async Task UpdateOfflineData()
         {
             if (branchId != "/" && !syncing)
@@ -273,6 +309,18 @@ namespace RodizioSmartRestuarant.Data
                     onlineUsers.Add(u);
                 }
 
+                List<Customer> onlineCustomers = new List<Customer>();
+
+                list.Clear();
+                list = await GetData1("Customers");
+
+                foreach (var item in list)
+                {
+                    var c = JsonConvert.DeserializeObject<Customer>(((JObject)item).ToString());
+
+                    onlineCustomers.Add(c);
+                }
+
                 Branch onlineBranch = new Branch();
 
                 list.Clear();
@@ -320,6 +368,15 @@ namespace RodizioSmartRestuarant.Data
                 }
 
                 new SerializedObjectManager().SaveData(values, Directories.Account);
+
+                values.Clear();
+
+                foreach (var item in onlineCustomers)
+                {
+                    values.Add(item.AsDictionary());
+                }
+
+                new SerializedObjectManager().SaveData(values, Directories.Customers);
 
                 new SerializedObjectManager().SaveData(onlineBranch.AsDictionary(), Directories.Branch);
             }

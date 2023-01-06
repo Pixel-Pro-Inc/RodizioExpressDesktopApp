@@ -27,12 +27,25 @@ namespace RodizioSmartRestuarant
             float? sizeValue = Helpers.Settings.Instance.properties.displaySize;
 
             displaySizeSlider.Value = sizeValue == 0 || sizeValue == null? displaySizeSlider.Value: (double)sizeValue;
+
+            if (!LocalStorage.Instance.networkIdentity.isServer)
+            {
+                ipPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            ipText.Text = GetLocalIPAddress();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Helpers.Settings.Instance.ChangeDisplaySize((float)displaySizeSlider.Value);
             WindowManager.Instance.Close(this);
+        }
+
+        private string GetLocalIPAddress()
+        {
+            return LocalStorage.Instance.networkIdentity.serverIP;
         }
     }
 }

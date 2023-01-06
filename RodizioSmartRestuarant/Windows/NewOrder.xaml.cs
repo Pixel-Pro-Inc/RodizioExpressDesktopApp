@@ -16,6 +16,7 @@ using RodizioSmartRestuarant.Data;
 using Formatting = RodizioSmartRestuarant.Helpers.Formatting;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Windows;
 
 namespace RodizioSmartRestuarant
 {
@@ -28,19 +29,24 @@ namespace RodizioSmartRestuarant
         Order orders = new Order();
         private FirebaseDataContext firebaseDataContext;
         private string _source;
+        private bool _deliver;
 
         string lastSelectedFlavour = "None";
         string lastSelectedMeatTemp = "Well Done";
         string lastSelectedSauce = "Lemon & Garlic";
 
         bool optForSMS = true;
-        public NewOrder(string source)
+        public NewOrder(string source, bool deliver = false)
         {
             InitializeComponent();
 
             _source = source;
+            _deliver = deliver;
 
             if (_source.ToLower() != "walkin")
+                checkbox.Visibility = Visibility.Collapsed;
+
+            if(_deliver)
                 checkbox.Visibility = Visibility.Collapsed;
 
             firebaseDataContext = FirebaseDataContext.Instance;
@@ -69,7 +75,8 @@ namespace RodizioSmartRestuarant
                 {
                     MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
 
-                    items.Add(menuItem);
+                    if (menuItem.Name != "delivery fee")
+                        items.Add(menuItem);
                 }                
             }
 
@@ -663,65 +670,47 @@ namespace RodizioSmartRestuarant
 
             ActivityIndicator.RemoveSpinner(spinner);
 
-            if (_source.ToLower() == "walkin") 
+            if (!_deliver)
             {
-                WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(orderItems, (POS)pos));
+                if (_source.ToLower() == "walkin")
+                {
+                    WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(orderItems, (POS)pos));
+                    return;
+                }
+                //Add Unpaid Order
+                if (_source.ToLower() == "call")
+                {
+                    CreateUnpaidOrder(orderItems, (POS)pos);
+                    return;
+                }
+
                 return;
             }
-            //Add Unpaid Order
-            if (_source.ToLower() == "call")
-            {
-                CreateUnpaidOrder(orderItems, (POS)pos);
-                return;
-            }            
+
+            //Pick Location Then Go to Next
+            WindowManager.Instance.CloseAndOpen(this, new LocationSelection(orderItems[0].PhoneNumber, orderItems, _source.ToLower()));
         }
 
         private void CreateUnpaidOrder(Order _order, POS _pOS)
         {
-            Order orderItems = new Order();
             foreach (var item in _order)
             {
-                orderItems.Add(new OrderItem()
-                {
-                    Index = item.Index,
-                    Name = item.Name,
-                    Category = item.Category,
-                    Description = item.Description,
-                    Reference = item.Reference,
-                    Price = item.Price,
-                    Weight = item.Weight,
-                    Fufilled = item.Fufilled,
-                    Purchased = false,
-                    Preparable = item.Preparable,
-                    WaitingForPayment = true,
-                    Quantity = item.Quantity,
-                    PhoneNumber = item.PhoneNumber,
-                    OrderNumber = item.OrderNumber,
-                    //Add changes to OrderItem model here as well
-                    OrderDateTime = item.OrderDateTime,
-                    Collected = item.Collected,
-                    User = LocalStorage.Instance.user.FullName(),
-                    PrepTime = item.PrepTime,
-                    Flavour = lastSelectedFlavour,
-                    MeatTemperature = lastSelectedMeatTemp,
-                    Sauces = item.SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : item.Sauces,
-                    SubCategory = item.SubCategory
-                });
+                item.Flavour = lastSelectedFlavour;
+                item.MeatTemperature = lastSelectedMeatTemp;
+                item.Sauces = item.SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : item.Sauces;
+
+                item.Purchased = false;
+                item.WaitingForPayment = true;
+                item.User = LocalStorage.Instance.user.FullName();
+                item.Preparable = true;
+                item.Reference = "Call";
             }
 
             lastSelectedFlavour = "None";
             lastSelectedMeatTemp = "Well Done";
             lastSelectedSauce = "Lemon & Garlic";
 
-            foreach (var item in orderItems)
-            {
-                item.WaitingForPayment = true;
-                item.Purchased = false;
-                item.Preparable = true;
-                item.Reference = "Call";
-            }
-
-            _pOS.OnTransaction(_order[0].OrderNumber, orderItems);
+            _pOS.OnTransaction(_order[0].OrderNumber, _order);
 
             WindowManager.Instance.Close(this);
         }
@@ -859,6 +848,18 @@ namespace RodizioSmartRestuarant
         int block1 = 0;
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
+            if (_deliver)
+            {
+                if((float)orders.Price < BranchSettings.Instance.branch.MinimumDeliveryAmount)
+                {
+                    ShowError("Delivery orders must be atleast "
+                        + BranchSettings.Instance.branch.Currency + " "
+                        + BranchSettings.Instance.branch.MinimumDeliveryAmount);
+
+                    return;
+                }
+            }
+
             if(block1 == 0)
             {
                 ConfirmOrder(orders);
@@ -871,7 +872,7 @@ namespace RodizioSmartRestuarant
             foreach (var item in orderItems)
             {
                 if (item.PrepTime > orderTime)
-                    orderTime = item.PrepTime;
+                    orderTime = (int)item.PrepTime;
             }
 
             orderPrepTime.Content = $"Order will be ready in: {orderTime} minutes";

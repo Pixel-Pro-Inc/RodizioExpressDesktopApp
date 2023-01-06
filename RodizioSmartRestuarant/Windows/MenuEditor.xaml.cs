@@ -54,7 +54,8 @@ namespace RodizioSmartRestuarant
                 {
                     MenuItem menuItem = JsonConvert.DeserializeObject<MenuItem>(((JObject)item).ToString());
 
-                    items.Add(menuItem);
+                    if (menuItem.Name != "delivery fee")
+                        items.Add(menuItem);
                 }                
             }
 

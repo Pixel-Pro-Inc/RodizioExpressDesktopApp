@@ -26,12 +26,6 @@
                             FontWeight="Bold"
                             Click="C_Button_Click"
                             Height="80">Call in customer</Button>
-                    <Button Margin="10,10"
-                            FontSize="30"
-                            FontWeight="Bold"
-                            IsEnabled="False"
-                            Click="D_Button_Click"
-                            Height="80">Delivery</Button>
                 </StackPanel>
             </ScrollViewer>
         </StackPanel>        

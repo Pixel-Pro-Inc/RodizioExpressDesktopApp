@@ -34,7 +34,18 @@ namespace RodizioSmartRestuarant
 
             block = 1;
 
-            WindowManager.Instance.CloseAndOpen(this, new NewOrder("walkin"));
+            MessageBoxResult result = 
+                MessageBox.Show("Would you like to deliver this order?", "Order Prompt",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                WindowManager.Instance.CloseAndOpen(this, new NewOrder("walkin", true));
+            }
+            else
+            {
+                WindowManager.Instance.CloseAndOpen(this, new NewOrder("walkin"));
+            }
         }
         //Call
         private void C_Button_Click(object sender, RoutedEventArgs e)
@@ -44,17 +55,18 @@ namespace RodizioSmartRestuarant
 
             block = 1;
 
-            WindowManager.Instance.CloseAndOpen(this, new NewOrder("call"));
-        }
-        //Delivery
-        private void D_Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (block != 0)
-                return;
+            MessageBoxResult result =
+                MessageBox.Show("Would you like to deliver this order?", "Order Prompt",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            block = 1;
-
-            WindowManager.Instance.CloseAndOpen(this, new NewOrder("delivery"));
+            if (result == MessageBoxResult.Yes)
+            {
+                WindowManager.Instance.CloseAndOpen(this, new NewOrder("call", true));
+            }
+            else
+            {
+                WindowManager.Instance.CloseAndOpen(this, new NewOrder("call"));
+            }
         }
     }
 }
