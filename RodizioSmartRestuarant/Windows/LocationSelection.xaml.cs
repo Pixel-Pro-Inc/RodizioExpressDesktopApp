@@ -132,10 +132,9 @@ namespace RodizioSmartRestuarant.Windows
                 Name = deliveryFee.Name,
                 Preparable = false,
                 Price = Formatting.FormatAmountString((float.Parse(deliveryFee.Price) * 1f)),
-                PaymentMethod = firstOrderItem.PaymentMethod,
+                OrderPayments = firstOrderItem.OrderPayments,
                 Purchased = false,
                 Category = deliveryFee.Category,
-                WaitingForPayment = true,
                 Quantity = 1,
                 Reference = "till",
                 PrepTime = Int32.Parse(deliveryFee.prepTime),
@@ -195,7 +194,6 @@ namespace RodizioSmartRestuarant.Windows
             foreach (var item in _order)
             {
                 item.Purchased = false;
-                item.WaitingForPayment = true;
                 item.User = LocalStorage.Instance.user.FullName();
                 item.Preparable = true;
                 item.Reference = "Call";

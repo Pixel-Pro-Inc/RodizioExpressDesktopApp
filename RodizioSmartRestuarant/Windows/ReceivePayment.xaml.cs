@@ -140,37 +140,30 @@ namespace RodizioSmartRestuarant
 
             for (int i = 0; i < _order.Count; i++)
             {
-                _order[i].WaitingForPayment = false;
                 _order[i].Purchased = true;
                 _order[i].Preparable = true;
-                if (method != "split")
+                if (method == "split")
+                {
+                    _order[i].OrderPayments = new Payments()
+                    {
+                        Cash = float.Parse(cashBox.Text),
+                        Card = float.Parse(cardBox.Text)
+                    };
+
                     continue;
-
-                _order[i].SplitPayment = true;
-                //This block is just a simply assignment of the paymethod type only. It doesn't actually give the value yet
-                //This is because, in all honesty the paymentMethod is a property of the Order type, not of an orderitem since you cann't set it logically to a specific
-                // orderitem. So we set them arbitarily
-                if (_order.Count >= 2)
-                {
-                    //If in an even position it will set paymentMethod to cash, else card
-                    _order[i].PaymentMethod = (i % 2 == 0) ? "cash" : "card";
-                }
-                //If it is just one orderItem, its impossible to set them both so just have it go for split
-                else { _order[i].PaymentMethod = "split"; }
-
-                //This is to check if the change and the values makes sense, cause funny enough, Yewo didn't bother to put the check. Yes I'm talking to you
-                // smarty pants
-                if (float.Parse(cashBox.Text) + float.Parse(cardBox.Text) != _order.Price)
-                {
-                    ShowError($"The {cashBox.Text} and the {cardBox.Text} have to add up to the Price of {_order.Price.ToString()}");
-                    WindowManager.Instance.CloseAndOpen(this, new ReceivePayment(_order, _pOS));
                 }
 
+                if (method == "cash")
+                    _order[i].OrderPayments = new Payments()
+                    {
+                        Cash = (float)_order.Price
+                    };
 
-                //PLEASE NOTE: This won't work if you don't set the ENTIRE  order.Payments. Otherwise it will throw errors with the Price of the orders
-                //THAT MEANS THAT, you have to make a new list with the values in the correct desired arrangement. You could also make a new string array 
-                //like I did just to make sure.
-                _order.Payments = new string[3] { cashBox.Text, cardBox.Text, "0" }.ToList();
+                if (method == "card")
+                    _order[i].OrderPayments = new Payments()
+                    {
+                        Card = (float)_order.Price
+                    };
             }
 
             _pOS.OnTransaction(_order.OrderNumber, _order);

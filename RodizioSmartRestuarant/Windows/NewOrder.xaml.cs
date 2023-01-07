@@ -547,8 +547,6 @@ namespace RodizioSmartRestuarant
                             Preparable = false,
                             Price = Formatting.FormatAmountString((float.Parse(price) * (float)lastQuantity)),
                             Purchased = false,
-                            WaitingForPayment = true,
-                            PaymentMethod = "",
                             Quantity = lastQuantity,
                             Reference = "till",
                             Category = menuItems[i].Category,
@@ -571,8 +569,6 @@ namespace RodizioSmartRestuarant
                             Preparable = false,
                             Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
                             Purchased = false,
-                            WaitingForPayment = true,
-                            PaymentMethod = "",
                             Quantity = lastQuantity,
                             Reference = "till",
                             Category = menuItems[i].Category,
@@ -594,10 +590,8 @@ namespace RodizioSmartRestuarant
                             Name = menuItems[i].Name,
                             Preparable = false,
                             Price = Formatting.FormatAmountString((float.Parse(menuItems[i].Price) * (float)lastQuantity)),
-                            PaymentMethod = "",
                             Purchased = false,
                             Category = menuItems[i].Category,
-                            WaitingForPayment = true,
                             Quantity = lastQuantity,
                             Reference = "till",
                             PrepTime = Int32.Parse(menuItems[i].prepTime),
@@ -700,7 +694,6 @@ namespace RodizioSmartRestuarant
                 item.Sauces = item.SubCategory != "Platter" ? new List<string>() { lastSelectedSauce } : item.Sauces;
 
                 item.Purchased = false;
-                item.WaitingForPayment = true;
                 item.User = LocalStorage.Instance.user.FullName();
                 item.Preparable = true;
                 item.Reference = "Call";
