@@ -223,51 +223,24 @@ namespace RodizioSmartRestuarant.Helpers
 
                     if (orderNumbers.Contains(((OrderItem)data).OrderNumber))
                     {
-                        OrderItem oldOrderItem = new OrderItem();
-                        for (int i = 0; i < orderresult.Count; i++)
-                        {
-                            var list = orderresult[i]; //Order as dictionary
+                        //Add order items that arent in the list of this order
+                        int _index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
 
-                            foreach (var itm in list)
-                            {
-                                if ((itm.ToObject<OrderItem>()).OrderNumber == ((OrderItem)data).OrderNumber)
-                                {
-                                    if ((itm.ToObject<OrderItem>()).Index == ((OrderItem)data).Index)
-                                        oldOrderItem = itm.ToObject<OrderItem>();
-                                }
-                            }
+                        var currentOrderDictionary = orderresult[_index];
+                        var currentOrderObject = new List<OrderItem>();
+
+                        foreach (var orderItem in currentOrderDictionary)
+                        {
+                            var oItem = orderItem.ToObject<OrderItem>();
+
+                            currentOrderObject.Add(oItem);
                         }
 
-                        //Specifically here for call in orders
-                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
-                            || ((OrderItem)data).Purchased != false
-                            || ((OrderItem)data).Collected != oldOrderItem.Collected
-                            || ((OrderItem)data).MarkedForDeletion != oldOrderItem.MarkedForDeletion))
+                        var isContainedInStorage = currentOrderObject.Any(oItem => oItem.Index == ((OrderItem)data).Index);
+
+                        if (!isContainedInStorage)
                         {
-                            //If there are no differences with a standard order item || old order item
-
-                            int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
-
-                            IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();
-
-                            orderresult[index].Add(itm);
-
-                            OfflineDataContext.StoreDataOverwrite(Directories.Order, orderresult);
-
-
-                            LocalDataChange();
-
-                            return;
-                        }
-
-                        //This Block Causes Order 2593 To Duplicate Its Order Items Why?
-                        if (!(((OrderItem)data).Fufilled != oldOrderItem.Fufilled
-                            || ((OrderItem)data).Purchased != oldOrderItem.Purchased
-                            || ((OrderItem)data).Collected != oldOrderItem.Collected
-                            || ((OrderItem)data).MarkedForDeletion != oldOrderItem.MarkedForDeletion))
-                        {
-                            //If there are no differences with a standard order item || old order item
-
+                            //Add item to storage
                             int index = orderNumbers.IndexOf(((OrderItem)data).OrderNumber);
 
                             IDictionary<string, object> itm = ((OrderItem)data).AsDictionary();

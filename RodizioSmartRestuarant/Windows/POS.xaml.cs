@@ -444,7 +444,7 @@ namespace RodizioSmartRestuarant
                 FontWeight = FontWeights.DemiBold,
                 Margin = new Thickness(0, 0, 10, 0),
                 Width = 160,
-                Content = !items[0].Purchased ? "Awaiting Payment" : items.PaymentMethod
+                Content = items.PaymentMethod
             };
 
             Label labelDeliveryDestination = new Label()
