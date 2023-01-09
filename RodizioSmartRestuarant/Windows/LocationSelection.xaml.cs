@@ -140,7 +140,9 @@ namespace RodizioSmartRestuarant.Windows
                 PrepTime = Int32.Parse(deliveryFee.prepTime),
                 SubCategory = deliveryFee.SubCategory,
                 OrderNumber = firstOrderItem.OrderNumber,
-                OrderDateTime = firstOrderItem.OrderDateTime
+                OrderDateTime = firstOrderItem.OrderDateTime,
+                Index = _order.Count,
+                ID = firstOrderItem.ID,
             });
 
             POS pos = new POS();
