@@ -32,7 +32,8 @@ namespace RodizioSmartRestuarant.Entities
             Error,
             CalledOutOrders,
             Customers,
-            APIDomain
+            APIDomain,
+            ServerTime
         }
     }
 }

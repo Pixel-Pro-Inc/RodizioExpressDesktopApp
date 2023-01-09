@@ -370,6 +370,7 @@
     <Compile Include="AppLication\Exceptions\BaseAggregateException.cs" />
     <Compile Include="AppLication\Interfaces\IBaseAggregate.cs" />
     <Compile Include="AppLication\Interfaces\IBaseEntity.cs" />
+    <Compile Include="Core\Models\ServerTime.cs" />
     <Compile Include="Entities\Aggregates\BaseAggregates.cs" />
     <Compile Include="Entities\Aggregates\Order.cs" />
     <Compile Include="Entities\Customer.cs" />
