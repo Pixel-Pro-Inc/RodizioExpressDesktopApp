@@ -42,15 +42,9 @@ namespace RodizioSmartRestuarant.Helpers
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
             dispatcherTimer.Start();
 
-            StartServer();
+            server.Start();
 
             return ip;
-        }
-
-        // I'm assuming this method was extracted so that you can have more things happen later on
-        public void StartServer()
-        {
-            server.Start();
         }
 
         #region Server Events

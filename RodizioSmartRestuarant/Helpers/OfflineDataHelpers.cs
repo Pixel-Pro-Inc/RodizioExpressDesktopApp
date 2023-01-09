@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using RodizioSmartRestuarant.Core.Entities.Aggregates;
+using RodizioSmartRestuarant.Core.Models;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
 using RodizioSmartRestuarant.Extensions;
@@ -113,6 +114,9 @@ namespace RodizioSmartRestuarant.Helpers
                     result.Add(branch);
 
                     return result;
+                case Directories.ServerTime:
+                    //We don't need any fancy things here, we just want to have the current time of the POS 
+                    return new List<object> { new ServerTime() { Time = DateTime.UtcNow } };
             }
 
             return null;
@@ -301,6 +305,7 @@ namespace RodizioSmartRestuarant.Helpers
         protected Directories GetDirectory(string path)
         {
             string query = "";
+            //This builds the query into something useable
             foreach (char c in path)
             {
                 if (c != '/')
