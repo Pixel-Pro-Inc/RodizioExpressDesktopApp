@@ -128,7 +128,7 @@ namespace RodizioSmartRestuarant.Windows
             {
                 Collected = false,
                 Description = deliveryFee.Description,
-                Fufilled = false,
+                Fufilled = true,
                 Name = deliveryFee.Name,
                 Preparable = false,
                 Price = Formatting.FormatAmountString((float.Parse(deliveryFee.Price) * 1f)),
