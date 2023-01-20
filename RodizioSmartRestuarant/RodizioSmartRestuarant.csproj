@@ -376,6 +376,7 @@
     <Compile Include="Entities\Customer.cs" />
     <Compile Include="Entities\Location.cs" />
     <Compile Include="Entities\Payments.cs" />
+    <Compile Include="Helpers\Secrets.cs" />
     <Compile Include="Windows\CashierReport.xaml.cs">
       <DependentUpon>CashierReport.xaml</DependentUpon>
     </Compile>
@@ -489,6 +490,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="EnvironmentVariables.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">

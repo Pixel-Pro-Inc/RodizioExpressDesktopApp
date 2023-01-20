@@ -461,7 +461,7 @@ namespace RodizioSmartRestuarant
             stackPanel1.Children.Add(labelPaymentMethod);
             stackPanel1.Children.Add(labelDeliveryDestination);
 
-            if (true)//!items[0].Purchased)
+            if (!items[0].DeliveryOrder)//!items[0].Purchased)
             {
                 Button button = new Button()
                 {
@@ -479,7 +479,7 @@ namespace RodizioSmartRestuarant
                 stackPanel1.Children.Add(button);
             }
 
-            if (true)//items[0].Purchased && items[0].Fufilled)
+            if (!items[0].DeliveryOrder)//items[0].Purchased && items[0].Fufilled)
             {
                 Button button = new Button()
                 {

@@ -21,21 +21,12 @@ namespace RodizioSmartRestuarant.Data
         public static FirebaseDataContext Instance { get; set; }
         
         public bool startedSyncing = false;
-        string branchId = "";
-
-        // REFACTOR: Use environment variables here
-        
-        /*IFirebaseConfig config = new FirebaseConfig
-        {
-            AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
-            BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
-        };*/
-        
+        string branchId = "";        
         
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
-            BasePath = "https://rodizotestapp.firebaseio.com/"
+            AuthSecret = Secrets.GetVariable("Firebase_AuthSecret"),
+            BasePath = Secrets.GetVariable("Firebase_BasePath")
         };
         
         IFirebaseClient client;
