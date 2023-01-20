@@ -6,8 +6,6 @@ using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
@@ -23,21 +21,12 @@ namespace RodizioSmartRestuarant.Data
         public static FirebaseDataContext Instance { get; set; }
         
         public bool startedSyncing = false;
-        string branchId = "";
-
-        // REFACTOR: Use environment variables here
-        
-        /*IFirebaseConfig config = new FirebaseConfig
-        {
-            AuthSecret = "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
-            BasePath = "https://rodizoapp-default-rtdb.firebaseio.com/"
-        };*/
-        
+        string branchId = "";        
         
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
-            BasePath = "https://rodizotestapp.firebaseio.com/"
+            AuthSecret = Secrets.GetVariable("Firebase_AuthSecret"),
+            BasePath = Secrets.GetVariable("Firebase_BasePath")
         };
         
         IFirebaseClient client;
@@ -224,6 +213,42 @@ namespace RodizioSmartRestuarant.Data
 
             OfflineDataContext.LocalDataChange();
         }
+
+        public async Task UpdateCustomers()
+        {
+            //Delete Local Customers
+            new SerializedObjectManager().DeleteCustomers();
+
+            List<Customer> onlineCustomers = new List<Customer>();
+
+            var list = await GetData1("Customers");
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var item = list[i];
+
+                if (item != null)
+                {
+                    Customer customer = JsonConvert.DeserializeObject<Customer>(((JObject)item).ToString());
+
+                    onlineCustomers.Add(customer);
+                }
+            }
+
+            List<IDictionary<string, object>> values = new List<IDictionary<string, object>>();
+
+            // @Yewo: Why clear an empty list?
+            values.Clear();
+
+            foreach (var item in onlineCustomers)
+            {
+                values.Add(item.AsDictionary());
+            }
+
+            new SerializedObjectManager().SaveData(values, Directories.Customers);
+
+            OfflineDataContext.LocalDataChange();
+        }
         async Task UpdateOfflineData()
         {
             if (branchId != "/" && !syncing)
@@ -273,6 +298,18 @@ namespace RodizioSmartRestuarant.Data
                     onlineUsers.Add(u);
                 }
 
+                List<Customer> onlineCustomers = new List<Customer>();
+
+                list.Clear();
+                list = await GetData1("Customers");
+
+                foreach (var item in list)
+                {
+                    var c = JsonConvert.DeserializeObject<Customer>(((JObject)item).ToString());
+
+                    onlineCustomers.Add(c);
+                }
+
                 Branch onlineBranch = new Branch();
 
                 list.Clear();
@@ -320,6 +357,15 @@ namespace RodizioSmartRestuarant.Data
                 }
 
                 new SerializedObjectManager().SaveData(values, Directories.Account);
+
+                values.Clear();
+
+                foreach (var item in onlineCustomers)
+                {
+                    values.Add(item.AsDictionary());
+                }
+
+                new SerializedObjectManager().SaveData(values, Directories.Customers);
 
                 new SerializedObjectManager().SaveData(onlineBranch.AsDictionary(), Directories.Branch);
             }

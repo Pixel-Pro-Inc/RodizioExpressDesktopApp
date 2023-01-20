@@ -30,7 +30,10 @@ namespace RodizioSmartRestuarant.Entities
             TCPServer,
             TCPServerIP,
             Error,
-            CalledOutOrders
+            CalledOutOrders,
+            Customers,
+            APIDomain,
+            ServerTime
         }
     }
 }

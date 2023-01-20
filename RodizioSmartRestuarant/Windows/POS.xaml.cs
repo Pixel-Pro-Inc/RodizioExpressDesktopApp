@@ -5,6 +5,7 @@ using RodizioSmartRestuarant.Core.Entities.Aggregates;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Data;
 using RodizioSmartRestuarant.Entities;
+using RodizioSmartRestuarant.Extensions;
 using RodizioSmartRestuarant.Helpers;
 using Squirrel;
 using System;
@@ -205,10 +206,10 @@ namespace RodizioSmartRestuarant
         /// <summary>
         /// Logic for compiling and displaying relevant orders
         /// </summary>
-        public void UpdateOrderView(List<Order> data, UIChangeSource? source = null)
+        public async void UpdateOrderView(List<Order> data, UIChangeSource? source = null)
         {
             ActivityIndicator.AddSpinner(spinner);
-            this.Dispatcher.Invoke(() =>
+            await this.Dispatcher.Invoke(async () =>
             {
 
                 List<Order> temp = data;//.Where(o => !o[0].Collected && !o[0].MarkedForDeletion).ToList();
@@ -258,7 +259,7 @@ namespace RodizioSmartRestuarant
 
                 foreach (var order in orders)
                 {
-                    orderViewer.Children.Add(GetPanel(order));
+                    orderViewer.Children.Add(await GetPanel(order));
                 }
 
                 #region Old Update UI/Orders Code
@@ -406,7 +407,7 @@ namespace RodizioSmartRestuarant
 
         // UPDATE: I changed the name of the method to be more specific to the cancel function
         void UpdateOrderCount() => activeOrdersCount.Text = orderViewer.Children.Count + " - Active Orders";
-        StackPanel GetPanel(Order items)
+         async Task<StackPanel> GetPanel(Order items)
         {
             StackPanel stackPanel = new StackPanel()
             {
@@ -438,10 +439,29 @@ namespace RodizioSmartRestuarant
                 Content = items[0].PhoneNumber
             };
 
+            Label labelPaymentMethod = new Label()
+            {
+                FontWeight = FontWeights.DemiBold,
+                Margin = new Thickness(0, 0, 10, 0),
+                Width = 160,
+                Content = items.PaymentMethod
+            };
+
+            Label labelDeliveryDestination = new Label()
+            {
+                FontWeight = FontWeights.DemiBold,
+                Margin = new Thickness(0, 0, 10, 0),
+                Width = 300,
+                Content = items[0].DeliveryOrder ? (await GetCustomerLocations(items[0].PhoneNumber))[items[0].LocationIndex].PhysicalAddress
+                : "In Store Collection"
+            };
+
             stackPanel1.Children.Add(label);
             stackPanel1.Children.Add(label1);
+            stackPanel1.Children.Add(labelPaymentMethod);
+            stackPanel1.Children.Add(labelDeliveryDestination);
 
-            if (true)//!items[0].Purchased)
+            if (!items[0].DeliveryOrder)//!items[0].Purchased)
             {
                 Button button = new Button()
                 {
@@ -459,7 +479,7 @@ namespace RodizioSmartRestuarant
                 stackPanel1.Children.Add(button);
             }
 
-            if (true)//items[0].Purchased && items[0].Fufilled)
+            if (!items[0].DeliveryOrder)//items[0].Purchased && items[0].Fufilled)
             {
                 Button button = new Button()
                 {
@@ -990,6 +1010,25 @@ namespace RodizioSmartRestuarant
             if (count > 0) return UIChangeSource.Addition;
 
             return UIChangeSource.Edit;
+        }
+
+        private async Task<List<Location>> GetCustomerLocations(string Phonenumber)
+        {
+            //Get the data
+            //Primarily get local stored data
+            //Update data if new location created
+            var result = await OfflineDataContext.GetData(Enums.Directories.Customers);
+
+            var Customers = new List<Customer>();
+
+            foreach (var item in (List<IDictionary<string, object>>)result)
+            {
+                Customers.Add(item.ToObject<Customer>());
+            }
+
+            var Locations = Customers.Where(customer => customer.PhoneNumber == Phonenumber).First().Locations;
+
+            return Locations;
         }
 
         // @Yewo: Not sure what this method does

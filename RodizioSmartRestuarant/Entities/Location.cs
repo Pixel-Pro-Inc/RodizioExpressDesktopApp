@@ -19,5 +19,6 @@ namespace RodizioSmartRestuarant.Entities
         public string PhysicalAddress { get; set; }
         public int DefaultZoomLevel { get; set; }
         public string ExtraAddressInfo { get; set; }
+        public string CountryCode { get; set; }
     }
 }

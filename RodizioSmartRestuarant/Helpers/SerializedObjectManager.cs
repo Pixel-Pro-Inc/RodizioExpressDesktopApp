@@ -51,6 +51,11 @@ namespace RodizioSmartRestuarant.Helpers
             if (File.Exists(savePath(Directories.Order) + "/data.txt"))
                 File.Delete(savePath(Directories.Order) + "/data.txt");
         }
+        public void DeleteCustomers()
+        {
+            if (File.Exists(savePath(Directories.Customers) + "/data.txt"))
+                File.Delete(savePath(Directories.Customers) + "/data.txt");
+        }
         public void DeleteMenu()
         {
             if (File.Exists(savePath(Directories.Menu) + "/data.txt"))
