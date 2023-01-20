@@ -1,0 +1,10 @@
+{
+  "Development": {
+    "Firebase_AuthSecret": "y6ZBiELyJQdyM1CcZNBgzepbb9JQZkTr0iZGlKaH",
+    "Firebase_BasePath": "https://rodizotestapp.firebaseio.com/"
+  },
+  "Production": {
+    "Firebase_AuthSecret": "UCB2M2VcHK9wQQ3xHgMltJmjgja3id71O3GLf1ub",
+    "Firebase_BasePath": "https://rodizoapp-default-rtdb.firebaseio.com/"
+  }
+}

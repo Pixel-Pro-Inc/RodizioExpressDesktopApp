@@ -32,7 +32,7 @@ namespace RodizioSmartRestuarant
             InitializeComponent();
         }
 
-        void Validate(string id, string name)
+        void Validate(string id, string name, string api)
         {
             if (id == null || id == "")
             {
@@ -58,16 +58,23 @@ namespace RodizioSmartRestuarant
                 return;
             }
 
-            Next(id, name);
+            if(api == null || api == "")
+            {
+                ShowWarning("you cannot leave api domain empty");
+                return;
+            }
+
+            Next(id, name, api);
         }
 
-        async void Next(string id, string name)
+        async void Next(string id, string name, string apiDomain)
         {
             //Activity Indicator
             ActivityIndicator.AddSpinner(spinner);
 
             new SerializedObjectManager().SaveData(id, Directories.BranchId);
             new SerializedObjectManager().SaveData(name, Directories.PrinterName);
+            new SerializedObjectManager().SaveData(apiDomain, Directories.APIDomain);
             new SerializedObjectManager().SaveData(networkInterfaceType, Directories.NetworkInterface);
             new SerializedObjectManager().SaveData(isPrimaryTCPServer, Directories.TCPServer);            
 
@@ -79,7 +86,7 @@ namespace RodizioSmartRestuarant
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Validate(ID.Text, Receipt.Text);
+            Validate(ID.Text, Receipt.Text, apiEntry.Text);
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

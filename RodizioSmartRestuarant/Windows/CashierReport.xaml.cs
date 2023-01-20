@@ -47,75 +47,28 @@ namespace RodizioSmartRestuarant
             orderItems = (List<Order>)(await FirebaseDataContext.Instance.GetOfflineOrdersCompletedInclusive());
 
             //Exclude Unpaid Orders
-            List<Order> orders = orderItems.Where(o => !o[0].WaitingForPayment).ToList();
+            List<Order> orders = orderItems.Where(o => o[0].Purchased).ToList();
 
-            //Cash Orders Summary
-            List<Order> cashOrders = new List<Order>();
-            cashOrders = GetRelevantOrders("cash", LocalStorage.Instance.user, orders);
-
-            foreach (var order in cashOrders)
+            foreach (var order in orders)
             {
-                cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order));
-            }
-
-
-            //Cash Orders Total            
-            foreach (var order in cashOrders)
-            {
-                for (int i = 0; i < order.Count; i++)
+                if(order.First().OrderPayments.Card != 0)
                 {
-                    cashTotal += float.Parse(order[i].Price);
-                }                
-            }
+                    cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order, order.First().OrderPayments.Card));
+                    cardTotal += order.First().OrderPayments.Card;
+                }
 
-            cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
-
-            //Card Orders Summary
-            List<Order> cardOrders = new List<Order>();
-            cardOrders = GetRelevantOrders("card", LocalStorage.Instance.user, orders);
-
-            foreach (var order in cardOrders)
-            {
-                cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order));
-            }
-
-
-            //Card Orders Total            
-            foreach (var order in cardOrders)
-            {
-                for (int i = 0; i < order.Count; i++)
+                if (order.First().OrderPayments.Cash != 0)
                 {
-                    cardTotal += float.Parse(order[i].Price);
+                    cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order, order.First().OrderPayments.Cash));
+                    cashTotal += order.First().OrderPayments.Cash;
                 }
             }
 
             cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
-
-            //Split Orders Summary
-            List<Order> splitOrders = new List<Order>();
-            splitOrders = GetRelevantOrders("split", LocalStorage.Instance.user, orders);
-
-            foreach (var order in splitOrders)
-            {
-                cardOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "card"));
-                cashOrdersPanel.Children.Add(GetOrderSummaryPanel(order, "cash"));
-
-                cardTotal += float.Parse(order[0].payment);
-                cashTotal += float.Parse(order[0].payment);
-            }
-
-            cardOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cardTotal);
             cashOrdersTotal.Text = "Total: BWP " + Formatting.FormatAmountString(cashTotal);
         }
 
-        List<Order> GetRelevantOrders(string paymentMethod, AppUser user, List<Order> allPaidOrders)
-        {
-            List<Order> relevantOrders = allPaidOrders.Where(o => o[0].PaymentMethod.ToLower().Trim() == paymentMethod.ToLower().Trim()).ToList();
-
-            return relevantOrders.Where(o => o[0].User.ToLower() == user.FullName().ToLower()).ToList();
-        }
-
-        StackPanel GetOrderSummaryPanel(Order order, string method = null)
+        StackPanel GetOrderSummaryPanel(Order order, float amount)
         {
             StackPanel stackPanel = new StackPanel()
             {
@@ -131,35 +84,14 @@ namespace RodizioSmartRestuarant
                 Text = order[0].OrderNumber
             };
 
-            if (!order[0].SplitPayment)
+            TextBlock textBlock_1 = new TextBlock()
             {
-                float totalPrice = 0;
+                FontSize = 15,
+                Text = "BWP " + Formatting.FormatAmountString(amount)
+            };
 
-                foreach (var item in order)
-                {
-                    totalPrice += float.Parse(item.Price);
-                }
-
-                TextBlock textBlock_1 = new TextBlock()
-                {
-                    FontSize = 15,
-                    Text = "BWP " + Formatting.FormatAmountString(totalPrice)
-                };
-
-                stackPanel.Children.Add(textBlock);
-                stackPanel.Children.Add(textBlock_1);
-            }
-            else
-            {
-                TextBlock textBlock_1 = new TextBlock()
-                {
-                    FontSize = 15,
-                    Text = "BWP " + Formatting.FormatAmountString(float.Parse(order[0].payment) )
-                };
-
-                stackPanel.Children.Add(textBlock);
-                stackPanel.Children.Add(textBlock_1);
-            }
+            stackPanel.Children.Add(textBlock);
+            stackPanel.Children.Add(textBlock_1);
 
             return stackPanel;
         }

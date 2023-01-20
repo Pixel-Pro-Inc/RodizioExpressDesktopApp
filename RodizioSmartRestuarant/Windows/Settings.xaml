@@ -38,6 +38,10 @@
                             Maximum="2.0"
                             Name="displaySizeSlider"
                             Value="1"></Slider>
+                    <StackPanel Name="ipPanel">
+                        <TextBlock>Server IP Address</TextBlock>
+                        <TextBlock Name="ipText">192.168.0.1</TextBlock>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
 
