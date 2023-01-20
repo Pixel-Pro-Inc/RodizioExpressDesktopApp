@@ -1,6 +1,8 @@
 ﻿using RodizioSmartRestuarant.Configuration;
 using RodizioSmartRestuarant.CustomBaseClasses.BaseClasses;
 using RodizioSmartRestuarant.Helpers;
+using Squirrel;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -30,38 +32,42 @@ namespace RodizioSmartRestuarant
         {
             // REFACTOR: I have seen this logic before, consider extracting. But given how I didn't see it too often we might not really need to do so. But consider it,
             //for the obvious benefits
-            
-            //bool update = false;
-            //try
-            //{
-            //    //Check For Updates
-            //    using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
-            //    {
-            //        var updateInfo = await updateManager.CheckForUpdate();
 
-            //        if (updateInfo.ReleasesToApply.Count > 0)
-            //        {
-            //            update = true;
-            //        }
-            //    }
+            #if DEBUG
+            //Dont attempt to update while in debug mode
+            #else
+            bool update = false;
+            try
+            {
+                //Check For Updates
+                using (var updateManager = await UpdateManager.GitHubUpdateManager(@"https://github.com/Pixel-Pro-Inc/RodizioExpressDesktopApp"))
+                {
+                    var updateInfo = await updateManager.CheckForUpdate();
 
-            //    if (update)
-            //    {
-            //        GC.WaitForFullGCComplete();
+                    if (updateInfo.ReleasesToApply.Count > 0)
+                    {
+                        update = true;
+                    }
+                }
 
-            //        //Show Update Dialog
-            //        WindowManager.Instance = new WindowManager();
-            //        new Helpers.Settings();
-            //        WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
-            //        return;
-            //    }
+                if (update)
+                {
+                    GC.WaitForFullGCComplete();
 
-            //    GC.WaitForFullGCComplete();
-            //}
-            //catch
-            //{
-            //    ;
-            //}
+                    //Show Update Dialog
+                    WindowManager.Instance = new WindowManager();
+                    new Helpers.Settings();
+                    WindowManager.Instance.CloseAndOpen(this, new UpdateDialog());
+                    return;
+                }
+
+                GC.WaitForFullGCComplete();
+            }
+            catch
+            {
+                ;
+            }
+            #endif
             //Some Exists Here Initiailiztion After Mutex Verification
 
             if (FirstTime())
